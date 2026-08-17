@@ -1,16 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Instrument_Serif, Montserrat } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const instrumentSerif = Instrument_Serif({
+  weight: ['400'],
+  variable: "--font-instrument-serif",
+  style: ['normal', 'italic']
+})
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({
+  weight: ['400', '600', '700'],
+  variable: "--font-inter",
+  style: ['normal']
+})
+
+const montserrat = Montserrat({
+  weight: ['400', '600', '700'],
+  variable: "--font-montserrat",
+  style: ["normal"]
+})
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,8 +32,8 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="pt-BR"
+      className={`${inter.variable} ${instrumentSerif.variable} ${montserrat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

@@ -4,7 +4,7 @@ import { criaCidade } from "./actions";
 import Modal from "@/app/components/modal";
 import { useState } from "react";
 import Form from 'next/form';
-import { IoIosCloseCircle } from "react-icons/io";
+import { IoIosCloseCircle, IoMdAdd } from "react-icons/io";
 
 export default function City() {
   const [cadastrarModal, setCadastrarModal] = useState(false);
@@ -45,7 +45,13 @@ export default function City() {
       </Modal>
 
       <div>
-        <div onClick={exibirModalCadastro}>Cadastrar</div>
+        <div 
+          className="bg-space-indigo-900 cursor-pointer flex items-center gap-2 justify-center font-semibold py-2 rounded-3xl text-center text-display text-icy-aqua-100 w-[200px]" 
+          onClick={exibirModalCadastro}
+        >
+          <IoMdAdd className="inline size-[30px]"/>
+          <span className="text-xl">Cadastrar</span>
+        </div>
       </div>
     </div>
   );

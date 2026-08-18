@@ -5,6 +5,7 @@ import Modal from "@/app/components/modal";
 import { useState } from "react";
 import Form from 'next/form';
 import { IoIosCloseCircle, IoMdAdd } from "react-icons/io";
+import { buscarCidade } from "@/lib/service/cidadeService";
 
 export default function City() {
   const [cadastrarModal, setCadastrarModal] = useState(false);
@@ -21,7 +22,7 @@ export default function City() {
   const buttonStyle = "bg-icy-aqua-400 cursor-pointer font-display font-semibold py-1 mx-auto rounded-sm text-space-indigo-900 w-[220px]";
 
   return (
-    <div className="m-auto py-5 w-7xl">
+    <div className="m-auto py-5 w-6xl">
       <Modal open={cadastrarModal}>
         <div className="bg-space-indigo-900 h-[340px] m-auto text-white rounded-[20px] py-5 px-10 w-2xl">
           <Form action={criaCidade} className="flex flex-col h-full justify-between relative text-icy-aqua-50">
@@ -44,13 +45,25 @@ export default function City() {
         </div>
       </Modal>
 
-      <div>
+      <div className="flex flex-row items-center justify-around gap-10">
+        <div className="bg-icy-aqua-400 border-3 border-icy-aqua-400 flex-1 rounded-3xl pl-3">
+          <Form action={buscarCidade} className="flex items-center justify-center gap-1">
+            <label htmlFor="buscaCidade" className="font-semibold">Pesquisar</label>
+            <input 
+              type="text" 
+              name="buscaCidade" 
+              id="buscaCidade" 
+              className="bg-space-indigo-800 outline-0 rounded-3xl px-5 py-1 text-icy-aqua-100 w-full"
+              placeholder="Pesquise uma cidade..."
+              />
+          </Form>
+        </div>
         <div 
-          className="bg-space-indigo-900 cursor-pointer flex items-center gap-2 justify-center font-semibold py-2 rounded-3xl text-center text-display text-icy-aqua-100 w-[200px]" 
+          className="bg-space-indigo-800 cursor-pointer flex items-center gap-2 justify-center font-semibold py-1 rounded-3xl text-center text-display text-icy-aqua-100 w-[175px]" 
           onClick={exibirModalCadastro}
         >
           <IoMdAdd className="inline size-[30px]"/>
-          <span className="text-xl">Cadastrar</span>
+          <span className="text-md">Cadastrar</span>
         </div>
       </div>
     </div>

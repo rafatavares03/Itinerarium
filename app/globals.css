@@ -43,7 +43,7 @@
 }
 
 body {
-  background: var(--dusty-grape-50);
-  color: var(--space-indigo-800);
+  background: #f0f1f4;
+  color: #252541;
   font-family: var(--font-main), sans-serif;
 }

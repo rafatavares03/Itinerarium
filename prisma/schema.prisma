@@ -16,6 +16,7 @@ model Cidade {
   id  Int   @id @default(autoincrement())
   nome  String
   uf  String
+  geometria Unsupported("geometry")
 
   @@map("cidade")
 }

@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod';
-import createCity from '@/lib/data/cidadeDAO';
+import { createCity } from '@/lib/data/cidadeDAO';
 
 const MunicipioSchema = z.object({
   id: z.number(),

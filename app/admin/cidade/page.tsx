@@ -45,6 +45,20 @@ export default function Cities() {
     carregarCidades();
   }, [])
 
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+     const dados = await buscarCidades(form);
+
+      if (dados.success) {
+        if(dados.cidades) {
+          setCidades(dados.cidades);
+        }
+      }
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [form.nome, form.pagina])
+
   const inputStyle = "bg-space-indigo-800 mt-4 outline-0 py-2 px-5 rounded-md";
   const buttonStyle = "bg-icy-aqua-400 cursor-pointer font-display font-semibold py-1 mx-auto rounded-sm text-space-indigo-900 w-[220px]";
 
@@ -81,6 +95,14 @@ export default function Cities() {
               id="buscaCidade" 
               className="bg-space-indigo-800 outline-0 rounded-3xl px-5 py-1 text-icy-aqua-100 w-full"
               placeholder="Pesquise uma cidade..."
+              onChange={(e) => {
+                  setForm((form) => ({
+                    ...form,
+                    nome: e.target.value,
+                    pagina: 1
+                  }))
+                }
+              }
               />
         </div>
         <div 
@@ -93,7 +115,7 @@ export default function Cities() {
       </div>
 
       {(cidades.length === 0) ? <p>Não há cidades disponíveis.</p> : 
-        <div className="py-10">
+        <div className="flex flex-col gap-5 py-10">
           {cidades.map((cidade:any) => {
             return (
               <div key={cidade.id} 

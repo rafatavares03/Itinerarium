@@ -13,7 +13,7 @@ datasource db {
 }
 
 model Cidade {
-  id  Int   @id @default(autoincrement())
+  id  Int @id
   nome  String
   uf  String
   geometria Unsupported("geometry")

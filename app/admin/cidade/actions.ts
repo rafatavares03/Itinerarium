@@ -74,5 +74,5 @@ export async function criaCidade(formData: FormData) {
 
   const malha = MalhaSchema.parse(dadosMalha);
 
-  await createCity({nome: nome.toString(), uf: uf.toString(), geometria: malha.features[0].geometry});
+  await createCity({id: municipio.id, nome: nome.toString(), uf: uf.toString(), geometria: malha.features[0].geometry});
 }

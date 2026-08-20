@@ -2,13 +2,27 @@
 
 import { criaCidade } from "./actions";
 import Modal from "@/app/components/modal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Form from 'next/form';
+import Link from "next/link";
 import { IoIosCloseCircle, IoMdAdd } from "react-icons/io";
-import { buscarCidade } from "@/lib/service/cidadeService";
+import { FaArrowAltCircleRight } from "react-icons/fa";
+import { buscarCidades } from "@/lib/service/cidadeService";
 
-export default function City() {
+type CidadeDados = {
+  nome: string,
+  uf: string,
+  id: number
+}
+
+export default function Cities() {
   const [cadastrarModal, setCadastrarModal] = useState(false);
+  const [cidades, setCidades] = useState<CidadeDados[]>([]);
+  const [form, setForm] = useState({
+    nome: '',
+    quantidade: 10,
+    pagina: 1
+  });
 
   function exibirModalCadastro(){
     setCadastrarModal(true);
@@ -17,6 +31,19 @@ export default function City() {
   function fecharModalCadastro() {
     setCadastrarModal(false);
   }
+
+  useEffect(() => {
+    const carregarCidades = async () => {
+      const dados = await buscarCidades(form);
+      if(dados.success) {
+        if(dados.cidades) {
+          setCidades(dados.cidades);
+        }
+      }
+    }
+
+    carregarCidades();
+  }, [])
 
   const inputStyle = "bg-space-indigo-800 mt-4 outline-0 py-2 px-5 rounded-md";
   const buttonStyle = "bg-icy-aqua-400 cursor-pointer font-display font-semibold py-1 mx-auto rounded-sm text-space-indigo-900 w-[220px]";
@@ -46,8 +73,7 @@ export default function City() {
       </Modal>
 
       <div className="flex flex-row items-center justify-around gap-10">
-        <div className="bg-icy-aqua-400 border-3 border-icy-aqua-400 flex-1 rounded-3xl pl-3">
-          <Form action={buscarCidade} className="flex items-center justify-center gap-1">
+        <div className="bg-icy-aqua-400 border-3 border-icy-aqua-400 flex-1 flex items-center justify-center gap-1 rounded-3xl pl-3">
             <label htmlFor="buscaCidade" className="font-semibold">Pesquisar</label>
             <input 
               type="text" 
@@ -56,7 +82,6 @@ export default function City() {
               className="bg-space-indigo-800 outline-0 rounded-3xl px-5 py-1 text-icy-aqua-100 w-full"
               placeholder="Pesquise uma cidade..."
               />
-          </Form>
         </div>
         <div 
           className="bg-space-indigo-800 cursor-pointer flex items-center gap-2 justify-center font-semibold py-1 rounded-3xl text-center text-display text-icy-aqua-100 w-[175px]" 
@@ -66,6 +91,25 @@ export default function City() {
           <span className="text-md">Cadastrar</span>
         </div>
       </div>
+
+      {(cidades.length === 0) ? <p>Não há cidades disponíveis.</p> : 
+        <div className="py-10">
+          {cidades.map((cidade:any) => {
+            return (
+              <div key={cidade.id} 
+                className="bg-white border border-white flex items-center justify-between h-[60px] hover:border-icy-aqua-400 px-5 rounded-sm"
+              >
+                <p className="font-semibold">{cidade.nome} - {cidade.uf}</p>
+                <div>
+                  <Link href={`/admin/cidade/${cidade.id}`}><FaArrowAltCircleRight className="text-icy-aqua-400 size-[30px]"/></Link>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      
+      }
+
     </div>
   );
 }

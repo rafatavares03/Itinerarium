@@ -1,12 +1,23 @@
 'use server'
 
-import { getByName } from "../data/cidadeDAO";
+import { getCidades } from "../data/cidadeDAO";
 
-export async function buscarCidade(formData: FormData) {
-  const cidade = formData.get("buscaCidade")
-  if(typeof cidade !== "string") return;
-
-  const resposta = await getByName(cidade);
-  console.log(resposta);
-  return;
+export async function buscarCidades(dados: {
+  nome?: string,
+  quantidade: number,
+  pagina?: number
+}) {
+  try {
+    const cidades = await getCidades(dados);
+    return {
+      success: true,
+      cidades
+    };
+  } catch(e) {
+    console.error("Erro ao buscar cidades:", e);
+    return {
+      success: false,
+      message: "Não foi possível realizar a busca"
+    }
+  }
 }

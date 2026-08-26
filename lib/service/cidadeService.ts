@@ -1,8 +1,8 @@
 'use server'
 
-import { getCidades } from "../data/cidadeDAO";
+import { getCidades, getById } from "../data/cidadeDAO";
 
-export async function buscarCidades(dados: {
+export async function buscaCidades(dados: {
   nome?: string,
   quantidade: number,
   pagina?: number
@@ -18,6 +18,30 @@ export async function buscarCidades(dados: {
     return {
       success: false,
       message: "Não foi possível realizar a busca"
+    }
+  }
+}
+
+export async function buscaCidadePorId(id: number) {
+  try {
+    const dados = await getById(id);
+
+    if(!dados) {
+      return {
+        sucess: false,
+        message: "Cidade não encontrada."
+      }
+    }
+
+    return {
+      success: true,
+      dados
+    }
+  } catch(e) {
+    console.log(e);
+    return {
+      success: false,
+      message: "Não foi possível carregar dados da cidade"
     }
   }
 }

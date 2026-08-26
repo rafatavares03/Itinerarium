@@ -1,5 +1,6 @@
 import { Prisma } from "@/app/generated/prisma/client";
 import prisma from "@/lib/prisma"
+import { CidadeDetails } from "@/types/cidade";
 
 type City = {
   id: number,
@@ -13,6 +14,22 @@ export async function createCity(city: City) {
     INSERT INTO cidade(id, nome, uf, geometria)
     VALUES (${city.id}, ${city.nome}, ${city.uf}, ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(city.geometria)}), 4674)))
   `;
+}
+
+export async function getById(id: number) {
+  const query = await prisma.$queryRaw<CidadeDetails[]>`
+    SELECT 
+      id, 
+      nome, 
+      uf, 
+      ST_X(ST_PointOnSurface(geometria)) as longitude,
+      ST_Y(ST_PointOnSurface(geometria)) as latitude
+    FROM cidade 
+    WHERE id = ${id}
+  `
+  if(!query[0]) return null;
+
+  return query[0] ?? null;
 }
 
 export async function getCidades(dados: {

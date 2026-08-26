@@ -7,7 +7,7 @@ import Form from 'next/form';
 import Link from "next/link";
 import { IoIosCloseCircle, IoMdAdd } from "react-icons/io";
 import { FaArrowAltCircleRight } from "react-icons/fa";
-import { buscarCidades } from "@/lib/service/cidadeService";
+import { buscaCidades } from "@/lib/service/cidadeService";
 
 type CidadeDados = {
   nome: string,
@@ -34,7 +34,7 @@ export default function Cities() {
 
   useEffect(() => {
     const carregarCidades = async () => {
-      const dados = await buscarCidades(form);
+      const dados = await buscaCidades(form);
       if(dados.success) {
         if(dados.cidades) {
           setCidades(dados.cidades);
@@ -47,7 +47,7 @@ export default function Cities() {
 
   useEffect(() => {
     const timeout = setTimeout(async () => {
-     const dados = await buscarCidades(form);
+     const dados = await buscaCidades(form);
 
       if (dados.success) {
         if(dados.cidades) {

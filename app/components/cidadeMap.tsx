@@ -17,12 +17,16 @@ export default function CidadeMap({
   center,
   pontos,
   adicionarPontos,
-  onMapClick
+  onMapClick,
+  onSelectPoint,
+  isPointSelected
 }: {
   center: [number, number],
   pontos: Ponto[],
   adicionarPontos: boolean,
-  onMapClick: (latitude:number, longitude:number) => void
+  onMapClick: (latitude:number, longitude:number) => void,
+  onSelectPoint: (ponto: Ponto) => void,
+  isPointSelected: (ponto: Ponto) => boolean
 }) {
   function MapClickHandler() {
     useMapEvents({
@@ -48,7 +52,7 @@ export default function CidadeMap({
           />
 
           <MapClickHandler />
-          <PontosOnMap pontos={pontos} />
+          <PontosOnMap pontos={pontos} onSelectPoint={onSelectPoint} selecionado={isPointSelected}/>
       </MapContainer>
     </>
   )

@@ -13,7 +13,7 @@ type City = {
 type Point = {
   id: number,
   endereco: string,
-  cidade_id: number,
+  cidade: number,
   longitude: number,
   latitude: number
 }
@@ -53,7 +53,7 @@ export async function getById(id: number) {
     return {
       id: ponto.id,
       endereco: ponto.endereco,
-      cidade_id: ponto.cidade_id,
+      cidade_id: ponto.cidade,
       coordenada: [ponto.longitude, ponto.latitude]
     }
   })

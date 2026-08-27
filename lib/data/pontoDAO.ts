@@ -59,3 +59,18 @@ export async function savePoints(pontos: Ponto[]) {
     `;
   }
 }
+
+export async function deletePoints(pontos: Ponto[]) {
+  if(!pontos) return;
+  const ids = pontos
+                .map(ponto => ponto.id)
+                .filter((id): id is number => id !== undefined);
+
+  return await prisma.ponto.deleteMany({
+    where: {
+      id: {
+        in: ids
+      }
+    }
+  })
+}

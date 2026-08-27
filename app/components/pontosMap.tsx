@@ -10,7 +10,15 @@ import {
 import { useState } from "react";
 import { Ponto } from "@/types/ponto";
 
-export default function PontosOnMap({ pontos }: { pontos: Ponto[] }) {
+export default function PontosOnMap({ 
+  pontos,
+  selecionado,
+  onSelectPoint,
+ }: { 
+  pontos: Ponto[],
+  selecionado: (ponto: Ponto) => boolean,
+  onSelectPoint: (ponto: Ponto) => void,
+}) {
   const [zoom, setZoom] = useState(13);
 
   useMapEvents({
@@ -28,7 +36,7 @@ export default function PontosOnMap({ pontos }: { pontos: Ponto[] }) {
     zoom >= 15 ? 24 :
     18;
 
-  const busIcon = L.divIcon({
+  const busIcon = (ponto: Ponto) => L.divIcon({
     html: renderToStaticMarkup(
       <div
         style={{
@@ -36,7 +44,7 @@ export default function PontosOnMap({ pontos }: { pontos: Ponto[] }) {
           height: `${tamanho}px`,
           borderRadius: "50% 50% 50% 0",
           transform: "rotate(-45deg)",
-          backgroundColor: "#00ffff",
+          backgroundColor: selecionado(ponto) ? "#f00" : "#00ffff",
           border: "2px solid white",
           boxShadow: "0 2px 5px rgba(0,0,0,0.4)",
           display: "flex",
@@ -61,7 +69,10 @@ export default function PontosOnMap({ pontos }: { pontos: Ponto[] }) {
         <Marker
           key={index}
           position={ponto.coordenada}
-          icon={busIcon}
+          icon={busIcon(ponto)}
+          eventHandlers={{
+            click: () => onSelectPoint(ponto),
+          }}
         />
       ))}
     </>

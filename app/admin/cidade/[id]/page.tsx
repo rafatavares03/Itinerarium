@@ -23,12 +23,14 @@ export default function City({
   const {id} = use(params);
   const [cidade, setCidade] = useState<CidadeDetails | null>(null);
   const [pontos, setPontos] = useState<Ponto[]>([]);
+  const [pontosSelecionados, setPontosSelecionados] = useState<Ponto[]>([]);
   const [adicionar, setAdicionar] = useState(false)
 
   useEffect(() => {
     const carregarDados = async () => {
       const resposta = await buscaCidadePorId(parseInt(id));
       if(resposta.success) {
+        console.log(resposta.dados?.pontos);
         setCidade(resposta.dados?.cidade ?? null);
         setPontos(resposta.dados?.pontos ?? [])
       }
@@ -45,6 +47,20 @@ export default function City({
         coordenada: [latitude, longitude],
       }
     ]);
+  }
+
+  function selecionaPonto(ponto: Ponto) {
+    setPontosSelecionados((selecionados) => {
+      if(selecionados.some(p => (p.coordenada[0] === ponto.coordenada[0]) && (p.coordenada[1] === ponto.coordenada[1]))) {
+        return selecionados.filter((p) => (p.coordenada[0] != ponto.coordenada[0]) && (p.coordenada[1] != ponto.coordenada[1]));
+      }
+
+      return [...selecionados, ponto]
+    })
+  }
+
+  function pontoSelecionado(ponto: Ponto) {
+    return pontosSelecionados.some(p => p.coordenada[0] === ponto.coordenada[0] && p.coordenada[1] === ponto.coordenada[1])
   }
 
   async function SalvaPontos() {
@@ -73,6 +89,8 @@ export default function City({
         pontos={pontos} 
         onMapClick={MapClick}
         adicionarPontos={adicionar}
+        onSelectPoint={selecionaPonto}
+        isPointSelected={pontoSelecionado}
       />
       <button type="button" 
         className="bg-space-indigo-800 text-white"

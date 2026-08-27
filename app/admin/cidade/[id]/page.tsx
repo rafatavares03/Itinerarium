@@ -66,11 +66,17 @@ export default function City({
 
   async function SalvaPontos() {
     const resultado = await salvarPontos(pontos);
+    if(resultado.success) {
+      window.location.reload();
+    }
     console.log(resultado);
   }
 
   async function ApagarPontos() {
     const resultado = await apagarPontos(pontosSelecionados);
+    if(resultado.success) {
+      window.location.reload();
+    }
     console.log(resultado);
   }
 

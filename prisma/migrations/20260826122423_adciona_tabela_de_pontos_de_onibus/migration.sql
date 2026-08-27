@@ -10,7 +10,7 @@ ALTER TABLE "cidade" ALTER COLUMN "geometria" SET NOT NULL;
 -- CreateTable
 CREATE TABLE "ponto" (
     "id" SERIAL NOT NULL,
-    "endereco" TEXT NOT NULL,
+    "endereco" TEXT,
     "cidade" INTEGER NOT NULL,
     "coordenada" geometry(Point, 4674) NOT NULL,
 

@@ -11,6 +11,7 @@ import {
 import { renderToStaticMarkup } from "react-dom/server";
 import { FaBus } from "react-icons/fa";
 import PontosOnMap from "./pontosMap";
+import { Ponto } from "@/types/ponto";
 
 export default function CidadeMap({
   center,
@@ -19,7 +20,7 @@ export default function CidadeMap({
   onMapClick
 }: {
   center: [number, number],
-  pontos: [number, number][],
+  pontos: Ponto[],
   adicionarPontos: boolean,
   onMapClick: (latitude:number, longitude:number) => void
 }) {

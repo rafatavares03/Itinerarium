@@ -5,6 +5,8 @@ import { use, useEffect, useState } from "react";
 import { CidadeDetails } from "@/types/cidade";
 import dynamic from "next/dynamic";
 import { CiCirclePlus } from "react-icons/ci";
+import { Ponto } from "@/types/ponto";
+import { salvarPontos } from "@/lib/service/pontoService";
 
 const CidadeMap = dynamic(
   () => import("@/app/components/cidadeMap"),
@@ -20,24 +22,34 @@ export default function City({
 }) {
   const {id} = use(params);
   const [cidade, setCidade] = useState<CidadeDetails | null>(null);
-  const [pontos, setPontos] = useState<[number, number][]>([]);
+  const [pontos, setPontos] = useState<Ponto[]>([]);
   const [adicionar, setAdicionar] = useState(false)
 
   useEffect(() => {
     const carregarDados = async () => {
       const resposta = await buscaCidadePorId(parseInt(id));
       if(resposta.success) {
-        setCidade(resposta.dados ?? null);
+        setCidade(resposta.dados?.cidade ?? null);
+        setPontos(resposta.dados?.pontos ?? [])
       }
     }
     carregarDados();
   }, []);
 
   function MapClick(latitude: number, longitude: number) {
+    if(!cidade) return;
     setPontos((pontos) => [
       ...pontos,
-      [latitude, longitude],
+      {
+        cidade_id: cidade?.id,
+        coordenada: [latitude, longitude],
+      }
     ]);
+  }
+
+  async function SalvaPontos() {
+    const resultado = await salvarPontos(pontos);
+    console.log(resultado);
   }
 
   if(!cidade) {
@@ -48,7 +60,7 @@ export default function City({
 
   return (
     <>
-      <h1>{cidade.nome}</h1>
+      <h1 className="font-title mt-3 text-2xl text-center">{cidade.nome} - {cidade.uf}</h1>
       <button type="button" 
         className={((adicionar) ? "bg-red-500" : "bg-lime-500") + " px-5 py-1 flex items-center gap-2 font-bold text-white rounded-sm"}
         onClick={() => setAdicionar(!adicionar)}
@@ -62,6 +74,12 @@ export default function City({
         onMapClick={MapClick}
         adicionarPontos={adicionar}
       />
+      <button type="button" 
+        className="bg-space-indigo-800 text-white"
+        onClick={() => SalvaPontos()}
+      >
+        Salvar
+      </button>
     </>
   )
 }

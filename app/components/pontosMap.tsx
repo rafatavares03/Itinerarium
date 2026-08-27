@@ -4,18 +4,13 @@ import L from "leaflet";
 import { renderToStaticMarkup } from "react-dom/server";
 import { FaBus } from "react-icons/fa";
 import {
-  MapContainer,
   Marker,
-  TileLayer,
   useMapEvents,
 } from "react-leaflet";
 import { useState } from "react";
+import { Ponto } from "@/types/ponto";
 
-type Props = {
-  pontos: [number, number][];
-};
-
-export default function PontosOnMap({ pontos }: { pontos: [number, number][] }) {
+export default function PontosOnMap({ pontos }: { pontos: Ponto[] }) {
   const [zoom, setZoom] = useState(13);
 
   useMapEvents({
@@ -65,7 +60,7 @@ export default function PontosOnMap({ pontos }: { pontos: [number, number][] }) 
       {pontos.map((ponto, index) => (
         <Marker
           key={index}
-          position={ponto}
+          position={ponto.coordenada}
           icon={busIcon}
         />
       ))}

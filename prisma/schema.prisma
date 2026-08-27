@@ -24,7 +24,7 @@ model Cidade {
 
 model Ponto {
   id  Int @id @default(autoincrement())
-  endereco  String
+  endereco  String?
   cidade  Cidade  @relation(fields: [cidade_id], references: [id])
   cidade_id Int @map("cidade")
   coordenada Unsupported("geometry")

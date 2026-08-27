@@ -1,12 +1,21 @@
 import { Prisma } from "@/app/generated/prisma/client";
 import prisma from "@/lib/prisma"
 import { CidadeDetails } from "@/types/cidade";
+import { Ponto } from "@/types/ponto";
 
 type City = {
   id: number,
   nome: string,
   uf: string,
   geometria: object
+}
+
+type Point = {
+  id: number,
+  endereco: string,
+  cidade_id: number,
+  longitude: number,
+  latitude: number
 }
 
 export async function createCity(city: City) {
@@ -17,19 +26,42 @@ export async function createCity(city: City) {
 }
 
 export async function getById(id: number) {
-  const query = await prisma.$queryRaw<CidadeDetails[]>`
+  const cidade = await prisma.$queryRaw<CidadeDetails[]>`
     SELECT 
       id, 
       nome, 
       uf, 
-      ST_X(ST_PointOnSurface(geometria)) as longitude,
-      ST_Y(ST_PointOnSurface(geometria)) as latitude
+      ST_X(ST_PointOnSurface(geometria)) AS longitude,
+      ST_Y(ST_PointOnSurface(geometria)) AS latitude
     FROM cidade 
     WHERE id = ${id}
   `
-  if(!query[0]) return null;
+  if(!cidade[0]) return null;
 
-  return query[0] ?? null;
+  const pontos = await prisma.$queryRaw<Point[]>`
+    SELECT
+      id,
+      endereco,
+      cidade,
+      ST_X(coordenada) AS longitude,
+      ST_Y(coordenada) AS latitude
+    FROM ponto
+    WHERE cidade = ${cidade[0].id}
+  `;
+
+  const pontosFormatados:Ponto[] = pontos.map((ponto) => {
+    return {
+      id: ponto.id,
+      endereco: ponto.endereco,
+      cidade_id: ponto.cidade_id,
+      coordenada: [ponto.longitude, ponto.latitude]
+    }
+  })
+
+  return {
+    cidade: cidade[0],
+    pontos: pontosFormatados
+  }
 }
 
 export async function getCidades(dados: {

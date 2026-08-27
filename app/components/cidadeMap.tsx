@@ -15,15 +15,18 @@ import PontosOnMap from "./pontosMap";
 export default function CidadeMap({
   center,
   pontos,
+  adicionarPontos,
   onMapClick
 }: {
   center: [number, number],
   pontos: [number, number][],
+  adicionarPontos: boolean,
   onMapClick: (latitude:number, longitude:number) => void
 }) {
   function MapClickHandler() {
     useMapEvents({
       click(e) {
+        if(!adicionarPontos) return;
         onMapClick(e.latlng.lat, e.latlng.lng);
       },
     });

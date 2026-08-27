@@ -4,6 +4,7 @@ import { buscaCidadePorId } from "@/lib/service/cidadeService";
 import { use, useEffect, useState } from "react";
 import { CidadeDetails } from "@/types/cidade";
 import dynamic from "next/dynamic";
+import { CiCirclePlus } from "react-icons/ci";
 
 const CidadeMap = dynamic(
   () => import("@/app/components/cidadeMap"),
@@ -19,7 +20,8 @@ export default function City({
 }) {
   const {id} = use(params);
   const [cidade, setCidade] = useState<CidadeDetails | null>(null);
-  const [pontos, setPontos] = useState<[number, number][]>([])
+  const [pontos, setPontos] = useState<[number, number][]>([]);
+  const [adicionar, setAdicionar] = useState(false)
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -47,8 +49,19 @@ export default function City({
   return (
     <>
       <h1>{cidade.nome}</h1>
-      
-      <CidadeMap center={[cidade.latitude, cidade.longitude]} pontos={pontos} onMapClick={MapClick}/>
+      <button type="button" 
+        className={((adicionar) ? "bg-red-500" : "bg-lime-500") + " px-5 py-1 flex items-center gap-2 font-bold text-white rounded-sm"}
+        onClick={() => setAdicionar(!adicionar)}
+      >
+        <CiCirclePlus className="size-[30px]"/>
+        {(adicionar)? "Desabilitar" : "Adicionar"}
+      </button>
+      <CidadeMap 
+        center={[cidade.latitude, cidade.longitude]} 
+        pontos={pontos} 
+        onMapClick={MapClick}
+        adicionarPontos={adicionar}
+      />
     </>
   )
 }

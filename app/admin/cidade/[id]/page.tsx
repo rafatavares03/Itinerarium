@@ -18,7 +18,8 @@ export default function City({
   params: Promise<{id: string}>
 }) {
   const {id} = use(params);
-  const [cidade, setCidade] = useState<CidadeDetails | null>(null)
+  const [cidade, setCidade] = useState<CidadeDetails | null>(null);
+  const [pontos, setPontos] = useState<[number, number][]>([])
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -28,7 +29,14 @@ export default function City({
       }
     }
     carregarDados();
-  }, [])
+  }, []);
+
+  function MapClick(latitude: number, longitude: number) {
+    setPontos((pontos) => [
+      ...pontos,
+      [latitude, longitude],
+    ]);
+  }
 
   if(!cidade) {
     return (
@@ -40,7 +48,7 @@ export default function City({
     <>
       <h1>{cidade.nome}</h1>
       
-      <CidadeMap center={[cidade.latitude, cidade.longitude]}/>
+      <CidadeMap center={[cidade.latitude, cidade.longitude]} pontos={pontos} onMapClick={MapClick}/>
     </>
   )
 }

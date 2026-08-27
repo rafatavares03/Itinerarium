@@ -87,14 +87,14 @@ export default function Cities() {
       </Modal>
 
       <div className="flex flex-row items-center justify-around gap-10">
-        <div className="bg-icy-aqua-400 border-3 border-icy-aqua-400 flex-1 flex items-center justify-center gap-1 rounded-3xl pl-3">
-            <label htmlFor="buscaCidade" className="font-semibold">Pesquisar</label>
+        <div className="bg-space-indigo-800 border-3 border-space-indigo-800 flex-1 flex items-center justify-center gap-1 rounded-3xl pl-3">
+            <label htmlFor="buscaCidade" className="font-semibold text-icy-aqua-500">Pesquisar</label>
             <input 
               type="text" 
               name="buscaCidade" 
               id="buscaCidade" 
-              className="bg-space-indigo-800 outline-0 rounded-3xl px-5 py-1 text-icy-aqua-100 w-full"
-              placeholder="Pesquise uma cidade..."
+              className="bg-space-indigo-700 border-l-2 border-icy-aqua-500 outline-0 rounded-3xl px-5 py-1 text-icy-aqua-100 w-full"
+              placeholder="Busque uma cidade..."
               onChange={(e) => {
                   setForm((form) => ({
                     ...form,

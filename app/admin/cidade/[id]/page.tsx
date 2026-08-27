@@ -6,7 +6,8 @@ import { CidadeDetails } from "@/types/cidade";
 import dynamic from "next/dynamic";
 import { CiCirclePlus } from "react-icons/ci";
 import { Ponto } from "@/types/ponto";
-import { salvarPontos } from "@/lib/service/pontoService";
+import { salvarPontos, apagarPontos } from "@/lib/service/pontoService";
+import { MdDelete } from "react-icons/md";
 
 const CidadeMap = dynamic(
   () => import("@/app/components/cidadeMap"),
@@ -68,22 +69,38 @@ export default function City({
     console.log(resultado);
   }
 
+  async function ApagarPontos() {
+    const resultado = await apagarPontos(pontosSelecionados);
+    console.log(resultado);
+  }
+
   if(!cidade) {
     return (
       <p>Não foi possível exibir informações sobre a cidade no momento</p>
     )
   }
 
+  const buttonStyle = "px-5 py-1 flex items-center gap-2 font-bold text-white rounded-sm"
+
   return (
     <>
       <h1 className="font-title mt-3 text-2xl text-center">{cidade.nome} - {cidade.uf}</h1>
-      <button type="button" 
-        className={((adicionar) ? "bg-red-500" : "bg-lime-500") + " px-5 py-1 flex items-center gap-2 font-bold text-white rounded-sm"}
-        onClick={() => setAdicionar(!adicionar)}
-      >
-        <CiCirclePlus className="size-[30px]"/>
-        {(adicionar)? "Desabilitar" : "Adicionar"}
-      </button>
+      <div className="flex">
+        <button type="button" 
+          className={((adicionar) ? "bg-red-500 " : "bg-lime-500 ") + buttonStyle}
+          onClick={() => setAdicionar(!adicionar)}
+          >
+          <CiCirclePlus className="size-[30px]"/>
+          {(adicionar)? "Desabilitar" : "Adicionar"}
+        </button>
+        <button type="button" 
+          className={"bg-red-500 " + buttonStyle}
+          onClick={() => ApagarPontos()}
+        >
+          <MdDelete className="size-[30px]"/>
+          Apagar
+        </button>
+      </div>
       <CidadeMap 
         center={[cidade.latitude, cidade.longitude]} 
         pontos={pontos} 

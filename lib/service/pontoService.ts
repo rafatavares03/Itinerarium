@@ -1,7 +1,7 @@
 'use server'
 
 import { Ponto } from "@/types/ponto";
-import { savePoints } from "../data/pontoDAO";
+import { deletePoints, savePoints } from "../data/pontoDAO";
 
 export async function salvarPontos(pontos: Ponto[]) {
   try {
@@ -15,6 +15,22 @@ export async function salvarPontos(pontos: Ponto[]) {
     return {
       sucess: false,
       message: "Não foi possível salvar os pontos."
+    }
+  }
+}
+
+export async function apagarPontos(pontos: Ponto[]) {
+  try {
+    const dados = await deletePoints(pontos);
+    return {
+      sucess: true,
+      message: "Pontos apagados com sucesso."
+    }
+  } catch(e) {
+    console.log(e)
+    return {
+      sucess: false,
+      message: "Não foi possível apagar os pontos."
     }
   }
 }

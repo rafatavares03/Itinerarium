@@ -89,7 +89,7 @@ export default function City({
   const buttonStyle = "px-5 py-1 flex items-center gap-2 font-bold text-white rounded-sm"
 
   return (
-    <>
+    <div className="flex flex-col justify-center items-center">
       <h1 className="font-title mt-3 text-2xl text-center">{cidade.nome} - {cidade.uf}</h1>
       <div className="flex">
         <button type="button" 
@@ -107,20 +107,31 @@ export default function City({
           Apagar
         </button>
       </div>
-      <CidadeMap 
-        bounds={cidade.enquadramento}
-        pontos={pontos} 
-        onMapClick={MapClick}
-        adicionarPontos={adicionar}
-        onSelectPoint={selecionaPonto}
-        isPointSelected={pontoSelecionado}
-      />
+      <div className="relative w-full">
+        <CidadeMap 
+          bounds={cidade.enquadramento}
+          pontos={pontos} 
+          onMapClick={MapClick}
+          adicionarPontos={adicionar}
+          onSelectPoint={selecionaPonto}
+          isPointSelected={pontoSelecionado}
+          />
+        <div className="bg-grey-100 w-[250px] flex flex-col gap-3 absolute top-0 right-0 z-[1000] p-1">
+          {pontos.map((ponto) => {
+            return (
+              <div key={ponto.coordenada.toString()} className="bg-white p-5">
+                <p className="text-sm">{ponto.endereco ?? `${ponto.coordenada[0]} ${ponto.coordenada[1]}`}</p>
+              </div>
+            )
+          })}
+        </div>
+      </div>
       <button type="button" 
-        className="bg-space-indigo-800 text-white"
+        className="bg-space-indigo-800 text-white py-2 px-5 rounded-md w-[250px]"
         onClick={() => SalvaPontos()}
       >
         Salvar
       </button>
-    </>
+    </div>
   )
 }

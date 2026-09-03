@@ -6,11 +6,11 @@ export default function AdminLayout({
   children: React.ReactNode;
 }>){
   return (
-    <main className="flex">
-      <div className="bg-space-indigo-800 h-screen w-[200px] p-5">
+    <main className="flex flex-col">
+      <div className="bg-space-indigo-800 px-5 py-1">
         <AdminMenu/>
       </div>
-      <div className="flex-1">{children}</div>
+      <div className="">{children}</div>
     </main>
   )
 }

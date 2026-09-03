@@ -8,6 +8,8 @@ export type CidadeDetails = {
   id: number,
   nome: string,
   uf: string,
-  longitude: number,
-  latitude: number
+  enquadramento: [
+    [minLat: number, minLong: number],
+    [maxLat: number, maxLong: number]
+  ]
 }

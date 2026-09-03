@@ -28,6 +28,7 @@ model Ponto {
   cidade  Cidade  @relation(fields: [cidade_id], references: [id])
   cidade_id Int @map("cidade")
   coordenada Unsupported("geometry")
+  enquadramentoMapa Unsupported("box2d") @map("enquadramento_mapa")
 
   @@map("ponto")
 }

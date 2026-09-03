@@ -14,14 +14,14 @@ import PontosOnMap from "./pontosMap";
 import { Ponto } from "@/types/ponto";
 
 export default function CidadeMap({
-  center,
+  bounds,
   pontos,
   adicionarPontos,
   onMapClick,
   onSelectPoint,
   isPointSelected
 }: {
-  center: [number, number],
+  bounds: [[number,number], [number,number]],
   pontos: Ponto[],
   adicionarPontos: boolean,
   onMapClick: (latitude:number, longitude:number) => void,
@@ -42,9 +42,8 @@ export default function CidadeMap({
   return (
     <>
       <MapContainer 
-        center={center}
+        bounds={bounds}
         className="h-[500px] w-full"
-        zoom={20}
         >
           <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod';
-import { createCity } from '@/lib/data/cidadeDAO';
+import { updateCityBounds, saveCity } from '@/lib/data/cidadeDAO';
 
 const MunicipioSchema = z.object({
   id: z.number(),
@@ -60,19 +60,49 @@ async function fetchMunicipioMalha(id: number) {
 export async function criaCidade(formData: FormData) {
   const nome = formData.get('cidadeNome');
   const uf = formData.get('cidadeUF');
-  if(!nome || !uf) return;
+  const enquadramento = JSON.parse(
+    formData.get("enquadramento") as string
+  );
+  const failed = {
+    success: false,
+    bounds: null
+  }
+  if(!nome || !uf) return failed;
 
   const dadosMunicipios = await fetchMunicipiosPorUF(uf.toString());
-  if(!dadosMunicipios) return;
+  if(!dadosMunicipios) return failed;
 
   const municipios = MunicipiosSchema.parse(dadosMunicipios);
   const municipio = municipios.find(mun => mun.nome.toLocaleLowerCase() === nome.toString().toLocaleLowerCase());
-  if(!municipio) return;
+  if(!municipio) return failed;
 
   const dadosMalha = await fetchMunicipioMalha(municipio.id);
-  if(!dadosMalha) return;
+  if(!dadosMalha) return failed;
 
   const malha = MalhaSchema.parse(dadosMalha);
 
-  await createCity({id: municipio.id, nome: nome.toString(), uf: uf.toString(), geometria: malha.features[0].geometry});
+  
+  const res = await saveCity({id: municipio.id, nome: nome.toString(), uf: uf.toString(), geometria: malha.features[0].geometry});
+  console.log(res);
+  return {
+    success: true,
+    bounds: []
+  }
+}
+
+export async function editarCidade(formData: FormData) {
+  const id = Number(formData.get("cidadeId"));
+
+  const boundsString = formData.get("enquadramento");
+
+  console.log("id:", id);
+  console.log("bounds:", boundsString);
+
+  if (!boundsString) {
+    return { success: false };
+  }
+
+  const enquadramento = JSON.parse(boundsString as string);
+
+  return await updateCityBounds(id, enquadramento);
 }

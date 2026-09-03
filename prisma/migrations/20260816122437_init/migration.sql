@@ -6,6 +6,7 @@ CREATE TABLE "cidade" (
     "nome" TEXT NOT NULL,
     "uf" TEXT NOT NULL,
     "geometria" geometry(MultiPolygon, 4674) NOT NULL,
+    "enquadramento_mapa" box2d NOT NULL,
 
     CONSTRAINT "cidade_pkey" PRIMARY KEY ("id")
 );

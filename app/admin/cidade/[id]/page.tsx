@@ -108,7 +108,7 @@ export default function City({
         </button>
       </div>
       <CidadeMap 
-        center={[cidade.latitude, cidade.longitude]} 
+        bounds={cidade.enquadramento}
         pontos={pontos} 
         onMapClick={MapClick}
         adicionarPontos={adicionar}

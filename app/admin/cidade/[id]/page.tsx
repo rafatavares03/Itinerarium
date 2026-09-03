@@ -25,7 +25,10 @@ export default function City({
   const [cidade, setCidade] = useState<CidadeDetails | null>(null);
   const [pontos, setPontos] = useState<Ponto[]>([]);
   const [pontosSelecionados, setPontosSelecionados] = useState<Ponto[]>([]);
-  const [adicionar, setAdicionar] = useState(false)
+  const [adicionar, setAdicionar] = useState(false);
+  const [pontoHover, setPontoHover] = useState<Ponto | null>(null);
+  const [pontoEditando, setPontoEditando] = useState<Ponto | null>(null);
+  const [novoEndereco, setNovoEndereco] = useState("");
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -41,13 +44,22 @@ export default function City({
 
   function MapClick(latitude: number, longitude: number) {
     if(!cidade) return;
+
+    const novoPonto: Ponto = {
+      cidade_id: cidade.id,
+      coordenada: [latitude, longitude],
+      endereco: "",
+    };
+
     setPontos((pontos) => [
       ...pontos,
       {
-        cidade_id: cidade?.id,
+        cidade_id: cidade.id,
         coordenada: [latitude, longitude],
       }
     ]);
+    setPontoEditando(novoPonto)
+    setNovoEndereco("")
   }
 
   function selecionaPonto(ponto: Ponto) {
@@ -115,15 +127,79 @@ export default function City({
           adicionarPontos={adicionar}
           onSelectPoint={selecionaPonto}
           isPointSelected={pontoSelecionado}
+          pontoHover={pontoHover}
           />
-        <div className="bg-grey-100 w-[250px] flex flex-col gap-3 absolute top-0 right-0 z-[1000] p-1">
-          {pontos.map((ponto) => {
-            return (
-              <div key={ponto.coordenada.toString()} className="bg-white p-5">
-                <p className="text-sm">{ponto.endereco ?? `${ponto.coordenada[0]} ${ponto.coordenada[1]}`}</p>
+        <div className="w-[250px] h-[500px] flex flex-col gap-3 absolute top-0 right-0 z-[1000] p-1 overflow-scroll">
+          { pontoEditando ?
+            <form className="flex flex-col gap-3 bg-white p-5">
+              <div className="flex justify-between">
+                <h3 className="font-semibold">Editar ponto</h3>
+                <button
+                  type="button"
+                  onClick={() => setPontoEditando(null)}
+                >
+                  X
+                </button>
               </div>
-            )
-          })}
+              <label className="block">
+                Endereço
+              </label>
+              <input
+                type="text"
+                name="endereco"
+                value={novoEndereco}
+                onChange={(e) => setNovoEndereco(e.target.value)}
+                className="border p-2 w-full"
+              />
+              <p className="text-sm">
+                Latitude: {pontoEditando.coordenada[0]}
+              </p>
+              <p className="text-sm">
+                Longitude: {pontoEditando.coordenada[1]}
+              </p>
+              <button
+                type="button"
+                className="bg-space-indigo-800 text-white rounded-md py-2"
+                onClick={() => {
+                    setPontos((pontosAtuais) =>
+                      pontosAtuais.map((ponto) =>
+                        pontoEditando?.id
+                          ? ponto.id === pontoEditando.id
+                            ? {
+                                ...ponto,
+                                endereco: novoEndereco,
+                              }
+                            : ponto
+                          : ponto.coordenada.toString() === pontoEditando?.coordenada.toString()
+                            ? {
+                                ...ponto,
+                                endereco: novoEndereco,
+                              }
+                            : ponto
+                      )
+                    );
+                  
+                    setPontoEditando(null);
+                }}
+              >
+                Salvar
+              </button>
+            </form>
+          :
+            pontos.map((ponto) => {
+              return (
+                <div key={ponto.coordenada.toString()} className="bg-white p-5"
+                  onMouseEnter={() => setPontoHover(ponto)}
+                  onMouseLeave={() => setPontoHover(null)}
+                  onClick={() => {
+                    setNovoEndereco(ponto.endereco ?? "")
+                    setPontoEditando(ponto)
+                  }}
+                >
+                  <p className="text-sm">{ponto.endereco ?? `${ponto.coordenada[0]} ${ponto.coordenada[1]}`}</p>
+                </div>
+              )
+            })}
         </div>
       </div>
       <button type="button" 

@@ -5,9 +5,11 @@ import {
   CircleMarker,
   MapContainer, 
   Marker,
+  useMap,
   useMapEvents, 
   TileLayer 
 } from "react-leaflet"
+import { useEffect } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { FaBus } from "react-icons/fa";
 import PontosOnMap from "./pontosMap";
@@ -17,6 +19,7 @@ export default function CidadeMap({
   bounds,
   pontos,
   adicionarPontos,
+  pontoHover,
   onMapClick,
   onSelectPoint,
   isPointSelected
@@ -24,6 +27,7 @@ export default function CidadeMap({
   bounds: [[number,number], [number,number]],
   pontos: Ponto[],
   adicionarPontos: boolean,
+  pontoHover: Ponto | null,
   onMapClick: (latitude:number, longitude:number) => void,
   onSelectPoint: (ponto: Ponto) => void,
   isPointSelected: (ponto: Ponto) => boolean
@@ -35,6 +39,21 @@ export default function CidadeMap({
         onMapClick(e.latlng.lat, e.latlng.lng);
       },
     });
+
+    return null;
+  }
+
+  function CentralizarPonto({ ponto }: { ponto: Ponto | null }) {
+    const map = useMap();
+
+    useEffect(() => {
+      if (!ponto) return;
+
+      map.setView(
+        [ponto.coordenada[0], ponto.coordenada[1]],
+        map.getZoom()
+      );
+    }, [ponto, map]);
 
     return null;
   }
@@ -52,6 +71,7 @@ export default function CidadeMap({
 
           <MapClickHandler />
           <PontosOnMap pontos={pontos} onSelectPoint={onSelectPoint} selecionado={isPointSelected}/>
+          <CentralizarPonto ponto={pontoHover} />
       </MapContainer>
     </>
   )

@@ -1,17 +1,12 @@
 'use client'
 
-import L from "leaflet"
 import { 
-  CircleMarker,
   MapContainer, 
-  Marker,
   useMap,
   useMapEvents, 
   TileLayer 
 } from "react-leaflet"
 import { useEffect } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { FaBus } from "react-icons/fa";
 import PontosOnMap from "./pontosMap";
 import { Ponto } from "@/types/ponto";
 
@@ -62,7 +57,7 @@ export default function CidadeMap({
     <>
       <MapContainer 
         bounds={bounds}
-        className="h-[500px] w-full"
+        className="h-full w-full"
         >
           <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

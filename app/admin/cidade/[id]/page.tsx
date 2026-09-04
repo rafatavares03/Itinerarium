@@ -8,6 +8,7 @@ import { CiCirclePlus } from "react-icons/ci";
 import { Ponto } from "@/types/ponto";
 import { salvarPontos, apagarPontos } from "@/lib/service/pontoService";
 import { MdDelete } from "react-icons/md";
+import PontosMenu from "../../_components/PontosMenu";
 
 const CidadeMap = dynamic(
   () => import("@/app/components/cidadeMap"),
@@ -119,7 +120,7 @@ export default function City({
           Apagar
         </button>
       </div>
-      <div className="relative w-full">
+      <div className="bg-white flex h-130 w-full p-1">
         <CidadeMap 
           bounds={cidade.enquadramento}
           pontos={pontos} 
@@ -129,7 +130,8 @@ export default function City({
           isPointSelected={pontoSelecionado}
           pontoHover={pontoHover}
           />
-        <div className="w-[250px] h-[500px] flex flex-col gap-3 absolute top-0 right-0 z-[1000] p-1 overflow-scroll">
+          <PontosMenu pontos={pontos}/>
+        {/* <div className="w-[250px] h-[500px] flex flex-col gap-3 absolute top-0 right-0 z-[1000] p-1 overflow-scroll">
           { pontoEditando ?
             <form className="flex flex-col gap-3 bg-white p-5">
               <div className="flex justify-between">
@@ -200,7 +202,7 @@ export default function City({
                 </div>
               )
             })}
-        </div>
+        </div> */}
       </div>
       <button type="button" 
         className="bg-space-indigo-800 text-white py-2 px-5 rounded-md w-[250px]"

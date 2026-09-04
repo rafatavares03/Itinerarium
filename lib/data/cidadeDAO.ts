@@ -36,8 +36,8 @@ export async function saveCity(city: City) {
   const enquadramento = city.enquadramento
   ? Prisma.sql`
       , enquadramento_mapa = ST_MakeBox2d(
-        ST_Point(${city.enquadramento[0][1]}, ${city.enquadramento[0][0]}),
-        ST_Point(${city.enquadramento[1][1]}, ${city.enquadramento[1][0]})
+        ST_SetSRID(ST_Point(${city.enquadramento[0][1]}, ${city.enquadramento[0][0]}), 4674),
+        SR_SetSRID(ST_Point(${city.enquadramento[1][1]}, ${city.enquadramento[1][0]}), 4674)
       )::box2d
     `
   : Prisma.empty;

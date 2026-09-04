@@ -60,9 +60,6 @@ async function fetchMunicipioMalha(id: number) {
 export async function criaCidade(formData: FormData) {
   const nome = formData.get('cidadeNome');
   const uf = formData.get('cidadeUF');
-  const enquadramento = JSON.parse(
-    formData.get("enquadramento") as string
-  );
   const failed = {
     success: false,
     bounds: null

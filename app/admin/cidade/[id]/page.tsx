@@ -24,12 +24,15 @@ export default function City({
 }) {
   const {id} = use(params);
   const [cidade, setCidade] = useState<CidadeDetails | null>(null);
-  const [pontos, setPontos] = useState<Ponto[]>([]);
   const [pontosSelecionados, setPontosSelecionados] = useState<Ponto[]>([]);
   const [adicionar, setAdicionar] = useState(false);
   const [pontoHover, setPontoHover] = useState<Ponto | null>(null);
   const [pontoEditando, setPontoEditando] = useState<Ponto | null>(null);
   const [novoEndereco, setNovoEndereco] = useState("");
+
+  const [registrados, setRegistrados] = useState<Ponto[]>([]);
+  const [selecionados, setSelecionados] = useState<Ponto[]>([]);
+  const [novos, setNovos] = useState<Ponto[]>([])
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -37,13 +40,14 @@ export default function City({
       if(resposta.success) {
         console.log(resposta.dados?.pontos);
         setCidade(resposta.dados?.cidade ?? null);
-        setPontos(resposta.dados?.pontos ?? [])
+        setRegistrados(resposta.dados?.pontos ?? []);
       }
     }
     carregarDados();
   }, []);
 
   function MapClick(latitude: number, longitude: number) {
+    console.log("coordenadas:", latitude, longitude);
     if(!cidade) return;
 
     const novoPonto: Ponto = {
@@ -52,13 +56,21 @@ export default function City({
       endereco: "",
     };
 
-    setPontos((pontos) => [
-      ...pontos,
-      {
-        cidade_id: cidade.id,
-        coordenada: [latitude, longitude],
+    setNovos((pontosAtuais) => {
+      const jaExiste = pontosAtuais.some((ponto) =>
+          ponto.coordenada[0] === novoPonto.coordenada[0] &&
+          ponto.coordenada[1] === novoPonto.coordenada[1]
+      );
+      console.log(jaExiste);
+      if (jaExiste) {
+        return pontosAtuais;
       }
-    ]);
+      
+
+      return [...pontosAtuais, novoPonto];
+    });
+
+    console.log(novos);
     setPontoEditando(novoPonto)
     setNovoEndereco("")
   }
@@ -71,6 +83,14 @@ export default function City({
 
       return [...selecionados, ponto]
     })
+
+    setSelecionados((selecionados) => {
+      if(selecionados.some(p => (p.coordenada[0] === ponto.coordenada[0]) && (p.coordenada[1] === ponto.coordenada[1]))) {
+        return selecionados.filter((p) => (p.coordenada[0] != ponto.coordenada[0]) && (p.coordenada[1] != ponto.coordenada[1]));
+      }
+
+      return [...selecionados, ponto];
+    })
   }
 
   function pontoSelecionado(ponto: Ponto) {
@@ -78,7 +98,7 @@ export default function City({
   }
 
   async function SalvaPontos() {
-    const resultado = await salvarPontos(pontos);
+    const resultado = await salvarPontos(novos);
     if(resultado.success) {
       window.location.reload();
     }
@@ -120,17 +140,18 @@ export default function City({
           Apagar
         </button>
       </div>
-      <div className="bg-white flex h-130 w-full p-1">
+      <div className="bg-slate-50 flex h-130 w-full p-1">
         <CidadeMap 
           bounds={cidade.enquadramento}
-          pontos={pontos} 
+          pontos={registrados} 
+          novos={novos}
           onMapClick={MapClick}
           adicionarPontos={adicionar}
           onSelectPoint={selecionaPonto}
           isPointSelected={pontoSelecionado}
           pontoHover={pontoHover}
           />
-          <PontosMenu pontos={pontos}/>
+        <PontosMenu registrados={registrados} selecionados={selecionados} novos={novos}/>
         {/* <div className="w-[250px] h-[500px] flex flex-col gap-3 absolute top-0 right-0 z-[1000] p-1 overflow-scroll">
           { pontoEditando ?
             <form className="flex flex-col gap-3 bg-white p-5">

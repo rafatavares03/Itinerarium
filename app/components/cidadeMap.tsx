@@ -13,6 +13,7 @@ import { Ponto } from "@/types/ponto";
 export default function CidadeMap({
   bounds,
   pontos,
+  novos,
   adicionarPontos,
   pontoHover,
   onMapClick,
@@ -21,6 +22,7 @@ export default function CidadeMap({
 }: {
   bounds: [[number,number], [number,number]],
   pontos: Ponto[],
+  novos?: Ponto[],
   adicionarPontos: boolean,
   pontoHover: Ponto | null,
   onMapClick: (latitude:number, longitude:number) => void,
@@ -65,7 +67,7 @@ export default function CidadeMap({
           />
 
           <MapClickHandler />
-          <PontosOnMap pontos={pontos} onSelectPoint={onSelectPoint} selecionado={isPointSelected}/>
+          <PontosOnMap pontos={pontos} novos={novos} onSelectPoint={onSelectPoint} selecionado={isPointSelected}/>
           <CentralizarPonto ponto={pontoHover} />
       </MapContainer>
     </>

@@ -12,22 +12,24 @@ import { Ponto } from "@/types/ponto";
 
 export default function PontosOnMap({ 
   pontos,
+  novos,
   selecionado,
   onSelectPoint,
  }: { 
   pontos: Ponto[],
+  novos?: Ponto[],
   selecionado: (ponto: Ponto) => boolean,
   onSelectPoint: (ponto: Ponto) => void,
 }) {
   const [zoom, setZoom] = useState(13);
-
+  console.log(novos);
   useMapEvents({
     zoomend(e) {
       setZoom(e.target.getZoom());
     },
   });
 
-  if (zoom < 12) {
+  if (zoom < 15) {
     return null;
   }
 
@@ -36,7 +38,7 @@ export default function PontosOnMap({
     zoom >= 15 ? 24 :
     18;
 
-  const busIcon = (ponto: Ponto) => L.divIcon({
+  const busIcon = (ponto: Ponto, corNormal:string = "#00ffff", corSelect:string = "#f00") => L.divIcon({
     html: renderToStaticMarkup(
       <div
         style={{
@@ -44,7 +46,7 @@ export default function PontosOnMap({
           height: `${tamanho}px`,
           borderRadius: "50% 50% 50% 0",
           transform: "rotate(-45deg)",
-          backgroundColor: selecionado(ponto) ? "#f00" : "#00ffff",
+          backgroundColor: selecionado(ponto) ? corSelect : corNormal,
           border: "2px solid white",
           boxShadow: "0 2px 5px rgba(0,0,0,0.4)",
           display: "flex",
@@ -67,9 +69,19 @@ export default function PontosOnMap({
     <>
       {pontos.map((ponto, index) => (
         <Marker
-          key={index}
+          key={ponto.id ?? index}
           position={ponto.coordenada}
           icon={busIcon(ponto)}
+          eventHandlers={{
+            click: () => onSelectPoint(ponto),
+          }}
+        />
+      ))}
+      {novos?.map((ponto) => (
+        <Marker
+          key={ponto.coordenada.toString()}
+          position={ponto.coordenada}
+          icon={busIcon(ponto, "#9ae600", "#f54900")}
           eventHandlers={{
             click: () => onSelectPoint(ponto),
           }}

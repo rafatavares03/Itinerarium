@@ -62,7 +62,7 @@ export default function PontosOnMap({
     ),
     className: "",
     iconSize: [tamanho, tamanho],
-    iconAnchor: [tamanho / 2, tamanho / 2],
+    iconAnchor: [tamanho / 2, tamanho],
   });
 
   return (
@@ -81,7 +81,7 @@ export default function PontosOnMap({
         <Marker
           key={ponto.coordenada.toString()}
           position={ponto.coordenada}
-          icon={busIcon(ponto, "#9ae600", "#f54900")}
+          icon={busIcon(ponto, "#9ae600", "#ab0303")}
           eventHandlers={{
             click: () => onSelectPoint(ponto),
           }}

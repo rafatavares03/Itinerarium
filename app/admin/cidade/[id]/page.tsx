@@ -97,6 +97,25 @@ export default function City({
     return pontosSelecionados.some(p => p.coordenada[0] === ponto.coordenada[0] && p.coordenada[1] === ponto.coordenada[1])
   }
 
+  async function editarPonto(antigo: Ponto, novo: Ponto) {
+    if(!antigo.id) {
+      setNovos((novos) => 
+        novos.map(ponto => 
+          (ponto.coordenada[0] === antigo.coordenada[0] && ponto.coordenada[1] === antigo.coordenada[1]) ? novo : ponto
+        )
+      );
+    } else {
+
+      
+      const resultado = await salvarPontos(new Array(novo));
+      if(resultado.success) {
+        setRegistrados((registrados) => 
+          registrados.map(ponto => ponto.id === novo.id ? novo : ponto)
+        );
+      }
+    }
+  }
+
   async function SalvaPontos() {
     const resultado = await salvarPontos(novos);
     if(resultado.success) {
@@ -151,7 +170,7 @@ export default function City({
           isPointSelected={pontoSelecionado}
           pontoHover={pontoHover}
           />
-        <PontosMenu registrados={registrados} selecionados={selecionados} novos={novos}/>
+        <PontosMenu registrados={registrados} selecionados={selecionados} novos={novos} onUpdate={editarPonto}/>
         {/* <div className="w-[250px] h-[500px] flex flex-col gap-3 absolute top-0 right-0 z-[1000] p-1 overflow-scroll">
           { pontoEditando ?
             <form className="flex flex-col gap-3 bg-white p-5">

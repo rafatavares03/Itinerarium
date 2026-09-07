@@ -29,7 +29,7 @@ export default function PontosOnMap({
     },
   });
 
-  if (zoom < 15) {
+  if (zoom < 13) {
     return null;
   }
 

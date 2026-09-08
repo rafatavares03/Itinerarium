@@ -10,7 +10,7 @@ export default function PontosList({
   onClick: (ponto: Ponto) => void
 }) {
   return (
-    <ul className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden p-2 gap-2">
+    <ul className="flex flex-col flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 gap-2">
         {pontos.map((ponto) => {
           return (
             <li key={ponto.coordenada.toString()} 

@@ -116,6 +116,17 @@ export default function City({
     }
   }
 
+  async function adicionarPontos() {
+    const resultado = await salvarPontos(novos);
+    if(resultado.success) {
+      setRegistrados((pontos) => [
+        ...pontos,
+        ...resultado.data
+      ])
+      setNovos([]);
+    }
+  }
+
   async function SalvaPontos() {
     const resultado = await salvarPontos(novos);
     if(resultado.success) {
@@ -170,86 +181,8 @@ export default function City({
           isPointSelected={pontoSelecionado}
           pontoHover={pontoHover}
           />
-        <PontosMenu registrados={registrados} selecionados={selecionados} novos={novos} onUpdate={editarPonto}/>
-        {/* <div className="w-[250px] h-[500px] flex flex-col gap-3 absolute top-0 right-0 z-[1000] p-1 overflow-scroll">
-          { pontoEditando ?
-            <form className="flex flex-col gap-3 bg-white p-5">
-              <div className="flex justify-between">
-                <h3 className="font-semibold">Editar ponto</h3>
-                <button
-                  type="button"
-                  onClick={() => setPontoEditando(null)}
-                >
-                  X
-                </button>
-              </div>
-              <label className="block">
-                Endereço
-              </label>
-              <input
-                type="text"
-                name="endereco"
-                value={novoEndereco}
-                onChange={(e) => setNovoEndereco(e.target.value)}
-                className="border p-2 w-full"
-              />
-              <p className="text-sm">
-                Latitude: {pontoEditando.coordenada[0]}
-              </p>
-              <p className="text-sm">
-                Longitude: {pontoEditando.coordenada[1]}
-              </p>
-              <button
-                type="button"
-                className="bg-space-indigo-800 text-white rounded-md py-2"
-                onClick={() => {
-                    setPontos((pontosAtuais) =>
-                      pontosAtuais.map((ponto) =>
-                        pontoEditando?.id
-                          ? ponto.id === pontoEditando.id
-                            ? {
-                                ...ponto,
-                                endereco: novoEndereco,
-                              }
-                            : ponto
-                          : ponto.coordenada.toString() === pontoEditando?.coordenada.toString()
-                            ? {
-                                ...ponto,
-                                endereco: novoEndereco,
-                              }
-                            : ponto
-                      )
-                    );
-                  
-                    setPontoEditando(null);
-                }}
-              >
-                Salvar
-              </button>
-            </form>
-          :
-            pontos.map((ponto) => {
-              return (
-                <div key={ponto.coordenada.toString()} className="bg-white p-5"
-                  onMouseEnter={() => setPontoHover(ponto)}
-                  onMouseLeave={() => setPontoHover(null)}
-                  onClick={() => {
-                    setNovoEndereco(ponto.endereco ?? "")
-                    setPontoEditando(ponto)
-                  }}
-                >
-                  <p className="text-sm">{ponto.endereco ?? `${ponto.coordenada[0]} ${ponto.coordenada[1]}`}</p>
-                </div>
-              )
-            })}
-        </div> */}
+        <PontosMenu registrados={registrados} selecionados={selecionados} novos={novos} onUpdate={editarPonto} onSave={adicionarPontos}/>
       </div>
-      <button type="button" 
-        className="bg-space-indigo-800 text-white py-2 px-5 rounded-md w-[250px]"
-        onClick={() => SalvaPontos()}
-      >
-        Salvar
-      </button>
     </div>
   )
 }

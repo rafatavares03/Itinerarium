@@ -3,6 +3,7 @@ import { Ponto } from "@/types/ponto";
 import PontosList from "./PontosList";
 import PontoDetails from "@/app/components/pontoDetails";
 import { RiSave3Fill } from "react-icons/ri";
+import { MdDelete } from "react-icons/md";
 
 enum Aba {
   registrados = "REGISTRADOS",
@@ -14,12 +15,14 @@ export default function PontosMenu({
   registrados,
   novos,
   selecionados,
+  onDelete,
   onUpdate,
   onSave
 }: {
   registrados: Ponto[],
   novos: Ponto[],
   selecionados: Ponto[],
+  onDelete: () => void,
   onUpdate: (antigo: Ponto, novo: Ponto) => void
   onSave: () => void
 }) {
@@ -59,7 +62,7 @@ export default function PontosMenu({
         </div>
       </div>
       {getList(abaAtiva).length === 0 ?  
-        <p className="p-5 text-center text-sm">Não há pontos de ônibus para exibir na área "<em className="lowercase">{abaAtiva}</em>".</p> :
+        <p className="flex-1 p-5 text-center text-sm">Não há pontos de ônibus para exibir na área "<em className="lowercase">{abaAtiva}</em>".</p> :
         ponto === null ?
           <>
             <PontosList pontos={getList(abaAtiva)} onClick={(ponto:Ponto) => setPonto(ponto)}/> 
@@ -68,8 +71,17 @@ export default function PontosMenu({
                 onClick={onSave}
                 className="bg-icy-aqua-800 cursor-pointer font-display font-bold flex justify-center items-center gap-2 rounded-b-2xl py-3 text-icy-aqua-400 shadow-[0_-10px_0px_#fff]"
               >
-               <RiSave3Fill className="size-[25px]"/> Salvar
-              </button>}
+               <RiSave3Fill size={"25px"}/> Salvar
+              </button>
+            }
+            {abaAtiva === Aba.selecionados &&
+              <button type="button"
+                onClick={onDelete}
+                className="bg-red-500 cursor-pointer font-display font-bold flex justify-center items-center gap-2 rounded-b-2xl py-3 text-white shadow-[0_-10px_0px_#fff]"
+              >
+                <MdDelete size={"25px"}/> Apagar
+              </button>
+            }
           </> :
           <PontoDetails ponto={ponto} 
             onClose={() => setPonto(null)} 

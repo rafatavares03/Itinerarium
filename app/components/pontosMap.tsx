@@ -21,7 +21,7 @@ export default function PontosOnMap({
   selecionado: (ponto: Ponto) => boolean,
   onSelectPoint: (ponto: Ponto) => void,
 }) {
-  const [zoom, setZoom] = useState(13);
+  const [zoom, setZoom] = useState(15);
   console.log(novos);
   useMapEvents({
     zoomend(e) {
@@ -29,7 +29,7 @@ export default function PontosOnMap({
     },
   });
 
-  if (zoom < 13) {
+  if (zoom < 14) {
     return null;
   }
 

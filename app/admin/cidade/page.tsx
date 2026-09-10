@@ -134,7 +134,7 @@ export default function Cities() {
               <div key={cidade.id} 
                 className="bg-white border border-white flex items-center justify-between h-[60px] hover:border-icy-aqua-400 px-5 rounded-sm"
               >
-                <p className="font-semibold">{cidade.nome} - {cidade.uf}</p>
+                <p className="font-semibold w-80">{cidade.nome} - {cidade.uf}</p>
                 <div>
                   <FiEdit className="size-[20px] hover:text-icy-aqua-400" 
                     onClick={() => {

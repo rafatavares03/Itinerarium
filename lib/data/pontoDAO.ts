@@ -85,12 +85,12 @@ export async function savePoints(pontos: Ponto[]) {
       cidade_id: ponto.cidade,
       endereco: ponto.endereco,
       coordenada: [ponto.longitude, ponto.latitude]
-    }))
+    }));
 
-    pontosSalvos.push(...resFormatado)
+    pontosSalvos.push(...resFormatado);
   }
 
-  return pontosSalvos
+  return pontosSalvos;
 }
 
 export async function deletePoints(pontos: Ponto[]) {

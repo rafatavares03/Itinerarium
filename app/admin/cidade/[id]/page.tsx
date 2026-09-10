@@ -127,12 +127,15 @@ export default function City({
     }
   }
 
-  async function SalvaPontos() {
-    const resultado = await salvarPontos(novos);
+  async function excluirPontos() {
+    const resultado = await apagarPontos(selecionados);
     if(resultado.success) {
-      window.location.reload();
+      const ids = new Set(selecionados.filter((item) => item.id ?? false).map((item) => item.id))
+      setRegistrados((atuais) => {
+        return atuais.filter((atual) => !ids.has(atual.id));
+      })
+      setSelecionados([]);
     }
-    console.log(resultado);
   }
 
   async function ApagarPontos() {
@@ -162,13 +165,6 @@ export default function City({
           <CiCirclePlus className="size-[30px]"/>
           {(adicionar)? "Desabilitar" : "Adicionar"}
         </button>
-        <button type="button" 
-          className={"bg-red-500 " + buttonStyle}
-          onClick={() => ApagarPontos()}
-        >
-          <MdDelete className="size-[30px]"/>
-          Apagar
-        </button>
       </div>
       <div className="bg-slate-50 flex h-130 w-full p-1">
         <CidadeMap 
@@ -181,7 +177,14 @@ export default function City({
           isPointSelected={pontoSelecionado}
           pontoHover={pontoHover}
           />
-        <PontosMenu registrados={registrados} selecionados={selecionados} novos={novos} onUpdate={editarPonto} onSave={adicionarPontos}/>
+        <PontosMenu 
+          registrados={registrados} 
+          selecionados={selecionados} 
+          novos={novos}
+          onDelete={excluirPontos}
+          onUpdate={editarPonto} 
+          onSave={adicionarPontos}
+          />
       </div>
     </div>
   )

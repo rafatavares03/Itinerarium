@@ -7,7 +7,6 @@ import dynamic from "next/dynamic";
 import { CiCirclePlus } from "react-icons/ci";
 import { Ponto } from "@/types/ponto";
 import { salvarPontos, apagarPontos } from "@/lib/service/pontoService";
-import { MdDelete } from "react-icons/md";
 import PontosMenu from "../../_components/PontosMenu";
 
 const CidadeMap = dynamic(
@@ -24,11 +23,8 @@ export default function City({
 }) {
   const {id} = use(params);
   const [cidade, setCidade] = useState<CidadeDetails | null>(null);
-  const [pontosSelecionados, setPontosSelecionados] = useState<Ponto[]>([]);
   const [adicionar, setAdicionar] = useState(false);
   const [pontoHover, setPontoHover] = useState<Ponto | null>(null);
-  const [pontoEditando, setPontoEditando] = useState<Ponto | null>(null);
-  const [novoEndereco, setNovoEndereco] = useState("");
 
   const [registrados, setRegistrados] = useState<Ponto[]>([]);
   const [selecionados, setSelecionados] = useState<Ponto[]>([]);
@@ -53,7 +49,8 @@ export default function City({
     const novoPonto: Ponto = {
       cidade_id: cidade.id,
       coordenada: [latitude, longitude],
-      endereco: "",
+      logradouro: "",
+      numero: ""
     };
 
     setNovos((pontosAtuais) => {
@@ -69,21 +66,9 @@ export default function City({
 
       return [...pontosAtuais, novoPonto];
     });
-
-    console.log(novos);
-    setPontoEditando(novoPonto)
-    setNovoEndereco("")
   }
 
   function selecionaPonto(ponto: Ponto) {
-    setPontosSelecionados((selecionados) => {
-      if(selecionados.some(p => (p.coordenada[0] === ponto.coordenada[0]) && (p.coordenada[1] === ponto.coordenada[1]))) {
-        return selecionados.filter((p) => (p.coordenada[0] != ponto.coordenada[0]) && (p.coordenada[1] != ponto.coordenada[1]));
-      }
-
-      return [...selecionados, ponto]
-    })
-
     setSelecionados((selecionados) => {
       if(selecionados.some(p => (p.coordenada[0] === ponto.coordenada[0]) && (p.coordenada[1] === ponto.coordenada[1]))) {
         return selecionados.filter((p) => (p.coordenada[0] != ponto.coordenada[0]) && (p.coordenada[1] != ponto.coordenada[1]));
@@ -94,7 +79,7 @@ export default function City({
   }
 
   function pontoSelecionado(ponto: Ponto) {
-    return pontosSelecionados.some(p => p.coordenada[0] === ponto.coordenada[0] && p.coordenada[1] === ponto.coordenada[1])
+    return selecionados.some(p => p.coordenada[0] === ponto.coordenada[0] && p.coordenada[1] === ponto.coordenada[1])
   }
 
   async function editarPonto(antigo: Ponto, novo: Ponto) {
@@ -136,14 +121,6 @@ export default function City({
       })
       setSelecionados([]);
     }
-  }
-
-  async function ApagarPontos() {
-    const resultado = await apagarPontos(pontosSelecionados);
-    if(resultado.success) {
-      window.location.reload();
-    }
-    console.log(resultado);
   }
 
   if(!cidade) {

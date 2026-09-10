@@ -18,17 +18,18 @@ model Cidade {
   uf  String
   geometria Unsupported("geometry")
   pontos Ponto[]
+  enquadramentoMapa Unsupported("box2d") @map("enquadramento_mapa")
 
   @@map("cidade")
 }
 
 model Ponto {
   id  Int @id @default(autoincrement())
-  endereco  String?
+  logradouro  String
+  numero  String @default("S/N")
   cidade  Cidade  @relation(fields: [cidade_id], references: [id])
   cidade_id Int @map("cidade")
   coordenada Unsupported("geometry")
-  enquadramentoMapa Unsupported("box2d") @map("enquadramento_mapa")
 
   @@map("ponto")
 }

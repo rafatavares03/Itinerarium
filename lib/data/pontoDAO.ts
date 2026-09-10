@@ -4,7 +4,8 @@ import { Ponto } from "@/types/ponto";
 
 type PontoQuery = {
   id: number,
-  endereco: string,
+  logradouro: string,
+  numero: string,
   cidade: number,
   longitude: number,
   latitude: number
@@ -25,7 +26,8 @@ export async function savePoints(pontos: Ponto[]) {
     const valoresExistentes = pontosExistentes.map((ponto) => Prisma.sql`
       (
         ${ponto.id},
-        ${ponto.endereco ?? null},
+        ${ponto.logradouro},
+        ${ponto.numero}
         ${ponto.cidade_id},
         ST_SetSRID(
           ST_MakePoint(
@@ -38,20 +40,22 @@ export async function savePoints(pontos: Ponto[]) {
     `);
 
     let res = await prisma.$queryRaw<PontoQuery[]>`
-      INSERT INTO ponto (id, endereco, cidade, coordenada)
+      INSERT INTO ponto (id, logradouro, numero, cidade, coordenada)
       VALUES ${Prisma.join(valoresExistentes)}
       ON CONFLICT (id)
       DO UPDATE SET
-        endereco = EXCLUDED.endereco,
+        logradouro = EXCLUDED.logradouro,
+        numero = EXCLUDED.numero,
         cidade = EXCLUDED.cidade,
         coordenada = EXCLUDED.coordenada
-      RETURNING id, endereco, cidade, ST_X(coordenada) as longitude, ST_Y(coordenada) as latitude
+      RETURNING id, logradouro, numero, cidade, ST_X(coordenada) as longitude, ST_Y(coordenada) as latitude
     `;
 
     let resFormatado: Ponto[] = res.map((ponto) => {
     return {
       id: ponto.id,
-      endereco: ponto.endereco,
+      logradouro: ponto.logradouro,
+      numero: ponto.numero,
       cidade_id: ponto.cidade,
       coordenada: [ponto.longitude, ponto.latitude]
     }
@@ -62,7 +66,8 @@ export async function savePoints(pontos: Ponto[]) {
   if (pontosNovos.length > 0) {
     const valoresNovos = pontosNovos.map((ponto) => Prisma.sql`
       (
-        ${ponto.endereco ?? null},
+        ${ponto.logradouro},
+        ${ponto.numero},
         ${ponto.cidade_id},
         ST_SetSRID(
           ST_MakePoint(
@@ -75,15 +80,16 @@ export async function savePoints(pontos: Ponto[]) {
     `);
 
     let res = await prisma.$queryRaw<PontoQuery[]>`
-      INSERT INTO ponto (endereco, cidade, coordenada)
+      INSERT INTO ponto (logradouro, numero, cidade, coordenada)
       VALUES ${Prisma.join(valoresNovos)}
-      RETURNING id, cidade, endereco, ST_X(coordenada) as longitude, ST_Y(coordenada) as latitude
+      RETURNING id, cidade, logradouro, numero, ST_X(coordenada) as longitude, ST_Y(coordenada) as latitude
     `;
 
     let resFormatado: Ponto[] = res.map((ponto) => ({
       id: ponto.id,
       cidade_id: ponto.cidade,
-      endereco: ponto.endereco,
+      logradouro: ponto.logradouro,
+      numero: ponto.numero,
       coordenada: [ponto.longitude, ponto.latitude]
     }));
 

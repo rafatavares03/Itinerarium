@@ -45,8 +45,10 @@ export default function PontoDetails({
         <button type="button" onClick={onClose} className="cursor-pointer">
           <FaArrowAltCircleLeft className={backButtonStyle}/>
         </button>
-        <label htmlFor="endereco" className={labelStyle}>Endereço</label>
-        <input type="text" name="endereco" id="endereco" value={novo.endereco} onChange={(e) => atualizaNovo("endereco", e.target.value)} className={inputStyle}/>
+        <label htmlFor="logradouro" className={labelStyle}>Endereço</label>
+        <input type="text" name="logradouro" id="logradouro" value={novo.logradouro} onChange={(e) => atualizaNovo("logradouro", e.target.value)} className={inputStyle}/>
+        <label htmlFor="numero" className={labelStyle}>Número</label>
+        <input type="text" name="numero" id="numero" value={novo.numero} onChange={(e) => atualizaNovo("numero", e.target.value)} className={inputStyle}/>
         <label htmlFor="latitude" className={labelStyle}>Latitude</label>
         <input type="text" name="latitude" id="latitude" value={novo.coordenada[0]} onChange={(e) => atualizaCoordenada(0, e.target.value)} className={inputStyle}/>
         <label htmlFor="Longitude" className={labelStyle}>Longitude</label>
@@ -63,7 +65,7 @@ export default function PontoDetails({
         <FaArrowAltCircleLeft className={backButtonStyle}/>
       </button>
       <h2 className={labelStyle}>Endereço:</h2>
-      <p className={infoStyle}>{ponto.endereco ?? "Endereço indisponível."}</p>
+      <p className={infoStyle}>{ponto.logradouro.concat(ponto.numero) ?? "Endereço indisponível."}</p>
       <div className="flex justify-between flex-wrap">
         <div>
           <h2 className={labelStyle}>Latitude:</h2>

@@ -1,6 +1,7 @@
 export type Ponto = {
   id?: number
-  endereco?: string;
+  logradouro: string,
+  numero: string,
   cidade_id: number;
   coordenada: [number, number];
 };

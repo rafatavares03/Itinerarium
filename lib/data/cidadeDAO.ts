@@ -26,7 +26,8 @@ type CityQuery = {
 
 type Point = {
   id: number,
-  endereco: string,
+  logradouro: string,
+  numero: string,
   cidade: number,
   longitude: number,
   latitude: number
@@ -121,7 +122,8 @@ export async function getById(id: number) {
   const pontos = await prisma.$queryRaw<Point[]>`
     SELECT
       id,
-      endereco,
+      logradouro,
+      numero,
       cidade,
       ST_X(coordenada) AS longitude,
       ST_Y(coordenada) AS latitude
@@ -132,7 +134,8 @@ export async function getById(id: number) {
   const pontosFormatados:Ponto[] = pontos.map((ponto) => {
     return {
       id: ponto.id,
-      endereco: ponto.endereco,
+      numero: ponto.numero,
+      logradouro: ponto.logradouro,
       cidade_id: ponto.cidade,
       coordenada: [ponto.longitude, ponto.latitude]
     }

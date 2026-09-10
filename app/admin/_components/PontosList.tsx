@@ -17,7 +17,7 @@ export default function PontosList({
               onClick={() => onClick(ponto)}
               className="bg-space-indigo-800 border p-2 text-sm transition-all ease-in-out 
                 hover:text-base hover:border-icy-aqua-500">
-              <p className="font-main text-icy-aqua-50">{(!ponto.endereco || ponto.endereco.trim().length === 0) ? ponto.coordenada.toString() : ponto.endereco}</p>
+              <p className="font-main text-icy-aqua-50">{(!ponto.logradouro || ponto.logradouro.trim().length === 0) ? ponto.coordenada.toString() : ponto.logradouro.concat(`, ${ponto.numero}`)}</p>
             </li>
           );
         })}

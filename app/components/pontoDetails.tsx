@@ -50,9 +50,9 @@ export default function PontoDetails({
           <FaArrowAltCircleLeft className={backButtonStyle}/>
         </button>
         <label htmlFor="logradouro" className={labelStyle}>Endereço</label>
-        <input type="text" name="logradouro" id="logradouro" value={novo.logradouro} onChange={(e) => atualizaNovo("logradouro", e.target.value)} className={inputStyle}/>
+        <input type="text" name="logradouro" id="logradouro" value={novo.logradouro} onChange={(e) => atualizaNovo("logradouro", e.target.value)} className={inputStyle} required/>
         <label htmlFor="numero" className={labelStyle}>Número</label>
-        <input type="text" name="numero" id="numero" value={novo.numero} onChange={(e) => atualizaNovo("numero", e.target.value)} className={inputStyle}/>
+        <input type="text" name="numero" id="numero" value={novo.numero} onChange={(e) => atualizaNovo("numero", e.target.value)} className={inputStyle} required/>
         <label htmlFor="latitude" className={labelStyle}>Latitude</label>
         <input type="text" name="latitude" id="latitude" value={novo.coordenada[0]} onChange={(e) => atualizaCoordenada(0, e.target.value)} className={inputStyle}/>
         <label htmlFor="Longitude" className={labelStyle}>Longitude</label>

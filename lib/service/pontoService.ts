@@ -1,7 +1,7 @@
 'use server'
 
 import { Ponto } from "@/types/ponto";
-import { deletePoints, savePoints } from "../data/pontoDAO";
+import { deletePoints, getPontos, getPagesAmount,savePoints } from "../data/pontoDAO";
 
 export async function salvarPontos(pontos: Ponto[]) {
   try {
@@ -33,6 +33,33 @@ export async function apagarPontos(pontos: Ponto[]) {
     return {
       success: false,
       message: "Não foi possível apagar os pontos."
+    }
+  }
+}
+
+export async function buscarPontos(
+  cidadeId: number,
+  quantidade: number,
+  pagina: number
+) {
+  try {
+    const [{ pontosFormatados }, { quantidadePaginas }] = await Promise.all([
+      getPontos(cidadeId, quantidade, pagina),
+      getPagesAmount(cidadeId, quantidade)
+    ]);
+
+    return {
+      success: true,
+      data: {
+        pontos: pontosFormatados,
+        quantidadePaginas
+      }
+    }
+  } catch(e) {
+    console.log(e);
+    return {
+      success: false,
+      message: "Não foi possível carregar pontos"
     }
   }
 }

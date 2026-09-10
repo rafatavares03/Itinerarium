@@ -6,7 +6,7 @@ import { CidadeDetails } from "@/types/cidade";
 import dynamic from "next/dynamic";
 import { CiCirclePlus } from "react-icons/ci";
 import { Ponto } from "@/types/ponto";
-import { salvarPontos, apagarPontos } from "@/lib/service/pontoService";
+import { salvarPontos, apagarPontos, buscarPontos } from "@/lib/service/pontoService";
 import PontosMenu from "../../_components/PontosMenu";
 
 const CidadeMap = dynamic(
@@ -29,7 +29,10 @@ export default function City({
   const [registrados, setRegistrados] = useState<Ponto[]>([]);
   const [selecionados, setSelecionados] = useState<Ponto[]>([]);
   const [novos, setNovos] = useState<Ponto[]>([]);
+  const [pontosMapa, setPontosMapa] = useState<Ponto[]>([]);
   const [edicao, setEdicao] = useState(false);
+  const [pagina, setPagina] = useState(1);
+  const [quantidadePaginas, setQuantidadePaginas] = useState(0);
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -37,11 +40,22 @@ export default function City({
       if(resposta.success) {
         console.log(resposta.dados?.pontos);
         setCidade(resposta.dados?.cidade ?? null);
-        setRegistrados(resposta.dados?.pontos ?? []);
+        setPontosMapa(resposta.dados?.pontos ?? []);
       }
     }
     carregarDados();
   }, []);
+
+  useEffect(() => { 
+    const carregarPontos = async () => { 
+      const resposta = await buscarPontos(parseInt(id), 10, pagina); 
+      if (resposta.success) { 
+        setRegistrados(resposta.data?.pontos ?? []); 
+        setQuantidadePaginas( resposta.data?.quantidadePaginas ?? 0); 
+      }} 
+      
+    carregarPontos(); 
+  }, [id, pagina, pontosMapa]);
 
   function MapClick(latitude: number, longitude: number) {
     if (!cidade) return;
@@ -114,11 +128,10 @@ export default function City({
         )
       );
     } else {
-
       
       const resultado = await salvarPontos(new Array(novo));
       if(resultado.success) {
-        setRegistrados((registrados) => 
+        setPontosMapa((registrados) => 
           registrados.map(ponto => ponto.id === novo.id ? novo : ponto)
         );
       }
@@ -128,7 +141,7 @@ export default function City({
   async function adicionarPontos() {
     const resultado = await salvarPontos(novos);
     if(resultado.success) {
-      setRegistrados((pontos) => [
+      setPontosMapa((pontos) => [
         ...pontos,
         ...resultado.data
       ])
@@ -170,7 +183,7 @@ export default function City({
       <div className="bg-slate-50 flex h-130 w-full p-1">
         <CidadeMap 
           bounds={cidade.enquadramento}
-          pontos={registrados} 
+          pontos={pontosMapa} 
           novos={novos}
           onMapClick={MapClick}
           adicionarPontos={adicionar}
@@ -185,6 +198,10 @@ export default function City({
           novos={novos}
           ponto={ponto}
           emCadastro={edicao}
+          pagina = {pagina}
+          quantidadePaginas={quantidadePaginas}
+          registradosTotais={pontosMapa.length}
+          onPageChange={(p:number) => setPagina(p)}
           onClick={(ponto) => setPonto(ponto)}
           onDelete={excluirPontos}
           onUpdate={editarPonto} 

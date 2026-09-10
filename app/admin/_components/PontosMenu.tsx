@@ -4,6 +4,7 @@ import PontosList from "./PontosList";
 import PontoDetails from "@/app/components/pontoDetails";
 import { RiSave3Fill } from "react-icons/ri";
 import { MdDelete } from "react-icons/md";
+import Paginacao from "@/app/components/paginacao";
 
 enum Aba {
   registrados = "REGISTRADOS",
@@ -17,6 +18,10 @@ export default function PontosMenu({
   novos,
   selecionados,
   emCadastro,
+  pagina,
+  quantidadePaginas,
+  registradosTotais,
+  onPageChange,
   onClick,
   onDelete,
   onUpdate,
@@ -27,6 +32,10 @@ export default function PontosMenu({
   novos: Ponto[],
   selecionados: Ponto[],
   emCadastro: boolean,
+  pagina: number,
+  quantidadePaginas: number,
+  registradosTotais: number,
+  onPageChange: (p: number) => void,
   onClick: (ponto: Ponto | null) => void,
   onDelete: () => void,
   onUpdate: (antigo: Ponto, novo: Ponto) => void
@@ -66,7 +75,7 @@ export default function PontosMenu({
                   setAbaAtiva(aba)
                 }}
               >
-                {aba} <em className="italic font-thin text-xs">({getList(aba).length})</em>
+                {aba} <em className="italic font-thin text-xs">({aba === Aba.registrados ? registradosTotais : getList(aba).length})</em>
               </button>
             )
           })}
@@ -77,6 +86,9 @@ export default function PontosMenu({
         ponto === null ?
           <>
             <PontosList pontos={getList(abaAtiva)} onClick={(ponto:Ponto) => onClick(ponto)}/> 
+            {abaAtiva === Aba.registrados && 
+              <Paginacao quantidade={quantidadePaginas} pagina={pagina} onChange={onPageChange}/>
+            }
             {abaAtiva === Aba.novos && 
               <button type="button" 
                 onClick={onSave}

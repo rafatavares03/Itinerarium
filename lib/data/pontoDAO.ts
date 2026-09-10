@@ -113,3 +113,50 @@ export async function deletePoints(pontos: Ponto[]) {
     }
   })
 }
+
+export async function getPagesAmount(cidadeId: number, quantidade: number) {
+  const [{ total }] = await prisma.$queryRaw<{ total: bigint }[]>`
+    SELECT COUNT(*) AS total
+    FROM ponto
+    WHERE cidade = ${cidadeId}
+  `;
+
+  return {
+    quantidadePaginas: Math.ceil(Number(total) / quantidade)
+  }
+}
+
+export async function getPontos(
+  cidadeId: number,
+  quantidade: number,
+  pagina: number
+) {
+  const offset = (pagina - 1) * quantidade;
+
+  const pontos = await prisma.$queryRaw<PontoQuery[]>`
+    SELECT
+      id,
+      logradouro,
+      numero,
+      cidade,
+      ST_X(coordenada) AS longitude,
+      ST_Y(coordenada) AS latitude
+    FROM ponto
+    WHERE cidade = ${cidadeId}
+    ORDER BY id
+    LIMIT ${quantidade}
+    OFFSET ${offset}
+  `;
+
+  const pontosFormatados: Ponto[] = pontos.map((ponto) => ({
+    id: ponto.id,
+    logradouro: ponto.logradouro,
+    numero: ponto.numero,
+    cidade_id: ponto.cidade,
+    coordenada: [ponto.longitude, ponto.latitude]
+  }));
+
+  return {
+    pontosFormatados
+  };
+}

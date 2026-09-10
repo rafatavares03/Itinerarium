@@ -14,10 +14,12 @@ export default function PontosOnMap({
   pontos,
   novos,
   selecionado,
+  destacado,
   onSelectPoint,
  }: { 
   pontos: Ponto[],
   novos?: Ponto[],
+  destacado: (ponto: Ponto) => boolean,
   selecionado: (ponto: Ponto) => boolean,
   onSelectPoint: (ponto: Ponto) => void,
 }) {
@@ -38,16 +40,16 @@ export default function PontosOnMap({
     zoom >= 15 ? 24 :
     18;
 
-  const busIcon = (ponto: Ponto, corNormal:string = "#00ffff", corSelect:string = "#f00") => L.divIcon({
+  const busIcon = (destacado: boolean, selecionado: boolean, corNormal:string = "#00ffff", corSelect:string = "#f00") => L.divIcon({
     html: renderToStaticMarkup(
       <div
         style={{
-          width: `${tamanho}px`,
-          height: `${tamanho}px`,
+          width: `${destacado ? tamanho * 1.2 : tamanho}px`,
+          height: `${destacado ? tamanho * 1.2 : tamanho}px`,
           borderRadius: "50% 50% 50% 0",
           transform: "rotate(-45deg)",
-          backgroundColor: selecionado(ponto) ? corSelect : corNormal,
-          border: "2px solid white",
+          backgroundColor: selecionado ? corSelect : corNormal,
+          border: `2px solid ${destacado ? "red" : "white"}`,
           boxShadow: "0 2px 5px rgba(0,0,0,0.4)",
           display: "flex",
           alignItems: "center",
@@ -71,7 +73,7 @@ export default function PontosOnMap({
         <Marker
           key={ponto.id ?? index}
           position={ponto.coordenada}
-          icon={busIcon(ponto)}
+          icon={busIcon(destacado(ponto), selecionado(ponto))}
           eventHandlers={{
             click: () => onSelectPoint(ponto),
           }}
@@ -81,7 +83,7 @@ export default function PontosOnMap({
         <Marker
           key={ponto.coordenada.toString()}
           position={ponto.coordenada}
-          icon={busIcon(ponto, "#9ae600", "#ab0303")}
+          icon={busIcon(destacado(ponto), selecionado(ponto), "#9ae600", "#ab0303")}
           eventHandlers={{
             click: () => onSelectPoint(ponto),
           }}

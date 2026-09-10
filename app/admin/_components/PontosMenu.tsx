@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Ponto } from "@/types/ponto";
 import PontosList from "./PontosList";
 import PontoDetails from "@/app/components/pontoDetails";
@@ -12,16 +12,22 @@ enum Aba {
 }
 
 export default function PontosMenu({
+  ponto,
   registrados,
   novos,
   selecionados,
+  emCadastro,
+  onClick,
   onDelete,
   onUpdate,
   onSave
 }: {
+  ponto: Ponto | null,
   registrados: Ponto[],
   novos: Ponto[],
   selecionados: Ponto[],
+  emCadastro: boolean,
+  onClick: (ponto: Ponto | null) => void,
   onDelete: () => void,
   onUpdate: (antigo: Ponto, novo: Ponto) => void
   onSave: () => void
@@ -29,7 +35,12 @@ export default function PontosMenu({
   const [abaAtiva, setAbaAtiva] = useState<Aba>(Aba.registrados);
   const abaStyle = "transition-all hover:border-b-3"
   const abaAtivaStyle = "text-base font-bold text-icy-aqua-700 border-b-3 border-icy-aqua-700";
-  const [ponto, setPonto] = useState<Ponto | null>(null);
+
+  useEffect(() => {
+    if(emCadastro && ponto) {
+      setAbaAtiva(Aba.novos);
+    }
+  }, [emCadastro, ponto])
 
   function getList(aba: Aba): Ponto[]{
     switch(aba){
@@ -51,7 +62,7 @@ export default function PontosMenu({
               <button key={aba} type="button" 
                 className={(abaAtiva === aba) ? abaStyle.concat(" " + abaAtivaStyle) : abaStyle}
                 onClick={() => { 
-                  setPonto(null)
+                  onClick(null)
                   setAbaAtiva(aba)
                 }}
               >
@@ -65,7 +76,7 @@ export default function PontosMenu({
         <p className="flex-1 p-5 text-center text-sm">Não há pontos de ônibus para exibir na área "<em className="lowercase">{abaAtiva}</em>".</p> :
         ponto === null ?
           <>
-            <PontosList pontos={getList(abaAtiva)} onClick={(ponto:Ponto) => setPonto(ponto)}/> 
+            <PontosList pontos={getList(abaAtiva)} onClick={(ponto:Ponto) => onClick(ponto)}/> 
             {abaAtiva === Aba.novos && 
               <button type="button" 
                 onClick={onSave}
@@ -84,10 +95,10 @@ export default function PontosMenu({
             }
           </> :
           <PontoDetails ponto={ponto} 
-            onClose={() => setPonto(null)} 
+            onClose={() => onClick(null)} 
             onUpdate={(antigo: Ponto, novo: Ponto) => {
               onUpdate(antigo, novo);
-              setPonto(null);
+              onClick(null);
             }}
             {...(abaAtiva === Aba.novos) ? {toUpdate: true} : {}}
           />

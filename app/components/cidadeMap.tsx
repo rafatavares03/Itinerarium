@@ -15,19 +15,21 @@ export default function CidadeMap({
   pontos,
   novos,
   adicionarPontos,
-  pontoHover,
+  pontoDestaque,
   onMapClick,
   onSelectPoint,
-  isPointSelected
+  isPointSelected,
+  isPointHighlighted
 }: {
   bounds: [[number,number], [number,number]],
   pontos: Ponto[],
   novos?: Ponto[],
   adicionarPontos: boolean,
-  pontoHover: Ponto | null,
+  pontoDestaque: Ponto | null,
   onMapClick: (latitude:number, longitude:number) => void,
   onSelectPoint: (ponto: Ponto) => void,
   isPointSelected: (ponto: Ponto) => boolean
+  isPointHighlighted: (ponto: Ponto) => boolean
 }) {
   function MapClickHandler() {
     useMapEvents({
@@ -62,13 +64,19 @@ export default function CidadeMap({
         className="h-full w-full"
         >
           <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
           <MapClickHandler />
-          <PontosOnMap pontos={pontos} novos={novos} onSelectPoint={onSelectPoint} selecionado={isPointSelected}/>
-          <CentralizarPonto ponto={pontoHover} />
+          <PontosOnMap 
+            pontos={pontos}
+            novos={novos}
+            onSelectPoint={onSelectPoint}
+            selecionado={isPointSelected}
+            destacado={isPointHighlighted}
+          />
+          <CentralizarPonto ponto={pontoDestaque} />
       </MapContainer>
     </>
   )

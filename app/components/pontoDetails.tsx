@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Ponto } from "@/types/ponto";
 import { FaArrowAltCircleLeft, FaRegEdit } from "react-icons/fa";
 
@@ -15,6 +15,10 @@ export default function PontoDetails({
 }) {
   const [update, setUpdate] = useState(false);
   const [novo, setNovo] = useState(ponto);
+
+  useEffect(() => {
+    setNovo(ponto);
+  }, [ponto]);
 
   function atualizaNovo(campo: keyof Ponto, valor: string) {
     setNovo((atual) => ({

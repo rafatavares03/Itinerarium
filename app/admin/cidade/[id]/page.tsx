@@ -24,11 +24,12 @@ export default function City({
   const {id} = use(params);
   const [cidade, setCidade] = useState<CidadeDetails | null>(null);
   const [adicionar, setAdicionar] = useState(false);
-  const [pontoHover, setPontoHover] = useState<Ponto | null>(null);
-
+  
+  const [ponto, setPonto] = useState<Ponto | null>(null);
   const [registrados, setRegistrados] = useState<Ponto[]>([]);
   const [selecionados, setSelecionados] = useState<Ponto[]>([]);
-  const [novos, setNovos] = useState<Ponto[]>([])
+  const [novos, setNovos] = useState<Ponto[]>([]);
+  const [edicao, setEdicao] = useState(false);
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -43,8 +44,7 @@ export default function City({
   }, []);
 
   function MapClick(latitude: number, longitude: number) {
-    console.log("coordenadas:", latitude, longitude);
-    if(!cidade) return;
+    if (!cidade) return;
 
     const novoPonto: Ponto = {
       cidade_id: cidade.id,
@@ -53,33 +53,57 @@ export default function City({
       numero: ""
     };
 
-    setNovos((pontosAtuais) => {
-      const jaExiste = pontosAtuais.some((ponto) =>
-          ponto.coordenada[0] === novoPonto.coordenada[0] &&
-          ponto.coordenada[1] === novoPonto.coordenada[1]
-      );
-      console.log(jaExiste);
-      if (jaExiste) {
-        return pontosAtuais;
-      }
-      
+    const existe = novos.some(p =>
+      comparaPontoPorCoordenada(p, novoPonto)
+    );
 
-      return [...pontosAtuais, novoPonto];
+    if (existe) {
+      return;
+    }
+
+    setPonto(novoPonto);
+    setEdicao(true);
+    setNovos(pontosAtuais => [...pontosAtuais, novoPonto]);
+  }
+
+  function comparaPontoPorCoordenada(p1: Ponto, p2: Ponto) {
+    return (p1.coordenada[0] === p2.coordenada[0]) && (p1.coordenada[1] === p2.coordenada[1]);
+  }
+
+  function adicionaPontoEmDestaque(p: Ponto) {
+    setPonto((atual) => {
+      if(!atual) {
+        return p;
+      }
+
+      return comparaPontoPorCoordenada(atual, p) ? null : p;
     });
   }
 
   function selecionaPonto(ponto: Ponto) {
+    if(!ponto.id) {
+      adicionaPontoEmDestaque(ponto);
+      return;
+    }
+
     setSelecionados((selecionados) => {
-      if(selecionados.some(p => (p.coordenada[0] === ponto.coordenada[0]) && (p.coordenada[1] === ponto.coordenada[1]))) {
-        return selecionados.filter((p) => (p.coordenada[0] != ponto.coordenada[0]) && (p.coordenada[1] != ponto.coordenada[1]));
+      if(selecionados.some(p => comparaPontoPorCoordenada(p, ponto))) {
+        return selecionados.filter((p) => !comparaPontoPorCoordenada(p, ponto));
       }
 
       return [...selecionados, ponto];
     })
+
+    adicionaPontoEmDestaque(ponto);
   }
 
   function pontoSelecionado(ponto: Ponto) {
     return selecionados.some(p => p.coordenada[0] === ponto.coordenada[0] && p.coordenada[1] === ponto.coordenada[1])
+  }
+
+  function pontoDestacado(p: Ponto) {
+    if(!ponto) return false;
+    return (ponto.coordenada[0] === p.coordenada[0] && ponto.coordenada[1] === p.coordenada[1]);
   }
 
   async function editarPonto(antigo: Ponto, novo: Ponto) {
@@ -152,12 +176,16 @@ export default function City({
           adicionarPontos={adicionar}
           onSelectPoint={selecionaPonto}
           isPointSelected={pontoSelecionado}
-          pontoHover={pontoHover}
+          isPointHighlighted={pontoDestacado}
+          pontoDestaque={ponto}
           />
         <PontosMenu 
           registrados={registrados} 
           selecionados={selecionados} 
           novos={novos}
+          ponto={ponto}
+          emCadastro={edicao}
+          onClick={(ponto) => setPonto(ponto)}
           onDelete={excluirPontos}
           onUpdate={editarPonto} 
           onSave={adicionarPontos}

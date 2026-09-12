@@ -18,6 +18,7 @@ export default function CidadeMap({
   pontoDestaque,
   onMapClick,
   onSelectPoint,
+  onDeleteNew,
   isPointSelected,
   isPointHighlighted
 }: {
@@ -28,15 +29,20 @@ export default function CidadeMap({
   pontoDestaque: Ponto | null,
   onMapClick: (latitude:number, longitude:number) => void,
   onSelectPoint: (ponto: Ponto) => void,
+  onDeleteNew: (ponto: Ponto) => void,
   isPointSelected: (ponto: Ponto) => boolean
   isPointHighlighted: (ponto: Ponto) => boolean
 }) {
   function MapClickHandler() {
     useMapEvents({
       click(e) {
+        console.log("Centralizando:", pontoDestaque);
         if(!adicionarPontos) return;
         onMapClick(e.latlng.lat, e.latlng.lng);
       },
+      contextmenu(e) {
+        e.originalEvent.preventDefault();
+      }
     });
 
     return null;
@@ -73,6 +79,7 @@ export default function CidadeMap({
             pontos={pontos}
             novos={novos}
             onSelectPoint={onSelectPoint}
+            onDeleteNew={onDeleteNew}
             selecionado={isPointSelected}
             destacado={isPointHighlighted}
           />

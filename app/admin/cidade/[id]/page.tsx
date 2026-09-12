@@ -25,7 +25,7 @@ export default function City({
   const [cidade, setCidade] = useState<CidadeDetails | null>(null);
   const [adicionar, setAdicionar] = useState(false);
   
-  const [ponto, setPonto] = useState<Ponto | null>(null);
+  const [pontoEmFoco, setPontoEmFoco] = useState<Ponto | null>(null);
   const [registrados, setRegistrados] = useState<Ponto[]>([]);
   const [selecionados, setSelecionados] = useState<Ponto[]>([]);
   const [novos, setNovos] = useState<Ponto[]>([]);
@@ -75,7 +75,7 @@ export default function City({
       return;
     }
 
-    setPonto(novoPonto);
+    setPontoEmFoco(novoPonto);
     setEdicao(true);
     setNovos(pontosAtuais => [...pontosAtuais, novoPonto]);
   }
@@ -85,7 +85,7 @@ export default function City({
   }
 
   function adicionaPontoEmDestaque(p: Ponto) {
-    setPonto((atual) => {
+    setPontoEmFoco((atual) => {
       if(!atual) {
         return p;
       }
@@ -108,16 +108,30 @@ export default function City({
       return [...selecionados, ponto];
     })
 
-    adicionaPontoEmDestaque(ponto);
+    if(!ponto.id) {
+      adicionaPontoEmDestaque(ponto);
+    } else {
+      setEdicao(false);
+    }
+  }
+
+  function apagaNovo(ponto: Ponto){
+    setNovos((atuais) => {
+      return atuais.filter((p) => !comparaPontoPorCoordenada(p, ponto));
+    });
+    if(pontoEmFoco && comparaPontoPorCoordenada(ponto, pontoEmFoco)) {
+      setPontoEmFoco(null);
+      setEdicao(false);
+    }
   }
 
   function pontoSelecionado(ponto: Ponto) {
     return selecionados.some(p => p.coordenada[0] === ponto.coordenada[0] && p.coordenada[1] === ponto.coordenada[1])
   }
 
-  function pontoDestacado(p: Ponto) {
-    if(!ponto) return false;
-    return (ponto.coordenada[0] === p.coordenada[0] && ponto.coordenada[1] === p.coordenada[1]);
+  function pontoDestacado(ponto: Ponto) {
+    if(!pontoEmFoco) return false;
+    return comparaPontoPorCoordenada(ponto, pontoEmFoco);
   }
 
   async function editarPonto(antigo: Ponto, novo: Ponto) {
@@ -128,7 +142,6 @@ export default function City({
         )
       );
     } else {
-      
       const resultado = await salvarPontos(new Array(novo));
       if(resultado.success) {
         setPontosMapa((registrados) => 
@@ -146,6 +159,8 @@ export default function City({
         ...resultado.data
       ])
       setNovos([]);
+      setPontoEmFoco(null);
+      setEdicao(false);
     }
   }
 
@@ -155,7 +170,7 @@ export default function City({
       const ids = new Set(selecionados.filter((item) => item.id ?? false).map((item) => item.id))
       setRegistrados((atuais) => {
         return atuais.filter((atual) => !ids.has(atual.id));
-      })
+      });
       setSelecionados([]);
     }
   }
@@ -174,10 +189,10 @@ export default function City({
       <div className="flex">
         <button type="button" 
           className={((adicionar) ? "bg-red-500 " : "bg-lime-500 ") + buttonStyle}
-          onClick={() => setAdicionar(!adicionar)}
+          onClick={() => {console.log(pontoEmFoco); setAdicionar(!adicionar)}}
           >
           <CiCirclePlus className="size-[30px]"/>
-          {(adicionar)? "Desabilitar" : "Adicionar"}
+          {(adicionar)? "Desabilitar inserção" : "Habilitar inserção"}
         </button>
       </div>
       <div className="bg-slate-50 flex h-130 w-full p-1">
@@ -188,21 +203,25 @@ export default function City({
           onMapClick={MapClick}
           adicionarPontos={adicionar}
           onSelectPoint={selecionaPonto}
+          onDeleteNew={apagaNovo}
           isPointSelected={pontoSelecionado}
           isPointHighlighted={pontoDestacado}
-          pontoDestaque={ponto}
+          pontoDestaque={pontoEmFoco}
           />
         <PontosMenu 
           registrados={registrados} 
           selecionados={selecionados} 
           novos={novos}
-          ponto={ponto}
+          ponto={pontoEmFoco}
           emCadastro={edicao}
           pagina = {pagina}
           quantidadePaginas={quantidadePaginas}
           registradosTotais={pontosMapa.length}
           onPageChange={(p:number) => setPagina(p)}
-          onClick={(ponto) => setPonto(ponto)}
+          onSetFocus={(ponto) => {
+            setPontoEmFoco(ponto);
+            if(!ponto) setEdicao(false);
+          }}
           onDelete={excluirPontos}
           onUpdate={editarPonto} 
           onSave={adicionarPontos}

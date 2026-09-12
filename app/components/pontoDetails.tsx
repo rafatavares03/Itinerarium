@@ -69,7 +69,7 @@ export default function PontoDetails({
         <FaArrowAltCircleLeft className={backButtonStyle}/>
       </button>
       <h2 className={labelStyle}>Endereço:</h2>
-      <p className={infoStyle}>{ponto.logradouro.concat(ponto.numero) ?? "Endereço indisponível."}</p>
+      <p className={infoStyle}>{ponto.logradouro.concat(`, ${ponto.numero}`) ?? "Endereço indisponível."}</p>
       <div className="flex justify-between flex-wrap">
         <div>
           <h2 className={labelStyle}>Latitude:</h2>

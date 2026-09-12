@@ -22,7 +22,7 @@ export default function PontosMenu({
   quantidadePaginas,
   registradosTotais,
   onPageChange,
-  onClick,
+  onSetFocus,
   onDelete,
   onUpdate,
   onSave
@@ -36,7 +36,7 @@ export default function PontosMenu({
   quantidadePaginas: number,
   registradosTotais: number,
   onPageChange: (p: number) => void,
-  onClick: (ponto: Ponto | null) => void,
+  onSetFocus: (ponto: Ponto | null) => void,
   onDelete: () => void,
   onUpdate: (antigo: Ponto, novo: Ponto) => void
   onSave: () => void
@@ -71,7 +71,7 @@ export default function PontosMenu({
               <button key={aba} type="button" 
                 className={(abaAtiva === aba) ? abaStyle.concat(" " + abaAtivaStyle) : abaStyle}
                 onClick={() => { 
-                  onClick(null)
+                  onSetFocus(null)
                   setAbaAtiva(aba)
                 }}
               >
@@ -85,7 +85,7 @@ export default function PontosMenu({
         <p className="flex-1 p-5 text-center text-sm">Não há pontos de ônibus para exibir na área "<em className="lowercase">{abaAtiva}</em>".</p> :
         ponto === null ?
           <>
-            <PontosList pontos={getList(abaAtiva)} onClick={(ponto:Ponto) => onClick(ponto)}/> 
+            <PontosList pontos={getList(abaAtiva)} onClick={(ponto:Ponto) => onSetFocus(ponto)}/> 
             {abaAtiva === Aba.registrados && 
               <Paginacao quantidade={quantidadePaginas} pagina={pagina} onChange={onPageChange}/>
             }
@@ -107,10 +107,10 @@ export default function PontosMenu({
             }
           </> :
           <PontoDetails ponto={ponto} 
-            onClose={() => onClick(null)} 
+            onClose={() => onSetFocus(null)} 
             onUpdate={(antigo: Ponto, novo: Ponto) => {
               onUpdate(antigo, novo);
-              onClick(null);
+              onSetFocus(null);
             }}
             {...(abaAtiva === Aba.novos) ? {toUpdate: true} : {}}
           />

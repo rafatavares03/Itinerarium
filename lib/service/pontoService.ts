@@ -39,28 +39,51 @@ export async function apagarPontos(pontos: Ponto[]) {
 
 export async function buscarPontos(
   cidadeId: number,
-  quantidade: number,
-  pagina: number,
-  endereco?: string
+  params: {
+    quantidade?: number,
+    pagina?: number,
+    endereco?: string,
+    paginado?: boolean,
+  }
 ) {
   try {
-    const [{ pontosFormatados }, { quantidadePaginas }] = await Promise.all([
-      (endereco) ? getPontos(cidadeId, quantidade, pagina, endereco) : getPontos(cidadeId, quantidade, pagina),
-      (endereco) ? getPagesAmount(cidadeId, quantidade, endereco) : getPagesAmount(cidadeId, quantidade)
+    const {
+      quantidade = 15,
+      pagina = 1,
+      endereco,
+      paginado = true
+    } = params;
+
+    if (!paginado) {
+      const { pontos } = await getPontos(cidadeId, {endereco: params.endereco})
+
+      return {
+        success: true,
+        data: {
+          pontos
+        }
+      };
+    }
+
+    const [{ pontos }, { quantidadePaginas }] = await Promise.all([
+      getPontos(cidadeId, params),
+      getPagesAmount(cidadeId, quantidade, endereco)
     ]);
 
     return {
       success: true,
       data: {
-        pontos: pontosFormatados,
+        pontos,
         quantidadePaginas
       }
-    }
-  } catch(e) {
+    };
+
+  } catch (e) {
     console.log(e);
+
     return {
       success: false,
       message: "Não foi possível carregar pontos"
-    }
+    };
   }
 }

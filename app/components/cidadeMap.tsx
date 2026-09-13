@@ -7,7 +7,7 @@ import {
   TileLayer 
 } from "react-leaflet"
 import { useEffect } from "react";
-import PontosOnMap from "./pontosMap";
+import PontosOnMap from "./pontosOnMap";
 import { Ponto } from "@/types/ponto";
 
 export default function CidadeMap({

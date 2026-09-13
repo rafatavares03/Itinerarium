@@ -151,12 +151,16 @@ export async function getPagesAmount(cidadeId: number, quantidade: number, ender
 
 export async function getPontos(
   cidadeId: number,
-  quantidade: number,
-  pagina: number,
-  endereco?: string
+  params: {
+    quantidade?: number,
+    pagina?: number,
+    endereco?: string
+  }
 ) {
-  const offset = (pagina - 1) * quantidade;
-  const termos = endereco?.trim()
+  const limit = (params.quantidade) ? Prisma.sql`LIMIT ${params.quantidade}` : Prisma.empty;
+  const offset = (params.pagina && params.quantidade) ? Prisma.sql`OFFSET ${(params.pagina - 1) * params.quantidade}` : Prisma.empty;
+
+  const termos = params.endereco?.trim()
                           .split(/s+/)
                           .map((termo) => termo.replace(/[,.]g/, ""))
                           .filter(Boolean)
@@ -185,8 +189,8 @@ export async function getPontos(
     FROM ponto
     WHERE cidade = ${cidadeId} ${filtro}
     ORDER BY id
-    LIMIT ${quantidade}
-    OFFSET ${offset}
+    ${limit}
+    ${offset}
   `;
 
   const pontosFormatados: Ponto[] = pontos.map((ponto) => ({
@@ -198,6 +202,6 @@ export async function getPontos(
   }));
 
   return {
-    pontosFormatados
+    pontos: pontosFormatados
   };
 }

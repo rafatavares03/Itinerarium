@@ -1,7 +1,6 @@
 import { Prisma } from "@/app/generated/prisma/client";
 import prisma from "@/lib/prisma"
 import { CidadeDetails } from "@/types/cidade";
-import { Ponto } from "@/types/ponto";
 
 type City = {
   id: number,
@@ -22,15 +21,6 @@ type CityQuery = {
   minLong: number;
   maxLat: number;
   maxLong: number;
-}
-
-type Point = {
-  id: number,
-  logradouro: string,
-  numero: string,
-  cidade: number,
-  longitude: number,
-  latitude: number
 }
 
 export async function saveCity(city: City) {
@@ -119,28 +109,6 @@ export async function getById(id: number) {
   `
   if(!cidade[0]) return null;
 
-  const pontos = await prisma.$queryRaw<Point[]>`
-    SELECT
-      id,
-      logradouro,
-      numero,
-      cidade,
-      ST_X(coordenada) AS longitude,
-      ST_Y(coordenada) AS latitude
-    FROM ponto
-    WHERE cidade = ${cidade[0].id}
-  `;
-
-  const pontosFormatados:Ponto[] = pontos.map((ponto) => {
-    return {
-      id: ponto.id,
-      numero: ponto.numero,
-      logradouro: ponto.logradouro,
-      cidade_id: ponto.cidade,
-      coordenada: [ponto.longitude, ponto.latitude]
-    }
-  })
-
   const cidadeFormatada:CidadeDetails[] = cidade.map((cidade) => {
     return {
       id: cidade.id,
@@ -155,7 +123,6 @@ export async function getById(id: number) {
 
   return {
     cidade: cidadeFormatada[0],
-    pontos: pontosFormatados
   }
 }
 

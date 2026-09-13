@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Ponto } from "@/types/ponto";
 import PontosList from "./PontosList";
-import PontoDetails from "@/app/components/pontoDetails";
+import PontoDetails from "@/app/components/pontoInfo";
 import { RiSave3Fill } from "react-icons/ri";
 import { MdDelete } from "react-icons/md";
 import Pagination from "@/app/components/pagination";
@@ -63,7 +63,7 @@ export default function PontosMenu({
     console.log('babado');
     const timeout = setTimeout(async () => {
       if(busca.trim().length === 0) return;
-      const resposta = await buscarPontos(cidadeId, 10, paginasBusca.atual, busca);
+      const resposta = await buscarPontos(cidadeId, 15, paginasBusca.atual, busca);
       console.log("RESPOSTA",resposta);
       if(resposta.success) {
         setResultadoBusca(resposta.data?.pontos ?? []);

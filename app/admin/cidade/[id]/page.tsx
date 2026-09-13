@@ -25,14 +25,16 @@ export default function City({
   const [cidade, setCidade] = useState<CidadeDetails | null>(null);
   const [adicionar, setAdicionar] = useState(false);
   
-  const [pontoEmFoco, setPontoEmFoco] = useState<Ponto | null>(null);
   const [registrados, setRegistrados] = useState<Ponto[]>([]);
   const [selecionados, setSelecionados] = useState<Ponto[]>([]);
   const [novos, setNovos] = useState<Ponto[]>([]);
   const [pontosMapa, setPontosMapa] = useState<Ponto[]>([]);
   const [edicao, setEdicao] = useState(false);
-  const [pagina, setPagina] = useState(1);
-  const [quantidadePaginas, setQuantidadePaginas] = useState(0);
+  const [paginas, setPaginas] = useState({
+    atual: 1,
+    total: 1
+  });
+  const [pontoEmFoco, setPontoEmFoco] = useState<Ponto | null>(null);
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -48,17 +50,20 @@ export default function City({
 
   useEffect(() => { 
     const carregarPontos = async () => { 
-      const resposta = await buscarPontos(parseInt(id), 10, pagina); 
-      if (resposta.success) { 
+      const resposta = await buscarPontos(parseInt(id), 10, paginas.atual); 
+      if(resposta.success) { 
         setRegistrados(resposta.data?.pontos ?? []); 
-        setQuantidadePaginas( resposta.data?.quantidadePaginas ?? 0); 
+        setPaginas({
+          atual: paginas.atual,
+          total: resposta.data?.quantidadePaginas ?? 1
+        })
       }} 
       
     carregarPontos(); 
-  }, [id, pagina, pontosMapa]);
+  }, [id, paginas.atual, pontosMapa.length]);
 
   function MapClick(latitude: number, longitude: number) {
-    if (!cidade) return;
+    if(!cidade) return;
 
     const novoPonto: Ponto = {
       cidade_id: cidade.id,
@@ -209,15 +214,18 @@ export default function City({
           pontoDestaque={pontoEmFoco}
           />
         <PontosMenu 
+          cidadeId={parseInt(id)}
           registrados={registrados} 
           selecionados={selecionados} 
           novos={novos}
           ponto={pontoEmFoco}
           emCadastro={edicao}
-          pagina = {pagina}
-          quantidadePaginas={quantidadePaginas}
+          paginas = {paginas}
           registradosTotais={pontosMapa.length}
-          onPageChange={(p:number) => setPagina(p)}
+          onPageChange={(p:number) => setPaginas({
+            total: paginas.total,
+            atual: p
+          })}
           onSetFocus={(ponto) => {
             setPontoEmFoco(ponto);
             if(!ponto) setEdicao(false);

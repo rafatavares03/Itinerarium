@@ -40,12 +40,13 @@ export async function apagarPontos(pontos: Ponto[]) {
 export async function buscarPontos(
   cidadeId: number,
   quantidade: number,
-  pagina: number
+  pagina: number,
+  endereco?: string
 ) {
   try {
     const [{ pontosFormatados }, { quantidadePaginas }] = await Promise.all([
-      getPontos(cidadeId, quantidade, pagina),
-      getPagesAmount(cidadeId, quantidade)
+      (endereco) ? getPontos(cidadeId, quantidade, pagina, endereco) : getPontos(cidadeId, quantidade, pagina),
+      (endereco) ? getPagesAmount(cidadeId, quantidade, endereco) : getPagesAmount(cidadeId, quantidade)
     ]);
 
     return {

@@ -114,11 +114,34 @@ export async function deletePoints(pontos: Ponto[]) {
   })
 }
 
-export async function getPagesAmount(cidadeId: number, quantidade: number) {
+function sqlAdressFilter(address?: string) {
+    const termos = address?.trim()
+                          .split(/s+/)
+                          .map((termo) => termo.replace(/[,.]g/, ""))
+                          .filter(Boolean)
+  const filter = termos?.length ?
+                  Prisma.sql`
+                    AND ${Prisma.join(
+                      termos.map((termo) => Prisma.sql`
+                          (
+                            logradouro ILIKE ${`%${termo}%`} OR numero ILIKE ${`%${termo}%`}
+                          )
+                        `
+                    ), 
+                    " AND "
+                    )}
+                  ` :
+                  Prisma.empty
+
+  return filter;
+}
+
+export async function getPagesAmount(cidadeId: number, quantidade: number, endereco?: string) {
+  const filter = sqlAdressFilter(endereco);
   const [{ total }] = await prisma.$queryRaw<{ total: bigint }[]>`
     SELECT COUNT(*) AS total
     FROM ponto
-    WHERE cidade = ${cidadeId}
+    WHERE cidade = ${cidadeId} ${filter}
   `;
 
   return {
@@ -129,9 +152,27 @@ export async function getPagesAmount(cidadeId: number, quantidade: number) {
 export async function getPontos(
   cidadeId: number,
   quantidade: number,
-  pagina: number
+  pagina: number,
+  endereco?: string
 ) {
   const offset = (pagina - 1) * quantidade;
+  const termos = endereco?.trim()
+                          .split(/s+/)
+                          .map((termo) => termo.replace(/[,.]g/, ""))
+                          .filter(Boolean)
+  const filtro = termos?.length ?
+                  Prisma.sql`
+                    AND ${Prisma.join(
+                      termos.map((termo) => Prisma.sql`
+                          (
+                            logradouro ILIKE ${`%${termo}%`} OR numero ILIKE ${`%${termo}%`}
+                          )
+                        `
+                    ), 
+                    " AND "
+                    )}
+                  ` :
+                  Prisma.empty
 
   const pontos = await prisma.$queryRaw<PontoQuery[]>`
     SELECT
@@ -142,7 +183,7 @@ export async function getPontos(
       ST_X(coordenada) AS longitude,
       ST_Y(coordenada) AS latitude
     FROM ponto
-    WHERE cidade = ${cidadeId}
+    WHERE cidade = ${cidadeId} ${filtro}
     ORDER BY id
     LIMIT ${quantidade}
     OFFSET ${offset}

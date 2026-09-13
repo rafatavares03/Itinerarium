@@ -1,6 +1,6 @@
 'use client'
 
-export default function Paginacao({
+export default function Pagination({
   quantidade,
   pagina,
   onChange

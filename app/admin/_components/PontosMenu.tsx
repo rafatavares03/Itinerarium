@@ -4,7 +4,8 @@ import PontosList from "./PontosList";
 import PontoDetails from "@/app/components/pontoDetails";
 import { RiSave3Fill } from "react-icons/ri";
 import { MdDelete } from "react-icons/md";
-import Paginacao from "@/app/components/paginacao";
+import Pagination from "@/app/components/pagination";
+import { buscarPontos } from "@/lib/service/pontoService";
 
 enum Aba {
   registrados = "REGISTRADOS",
@@ -13,13 +14,13 @@ enum Aba {
 }
 
 export default function PontosMenu({
+  cidadeId,
   ponto,
   registrados,
   novos,
   selecionados,
   emCadastro,
-  pagina,
-  quantidadePaginas,
+  paginas,
   registradosTotais,
   onPageChange,
   onSetFocus,
@@ -27,13 +28,13 @@ export default function PontosMenu({
   onUpdate,
   onSave
 }: {
+  cidadeId: number,
   ponto: Ponto | null,
   registrados: Ponto[],
   novos: Ponto[],
   selecionados: Ponto[],
-  emCadastro: boolean,
-  pagina: number,
-  quantidadePaginas: number,
+  emCadastro: boolean
+  paginas: {atual: number, total: number}
   registradosTotais: number,
   onPageChange: (p: number) => void,
   onSetFocus: (ponto: Ponto | null) => void,
@@ -42,6 +43,13 @@ export default function PontosMenu({
   onSave: () => void
 }) {
   const [abaAtiva, setAbaAtiva] = useState<Aba>(Aba.registrados);
+  const [busca, setBusca] = useState("");
+  const [resultadoBusca, setResultadoBusca] = useState<Ponto[]>([]);
+  const [paginasBusca, setPaginasBusca] = useState({
+    atual: 1,
+    total: 1
+  });
+  const buscando = busca.trim().length > 0;
   const abaStyle = "transition-all hover:border-b-3"
   const abaAtivaStyle = "text-base font-bold text-icy-aqua-700 border-b-3 border-icy-aqua-700";
 
@@ -50,6 +58,31 @@ export default function PontosMenu({
       setAbaAtiva(Aba.novos);
     }
   }, [emCadastro, ponto])
+
+  useEffect(() => {
+    console.log('babado');
+    const timeout = setTimeout(async () => {
+      if(busca.trim().length === 0) return;
+      const resposta = await buscarPontos(cidadeId, 10, paginasBusca.atual, busca);
+      console.log("RESPOSTA",resposta);
+      if(resposta.success) {
+        setResultadoBusca(resposta.data?.pontos ?? []);
+        setPaginasBusca({
+          atual: paginasBusca.atual,
+          total: resposta.data?.quantidadePaginas ?? 1
+        });
+      }
+    }, 500)
+
+    return () => clearTimeout(timeout);
+  }, [busca, paginasBusca.atual]);
+
+  function atualizaPaginaBusca(pagina: number) {
+    setPaginasBusca({
+      atual: pagina,
+      total: paginasBusca.total
+    })
+  }
 
   function getList(aba: Aba): Ponto[]{
     switch(aba){
@@ -85,9 +118,26 @@ export default function PontosMenu({
         <p className="flex-1 p-5 text-center text-sm">Não há pontos de ônibus para exibir na área "<em className="lowercase">{abaAtiva}</em>".</p> :
         ponto === null ?
           <>
-            <PontosList pontos={getList(abaAtiva)} onClick={(ponto:Ponto) => onSetFocus(ponto)}/> 
             {abaAtiva === Aba.registrados && 
-              <Paginacao quantidade={quantidadePaginas} pagina={pagina} onChange={onPageChange}/>
+              <div className="px-2 mt-1">
+              <input type="text" name="search" id="search"
+                className="bg-space-indigo-700 outline-0 text-white text-sm py-1 px-3 w-full"
+                placeholder="Pesquisar ponto de ônibus"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                />
+              </div>
+            }
+            <PontosList 
+              pontos={(!buscando) ? getList(abaAtiva) : resultadoBusca} 
+              onClick={(ponto:Ponto) => onSetFocus(ponto)}
+            /> 
+            {abaAtiva === Aba.registrados && 
+              <Pagination 
+                quantidade={(!buscando) ? paginas.total : paginasBusca.total} 
+                pagina={(!buscando) ? paginas.atual : paginasBusca.atual} 
+                onChange={(!buscando) ? onPageChange : atualizaPaginaBusca}
+              />
             }
             {abaAtiva === Aba.novos && 
               <button type="button" 

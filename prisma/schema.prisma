@@ -18,6 +18,7 @@ model Cidade {
   uf  String
   geometria Unsupported("geometry")
   pontos Ponto[]
+  linhas  Linha[]
   enquadramentoMapa Unsupported("box2d") @map("enquadramento_mapa")
 
   @@map("cidade")
@@ -30,6 +31,43 @@ model Ponto {
   cidade  Cidade  @relation(fields: [cidade_id], references: [id])
   cidade_id Int @map("cidade")
   coordenada Unsupported("geometry")
+  trajetos  PontoTrajeto[]
 
   @@map("ponto")
+}
+
+model Linha {
+  id  Int @id @default(autoincrement())
+  codigo  Int
+  nome  String
+  cidade  Cidade @relation(fields: [cidade_id], references: [id])
+  cidade_id Int @map("cidade")
+  trajetos  Trajeto[]
+
+  @@map("linha")
+}
+
+model Trajeto {
+  id  Int @id @default(autoincrement())
+  ativo Boolean
+  vigencia  DateTime?
+  geometria Unsupported("geometry")
+  linha Linha @relation(fields:[linha_id], references: [id])
+  linha_id  Int @map("linha")
+  updated_at  DateTime @default(now())
+  pontos  PontoTrajeto[]
+
+  @@map("trajeto")
+}
+
+model PontoTrajeto{
+  id  Int @id @default(autoincrement())
+  ordem Int
+  final Boolean
+  ponto Ponto @relation(fields:[ponto_id], references: [id])
+  ponto_id  Int @map("ponto")
+  trajeto Trajeto @relation(fields:[trajeto_id], references: [id])
+  trajeto_id  Int @map("trajeto")
+
+  @@map("ponto_trajeto")
 }

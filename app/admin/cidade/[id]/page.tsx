@@ -4,18 +4,12 @@ import { buscaCidadePorId } from "@/lib/service/cidadeService";
 import { use, useEffect, useState } from "react";
 import { CidadeDetails } from "@/types/cidade";
 import { BusStopManager } from "@/app/components/pontosOnibusManager";
-import dynamic from "next/dynamic";
-import { CiCirclePlus } from "react-icons/ci";
-import { Ponto } from "@/types/ponto";
-import { salvarPontos, apagarPontos, buscarPontos } from "@/lib/service/pontoService";
-import PontosMenu from "../../_components/PontosMenu";
+import { JSX } from "react";
 
-const CidadeMap = dynamic(
-  () => import("@/app/components/cidadeMap"),
-  {
-    ssr: false,
-  }
-);
+enum Abas {
+  pontos = "Pontos",
+  linhas = "Linhas",
+}
 
 export default function City({
   params,
@@ -24,18 +18,12 @@ export default function City({
 }) {
   const {id} = use(params);
   const [cidade, setCidade] = useState<CidadeDetails | null>(null);
-  
-  
-  const [registrados, setRegistrados] = useState<Ponto[]>([]);
-  const [selecionados, setSelecionados] = useState<Ponto[]>([]);
-  const [novos, setNovos] = useState<Ponto[]>([]);
-  const [pontosMapa, setPontosMapa] = useState<Ponto[]>([]);
-  const [edicao, setEdicao] = useState(false);
-  const [paginas, setPaginas] = useState({
-    atual: 1,
-    total: 1
-  });
-  
+  const [abaAtiva, setAbaAtiva] = useState<Abas>(Abas.pontos);
+  const componentMap: Record<Abas, () => JSX.Element> = {
+    [Abas.pontos]: () => <BusStopManager cidade={cidade}/>,
+    [Abas.linhas]: () => <p>Nenhuma informação no momento</p>
+  }
+  const ComponenteSelecionado = componentMap[abaAtiva];
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -47,117 +35,6 @@ export default function City({
     carregarDados();
   }, []);
 
-  useEffect(() => { 
-    const carregarPontos = async () => { 
-      const resposta = await buscarPontos(parseInt(id), 15, paginas.atual); 
-      if(resposta.success) { 
-        setRegistrados(resposta.data?.pontos ?? []); 
-        setPaginas({
-          atual: paginas.atual,
-          total: resposta.data?.quantidadePaginas ?? 1
-        })
-      }} 
-      
-    carregarPontos(); 
-  }, [id, paginas.atual, pontosMapa.length]);
-
-  
-
-  // function comparaPontoPorCoordenada(p1: Ponto, p2: Ponto) {
-  //   return (p1.coordenada[0] === p2.coordenada[0]) && (p1.coordenada[1] === p2.coordenada[1]);
-  // }
-
-  // function adicionaPontoEmDestaque(p: Ponto) {
-  //   setPontoEmFoco((atual) => {
-  //     if(!atual) {
-  //       return p;
-  //     }
-
-  //     return comparaPontoPorCoordenada(atual, p) ? null : p;
-  //   });
-  // }
-
-  // function selecionaPonto(ponto: Ponto) {
-  //   if(!ponto.id) {
-  //     adicionaPontoEmDestaque(ponto);
-  //     return;
-  //   }
-
-  //   setSelecionados((selecionados) => {
-  //     if(selecionados.some(p => comparaPontoPorCoordenada(p, ponto))) {
-  //       return selecionados.filter((p) => !comparaPontoPorCoordenada(p, ponto));
-  //     }
-
-  //     return [...selecionados, ponto];
-  //   })
-
-  //   if(!ponto.id) {
-  //     adicionaPontoEmDestaque(ponto);
-  //   } else {
-  //     setEdicao(false);
-  //   }
-  // }
-
-  // function apagaNovo(ponto: Ponto){
-  //   setNovos((atuais) => {
-  //     return atuais.filter((p) => !comparaPontoPorCoordenada(p, ponto));
-  //   });
-  //   if(pontoEmFoco && comparaPontoPorCoordenada(ponto, pontoEmFoco)) {
-  //     setPontoEmFoco(null);
-  //     setEdicao(false);
-  //   }
-  // }
-
-  // function pontoSelecionado(ponto: Ponto) {
-  //   return selecionados.some(p => p.coordenada[0] === ponto.coordenada[0] && p.coordenada[1] === ponto.coordenada[1])
-  // }
-
-  // function pontoDestacado(ponto: Ponto) {
-  //   if(!pontoEmFoco) return false;
-  //   return comparaPontoPorCoordenada(ponto, pontoEmFoco);
-  // }
-
-  // async function editarPonto(antigo: Ponto, novo: Ponto) {
-  //   if(!antigo.id) {
-  //     setNovos((novos) => 
-  //       novos.map(ponto => 
-  //         (ponto.coordenada[0] === antigo.coordenada[0] && ponto.coordenada[1] === antigo.coordenada[1]) ? novo : ponto
-  //       )
-  //     );
-  //   } else {
-  //     const resultado = await salvarPontos(new Array(novo));
-  //     if(resultado.success) {
-  //       setPontosMapa((registrados) => 
-  //         registrados.map(ponto => ponto.id === novo.id ? novo : ponto)
-  //       );
-  //     }
-  //   }
-  // }
-
-  // async function adicionarPontos() {
-  //   const resultado = await salvarPontos(novos);
-  //   if(resultado.success) {
-  //     setPontosMapa((pontos) => [
-  //       ...pontos,
-  //       ...resultado.data
-  //     ])
-  //     setNovos([]);
-  //     setPontoEmFoco(null);
-  //     setEdicao(false);
-  //   }
-  // }
-
-  // async function excluirPontos() {
-  //   const resultado = await apagarPontos(selecionados);
-  //   if(resultado.success) {
-  //     const ids = new Set(selecionados.filter((item) => item.id ?? false).map((item) => item.id))
-  //     setRegistrados((atuais) => {
-  //       return atuais.filter((atual) => !ids.has(atual.id));
-  //     });
-  //     setSelecionados([]);
-  //   }
-  // }
-
   if(!cidade) {
     return (
       <p>Não foi possível exibir informações sobre a cidade no momento</p>
@@ -168,7 +45,11 @@ export default function City({
   return (
     <div className="flex flex-col justify-center items-center">
       <h1 className="font-title mt-3 text-2xl text-center">{cidade.nome} - {cidade.uf}</h1>
-      <BusStopManager cidade={cidade}/>
+      <div>
+        <button type="button" onClick={() => setAbaAtiva(Abas.pontos)}>Pontos</button>
+        <button type="button" onClick={() => setAbaAtiva(Abas.linhas)}>Linhas</button>
+      </div>
+      <ComponenteSelecionado />
     </div>
   )
 }

@@ -7,7 +7,7 @@ import { MdDelete } from "react-icons/md";
 import Pagination from "@/app/components/pagination";
 import { buscarPontos } from "@/lib/service/pontoService";
 
-enum Aba {
+enum Abas {
   registrados = "REGISTRADOS",
   selecionados = "SELECIONADOS",
   novos = "NOVOS"
@@ -42,7 +42,7 @@ export default function PontosMenu({
   onUpdate: (antigo: Ponto, novo: Ponto) => void
   onSave: () => void
 }) {
-  const [abaAtiva, setAbaAtiva] = useState<Aba>(Aba.registrados);
+  const [abaAtiva, setAbaAtiva] = useState<Abas>(Abas.registrados);
   const [busca, setBusca] = useState("");
   const [resultadoBusca, setResultadoBusca] = useState<Ponto[]>([]);
   const [paginasBusca, setPaginasBusca] = useState({
@@ -55,7 +55,7 @@ export default function PontosMenu({
 
   useEffect(() => {
     if(emCadastro && ponto) {
-      setAbaAtiva(Aba.novos);
+      setAbaAtiva(Abas.novos);
     }
   }, [emCadastro, ponto])
 
@@ -63,7 +63,7 @@ export default function PontosMenu({
     console.log('babado');
     const timeout = setTimeout(async () => {
       if(busca.trim().length === 0) return;
-      const resposta = await buscarPontos(cidadeId, 15, paginasBusca.atual, busca);
+      const resposta = await buscarPontos(cidadeId, {quantidade: 15, pagina: paginasBusca.atual, endereco: busca});
       console.log("RESPOSTA",resposta);
       if(resposta.success) {
         setResultadoBusca(resposta.data?.pontos ?? []);
@@ -84,13 +84,13 @@ export default function PontosMenu({
     })
   }
 
-  function getList(aba: Aba): Ponto[]{
+  function getList(aba: Abas): Ponto[]{
     switch(aba){
-      case Aba.registrados:
+      case Abas.registrados:
         return registrados
-      case Aba.novos:
+      case Abas.novos:
         return novos
-      case Aba.selecionados:
+      case Abas.selecionados:
         return selecionados
     }
   }
@@ -99,7 +99,7 @@ export default function PontosMenu({
     <div className="flex flex-col justify-between h-full relative w-3xl" >
       <div>
         <div className="flex justify-center gap-2 text-xs uppercase">
-          {Object.values(Aba).map((aba) => {
+          {Object.values(Abas).map((aba) => {
             return (
               <button key={aba} type="button" 
                 className={(abaAtiva === aba) ? abaStyle.concat(" " + abaAtivaStyle) : abaStyle}
@@ -108,7 +108,7 @@ export default function PontosMenu({
                   setAbaAtiva(aba)
                 }}
               >
-                {aba} <em className="italic font-thin text-xs">({aba === Aba.registrados ? registradosTotais : getList(aba).length})</em>
+                {aba} <em className="italic font-thin text-xs">({aba === Abas.registrados ? registradosTotais : getList(aba).length})</em>
               </button>
             )
           })}
@@ -118,7 +118,7 @@ export default function PontosMenu({
         <p className="flex-1 p-5 text-center text-sm">Não há pontos de ônibus para exibir na área "<em className="lowercase">{abaAtiva}</em>".</p> :
         ponto === null ?
           <>
-            {abaAtiva === Aba.registrados && 
+            {abaAtiva === Abas.registrados && 
               <div className="px-2 mt-1">
               <input type="text" name="search" id="search"
                 className="bg-space-indigo-700 outline-0 text-white text-sm py-1 px-3 w-full"
@@ -132,14 +132,14 @@ export default function PontosMenu({
               pontos={(!buscando) ? getList(abaAtiva) : resultadoBusca} 
               onClick={(ponto:Ponto) => onSetFocus(ponto)}
             /> 
-            {abaAtiva === Aba.registrados && 
+            {abaAtiva === Abas.registrados && 
               <Pagination 
                 quantidade={(!buscando) ? paginas.total : paginasBusca.total} 
                 pagina={(!buscando) ? paginas.atual : paginasBusca.atual} 
                 onChange={(!buscando) ? onPageChange : atualizaPaginaBusca}
               />
             }
-            {abaAtiva === Aba.novos && 
+            {abaAtiva === Abas.novos && 
               <button type="button" 
                 onClick={onSave}
                 className="bg-icy-aqua-800 cursor-pointer font-display font-bold flex justify-center items-center gap-2 rounded-b-2xl py-3 text-icy-aqua-400 shadow-[0_-10px_0px_#fff]"
@@ -147,7 +147,7 @@ export default function PontosMenu({
                <RiSave3Fill size={"25px"}/> Salvar
               </button>
             }
-            {abaAtiva === Aba.selecionados &&
+            {abaAtiva === Abas.selecionados &&
               <button type="button"
                 onClick={onDelete}
                 className="bg-red-500 cursor-pointer font-display font-bold flex justify-center items-center gap-2 rounded-b-2xl py-3 text-white shadow-[0_-10px_0px_#fff]"
@@ -162,7 +162,7 @@ export default function PontosMenu({
               onUpdate(antigo, novo);
               onSetFocus(null);
             }}
-            {...(abaAtiva === Aba.novos) ? {toUpdate: true} : {}}
+            {...(abaAtiva === Abas.novos) ? {toUpdate: true} : {}}
           />
       }
     </div>

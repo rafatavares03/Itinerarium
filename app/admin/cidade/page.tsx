@@ -127,7 +127,7 @@ export default function Cities() {
         </div>
       </div>
 
-      {(cidades.length === 0) ? <p>Não há cidades disponíveis.</p> : 
+      {(cidades.length === 0) ? <p className="text-center font-main text-lg font-semibold mt-10">Não há cidades disponíveis.</p> : 
         <div className="flex flex-col gap-5 py-10">
           {cidades.map((cidade:any) => {
             return (

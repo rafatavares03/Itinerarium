@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod';
-import { updateCityBounds, saveCity } from '@/lib/data/cidadeDAO';
+import { updateCityBounds, saveCity } from '@/lib/data/cityRepository';
 
 const MunicipioSchema = z.object({
   id: z.number(),

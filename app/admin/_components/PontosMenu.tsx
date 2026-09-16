@@ -5,7 +5,7 @@ import PontoDetails from "@/app/components/pontoInfo";
 import { RiSave3Fill } from "react-icons/ri";
 import { MdDelete } from "react-icons/md";
 import Pagination from "@/app/components/pagination";
-import { buscarPontos } from "@/lib/services/busStopService";
+import { getBusStopsAction } from "../actions/busStopActions";
 
 enum Abas {
   registrados = "REGISTRADOS",
@@ -60,16 +60,15 @@ export default function PontosMenu({
   }, [emCadastro, ponto])
 
   useEffect(() => {
-    console.log('babado');
     const timeout = setTimeout(async () => {
       if(busca.trim().length === 0) return;
-      const resposta = await buscarPontos(cidadeId, {quantidade: 15, pagina: paginasBusca.atual, endereco: busca});
-      console.log("RESPOSTA",resposta);
+      const resposta = await getBusStopsAction({city: cidadeId, amount: 15, page: paginasBusca.atual, address: busca, pagination: true});
+
       if(resposta.success) {
-        setResultadoBusca(resposta.data?.pontos ?? []);
+        setResultadoBusca(resposta.data?.busStops ?? []);
         setPaginasBusca({
           atual: paginasBusca.atual,
-          total: resposta.data?.quantidadePaginas ?? 1
+          total: resposta.data?.pagesAmount ?? 1
         });
       }
     }, 500)

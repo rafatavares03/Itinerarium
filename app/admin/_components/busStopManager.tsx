@@ -6,7 +6,8 @@ import { CidadeDetails } from "@/types/cidade";
 import { CiCirclePlus } from "react-icons/ci";
 import PontosMenu from "@/app/admin/_components/PontosMenu";
 import dynamic from "next/dynamic";
-import { apagarPontos, buscarPontos, salvarPontos } from "@/lib/services/busStopService";
+import { apagarPontos, salvarPontos } from "@/lib/services/busStopService";
+import { getBusStopsAction } from "../actions/busStopActions";
 
 const CidadeMap = dynamic(
   () => import("@/app/components/cidadeMap"),
@@ -16,14 +17,18 @@ const CidadeMap = dynamic(
 );
 
 export default function BusStopManager({
-  city
+  city,
+  busStops,
+  onChangeBusStops
 }: {
-  city: CidadeDetails | null
+  city: CidadeDetails | null,
+  busStops: Ponto[],
+  onChangeBusStops: React.Dispatch<React.SetStateAction<Ponto[]>>
 }) {
-  const [registrados, setRegistrados] = useState<Ponto[]>([]);
+  const [registrados, setRegistrados] = useState<Ponto[]>(busStops.slice(0, 14));
   const [selecionados, setSelecionados] = useState<Ponto[]>([]);
   const [novos, setNovos] = useState<Ponto[]>([]);
-  const [pontosMapa, setPontosMapa] = useState<Ponto[]>([]);
+  //const [pontosMapa, setPontosMapa] = useState<Ponto[]>([]);
   const [adicionar, setAdicionar] = useState(false);
   const [pontoEmFoco, setPontoEmFoco] = useState<Ponto | null>(null);
   const [edicao, setEdicao] = useState(false);
@@ -32,26 +37,33 @@ export default function BusStopManager({
     total: 1
   });
 
-  useEffect(() => { 
+  useEffect(() => {
     const carregarPontos = async () => {
-      if(!city) return;
-      const [todosPontos, pontosDoMenu] = await Promise.all([
-        buscarPontos(city.id, {}),
-        buscarPontos(city.id, {quantidade: 15, pagina: paginas.atual})
-      ]) 
-      if(todosPontos.success) {
-        setPontosMapa(todosPontos.data?.pontos ?? []);
+      if (!city) return;
+
+      const res = await getBusStopsAction({
+        city: city.id,
+        amount: 15,
+        page: paginas.atual,
+        pagination: true,
+      });
+
+      if (res.success) {
+        setRegistrados(res.data?.busStops ?? []);
+
+        setPaginas(prev => ({
+          ...prev,
+          total: res.data?.pagesAmount ?? 1,
+        }));
       }
-      if(pontosDoMenu.success) { 
-        setRegistrados(pontosDoMenu.data?.pontos ?? []); 
-        setPaginas({
-          atual: paginas.atual,
-          total: pontosDoMenu.data?.quantidadePaginas ?? 1
-        })
-      }} 
-      
-    carregarPontos(); 
-  }, [city, paginas.atual, pontosMapa.length]);
+    };
+
+    carregarPontos();
+  }, [paginas.atual]);
+
+  useEffect(() => {
+    setRegistrados(busStops.slice(0,14))
+  }, [busStops])
 
   function comparaPontoPorCoordenada(p1: Ponto, p2: Ponto) {
     return (p1.coordenada[0] === p2.coordenada[0]) && (p1.coordenada[1] === p2.coordenada[1]);
@@ -140,8 +152,8 @@ export default function BusStopManager({
     } else {
       const resultado = await salvarPontos(new Array(novo));
       if(resultado.success) {
-        setPontosMapa((registrados) => 
-          registrados.map(ponto => ponto.id === novo.id ? novo : ponto)
+        onChangeBusStops((current) => 
+          current.map(busStop => busStop.id === novo.id ? novo : busStop)
         );
       }
     }
@@ -150,8 +162,8 @@ export default function BusStopManager({
   async function adicionarPontos() {
     const resultado = await salvarPontos(novos);
     if(resultado.success) {
-      setPontosMapa((pontos) => [
-        ...pontos,
+      onChangeBusStops((current) => [
+        ...current,
         ...resultado.data
       ])
       setNovos([]);
@@ -167,8 +179,8 @@ export default function BusStopManager({
       setRegistrados((atuais) => {
         return atuais.filter((ponto) => !ids.has(ponto.id));
       });
-      setPontosMapa((atuais) => {
-        return atuais.filter((ponto) => !ids.has(ponto.id))
+      onChangeBusStops((current) => {
+        return current.filter((busStop) => !ids.has(busStop.id))
       })
       setSelecionados([]);
     }
@@ -196,7 +208,7 @@ export default function BusStopManager({
           </div>
           <CidadeMap 
             bounds={city.enquadramento}
-            pontos={pontosMapa} 
+            pontos={busStops} 
             novos={novos}
             onMapClick={MapClick}
             adicionarPontos={adicionar}
@@ -215,7 +227,7 @@ export default function BusStopManager({
           ponto={pontoEmFoco}
           emCadastro={edicao}
           paginas = {paginas}
-          registradosTotais={pontosMapa.length}
+          registradosTotais={busStops.length}
           onPageChange={(p:number) => setPaginas({
             total: paginas.total,
             atual: p

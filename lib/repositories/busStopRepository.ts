@@ -136,40 +136,40 @@ function sqlAdressFilter(address?: string) {
   return filter;
 }
 
-export async function getPagesAmount(cidadeId: number, quantidade: number, endereco?: string) {
-  const filter = sqlAdressFilter(endereco);
+export async function getPagesAmount(city: number, elementsAmount: number, address?: string) {
+  const filter = sqlAdressFilter(address);
   const [{ total }] = await prisma.$queryRaw<{ total: bigint }[]>`
     SELECT COUNT(*) AS total
     FROM ponto
-    WHERE cidade = ${cidadeId} ${filter}
+    WHERE cidade = ${city} ${filter}
   `;
 
   return {
-    quantidadePaginas: Math.ceil(Number(total) / quantidade)
+    pagesAmount: Math.ceil(Number(total) / elementsAmount)
   }
 }
 
-export async function getPontos(
-  cidadeId: number,
+export async function getBusStops(
   params: {
-    quantidade?: number,
-    pagina?: number,
-    endereco?: string
+    city: number,
+    amount?: number,
+    page?: number,
+    address?: string
   }
 ) {
-  const limit = (params.quantidade) ? Prisma.sql`LIMIT ${params.quantidade}` : Prisma.empty;
-  const offset = (params.pagina && params.quantidade) ? Prisma.sql`OFFSET ${(params.pagina - 1) * params.quantidade}` : Prisma.empty;
+  const limit = (params.amount) ? Prisma.sql`LIMIT ${params.amount}` : Prisma.empty;
+  const offset = (params.page && params.amount) ? Prisma.sql`OFFSET ${(params.page - 1) * params.amount}` : Prisma.empty;
 
-  const termos = params.endereco?.trim()
+  const terms = params.address?.trim()
                           .split(/s+/)
-                          .map((termo) => termo.replace(/[,.]g/, ""))
+                          .map((term) => term.replace(/[,.]g/, ""))
                           .filter(Boolean)
-  const filtro = termos?.length ?
+  const filter = terms?.length ?
                   Prisma.sql`
                     AND ${Prisma.join(
-                      termos.map((termo) => Prisma.sql`
+                      terms.map((term) => Prisma.sql`
                           (
-                            logradouro ILIKE ${`%${termo}%`} OR numero ILIKE ${`%${termo}%`}
+                            logradouro ILIKE ${`%${term}%`} OR numero ILIKE ${`%${term}%`}
                           )
                         `
                     ), 
@@ -178,7 +178,7 @@ export async function getPontos(
                   ` :
                   Prisma.empty
 
-  const pontos = await prisma.$queryRaw<PontoQuery[]>`
+  const busStops = await prisma.$queryRaw<PontoQuery[]>`
     SELECT
       id,
       logradouro,
@@ -187,21 +187,21 @@ export async function getPontos(
       ST_X(coordenada) AS longitude,
       ST_Y(coordenada) AS latitude
     FROM ponto
-    WHERE cidade = ${cidadeId} ${filtro}
+    WHERE cidade = ${params.city} ${filter}
     ORDER BY id
     ${limit}
     ${offset}
   `;
 
-  const pontosFormatados: Ponto[] = pontos.map((ponto) => ({
-    id: ponto.id,
-    logradouro: ponto.logradouro,
-    numero: ponto.numero,
-    cidade_id: ponto.cidade,
-    coordenada: [ponto.longitude, ponto.latitude]
+  const formatedBusStops: Ponto[] = busStops.map((busStop) => ({
+    id: busStop.id,
+    logradouro: busStop.logradouro,
+    numero: busStop.numero,
+    cidade_id: busStop.cidade,
+    coordenada: [busStop.longitude, busStop.latitude]
   }));
 
   return {
-    pontos: pontosFormatados
+    busStops: formatedBusStops
   };
 }

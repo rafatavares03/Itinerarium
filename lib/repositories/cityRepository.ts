@@ -122,7 +122,7 @@ export async function getById(id: number) {
   })
 
   return {
-    cidade: cidadeFormatada[0],
+    city: cidadeFormatada[0],
   }
 }
 

@@ -1,12 +1,14 @@
 'use client'
 
-import { buscaCidadePorId } from "@/lib/services/cityService";
 import { use, useEffect, useState } from "react";
 import { CidadeDetails } from "@/types/cidade";
+import { Ponto } from "@/types/ponto";
 import BusStopManager from "@/app/admin/_components/busStopManager";
 import BusLineContainer from "@/app/admin/_components/busLineContainer";
 import BusLineManager from "../../_components/busLineManager";
 import { JSX } from "react";
+import { getCityAction } from "../../actions/cityActions";
+import { getBusStopsAction } from "../../actions/busStopActions";
 
 enum Abas {
   pontos = "Pontos",
@@ -19,14 +21,15 @@ export default function City({
   params: Promise<{id: string}>
 }) {
   const {id} = use(params);
-  const [cidade, setCidade] = useState<CidadeDetails | null>(null);
+  const [city, setCity] = useState<CidadeDetails | null>(null);
   const [abaAtiva, setAbaAtiva] = useState<Abas>(Abas.pontos);
   const [mode, setMode] = useState<"list" | "add">("list");
+  const [busStops, setBusStops] = useState<Ponto[]>([]);
   const componentMap: Record<Abas, () => JSX.Element> = {
-    [Abas.pontos]: () => <BusStopManager city={cidade}/>,
+    [Abas.pontos]: () => <BusStopManager city={city} busStops={busStops} onChangeBusStops={setBusStops}/>,
     [Abas.linhas]: () => (mode === "list") ? 
-                            <BusLineContainer city={cidade} onAddClick={() => setMode("add")}/> : 
-                            <BusLineManager city={cidade} onBackClick={() => setMode("list")}/>
+                            <BusLineContainer city={city} onAddClick={() => setMode("add")}/> : 
+                            <BusLineManager city={city} onBackClick={() => setMode("list")}/>
   }
   const ComponenteSelecionado = componentMap[abaAtiva];
 
@@ -35,16 +38,25 @@ export default function City({
   }, [abaAtiva]);
 
   useEffect(() => {
-    const carregarDados = async () => {
-      const resposta = await buscaCidadePorId(parseInt(id));
-      if(resposta.success) {
-        setCidade(resposta.dados?.cidade ?? null);
+    const loadData = async () => {
+      const [city, busStops] = await Promise.all([
+        getCityAction(parseInt(id)),
+        getBusStopsAction({city: parseInt(id)})
+      ])
+
+      if(city.success) {
+        setCity(city.data?.city ?? null)
       }
+
+      if(busStops.success) {
+        setBusStops(busStops.data?.busStops ?? []);
+      }
+
     }
-    carregarDados();
+    loadData();
   }, []);
 
-  if(!cidade) {
+  if(!city) {
     return (
       <p>Não foi possível exibir informações sobre a cidade no momento</p>
     )
@@ -53,7 +65,7 @@ export default function City({
   
   return (
     <div className="flex flex-col justify-center items-center">
-      <h1 className="font-title mt-3 text-2xl text-center">{cidade.nome} - {cidade.uf}</h1>
+      <h1 className="font-title mt-3 text-2xl text-center">{city.nome} - {city.uf}</h1>
       <div>
         <button type="button" onClick={() => setAbaAtiva(Abas.pontos)}>Pontos</button>
         <button type="button" onClick={() => setAbaAtiva(Abas.linhas)}>Linhas</button>

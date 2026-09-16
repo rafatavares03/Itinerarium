@@ -1,7 +1,7 @@
 'use server'
 
 import { Ponto } from "@/types/ponto";
-import { deletePoints, getPontos, getPagesAmount,savePoints } from "../repositories/busStopRepository";
+import { deletePoints, getBusStops, getPagesAmount,savePoints } from "../repositories/busStopRepository";
 
 export async function salvarPontos(pontos: Ponto[]) {
   try {
@@ -37,44 +37,44 @@ export async function apagarPontos(pontos: Ponto[]) {
   }
 }
 
-export async function buscarPontos(
-  cidadeId: number,
+export async function getBusStopsService(
   params: {
-    quantidade?: number,
-    pagina?: number,
-    endereco?: string,
-    paginado?: boolean,
+    city: number,
+    amount?: number,
+    page?: number,
+    address?: string,
+    pagination?: boolean,
   }
 ) {
   try {
-    const {
-      quantidade = 15,
-      pagina = 1,
-      endereco,
-      paginado = true
-    } = params;
-
-    if (!paginado) {
-      const { pontos } = await getPontos(cidadeId, {endereco: params.endereco})
-
+    if(!params.pagination) {
+      let {busStops} = await getBusStops({city: params.city, address: params.address});
       return {
         success: true,
         data: {
-          pontos
+          busStops
         }
       };
     }
 
-    const [{ pontos }, { quantidadePaginas }] = await Promise.all([
-      getPontos(cidadeId, params),
-      getPagesAmount(cidadeId, quantidade, endereco)
+    const {
+      city,
+      amount = 15,
+      page = 1,
+      address,
+      pagination = true
+    } = params;
+
+    const [{ busStops }, { pagesAmount }] = await Promise.all([
+      getBusStops(params),
+      getPagesAmount(city, amount, address)
     ]);
 
     return {
       success: true,
       data: {
-        pontos,
-        quantidadePaginas
+        busStops,
+        pagesAmount
       }
     };
 

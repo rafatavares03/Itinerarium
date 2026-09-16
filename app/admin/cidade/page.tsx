@@ -1,6 +1,6 @@
 'use client'
 
-import { criaCidade, editarCidade } from "./actions";
+import { criaCidade, editarCidade } from "../actions/cityActions";
 import Modal from "@/app/components/modal";
 import { useActionState, useEffect, useState } from "react";
 import Form from 'next/form';

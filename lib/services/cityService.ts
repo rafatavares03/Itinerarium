@@ -22,20 +22,20 @@ export async function buscaCidades(dados: {
   }
 }
 
-export async function buscaCidadePorId(id: number) {
+export async function getCity(id: number) {
   try {
     const dados = await getById(id);
 
     if(!dados) {
       return {
-        sucess: false,
+        success: false,
         message: "Cidade não encontrada."
       }
     }
 
     return {
       success: true,
-      dados
+      data: dados
     }
   } catch(e) {
     console.log(e);

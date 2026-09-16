@@ -1,7 +1,7 @@
 'use server'
 
 import { Ponto } from "@/types/ponto";
-import { deletePoints, getPontos, getPagesAmount,savePoints } from "../data/busStopRepository";
+import { deletePoints, getPontos, getPagesAmount,savePoints } from "../repositories/busStopRepository";
 
 export async function salvarPontos(pontos: Ponto[]) {
   try {

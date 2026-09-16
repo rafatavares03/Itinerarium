@@ -8,10 +8,11 @@ import Link from "next/link";
 import { IoIosCloseCircle, IoMdAdd } from "react-icons/io";
 import { FaArrowAltCircleRight } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
-import { buscaCidades } from "@/lib/service/cidadeService";
+import { buscaCidades } from "@/lib/services/cityService";
 import { CidadeDetails } from "@/types/cidade";
 import dynamic from "next/dynamic";
 import { useMapEvents } from "react-leaflet";
+import SearchToolBar from "@/app/components/searchToolBar";
 
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
@@ -99,33 +100,19 @@ export default function Cities() {
       {ModalComponent(cadastrarModal, addCityAction,fecharModalCadastro)}
       {ModalComponent(editarModal, updateCityAction, () => setEditarModal(false), cidadeEmEdicao)}
 
-      <div className="flex flex-row items-center justify-around gap-10">
-        <div className="bg-space-indigo-800 border-3 border-space-indigo-800 flex-1 flex items-center justify-center gap-1 rounded-3xl pl-3">
-            <label htmlFor="buscaCidade" className="font-semibold text-icy-aqua-500">Pesquisar</label>
-            <input 
-              type="text" 
-              name="buscaCidade" 
-              id="buscaCidade" 
-              className="bg-space-indigo-700 border-l-2 border-icy-aqua-500 outline-0 rounded-3xl px-5 py-1 text-icy-aqua-100 w-full"
-              placeholder="Busque uma cidade..."
-              onChange={(e) => {
-                  setForm((form) => ({
-                    ...form,
-                    nome: e.target.value,
-                    pagina: 1
-                  }))
-                }
-              }
-              />
-        </div>
-        <div 
-          className="bg-space-indigo-800 cursor-pointer flex items-center gap-2 justify-center font-semibold py-1 rounded-3xl text-center text-display text-icy-aqua-100 w-[175px]" 
-          onClick={exibirModalCadastro}
-        >
-          <IoMdAdd className="inline size-[30px]"/>
-          <span className="text-md">Cadastrar</span>
-        </div>
-      </div>
+      <SearchToolBar 
+        placeholder="Busque uma cidade..."
+        onInputChange={(newValue: string) => {
+          setForm((form) => ({
+            ...form,
+            nome: newValue,
+            pagina: 1
+          }));
+        }}
+        onAddClick={exibirModalCadastro}
+        canAdd
+      />
+
 
       {(cidades.length === 0) ? <p className="text-center font-main text-lg font-semibold mt-10">Não há cidades disponíveis.</p> : 
         <div className="flex flex-col gap-5 py-10">

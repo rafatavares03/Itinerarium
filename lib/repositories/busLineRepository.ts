@@ -2,15 +2,15 @@ import prisma from "@/lib/prisma";
 import { LinhaBasic } from "@/types/linha";
 
 export async function createLine(data: {
-  codigo: number,
-  nome: string,
-  cidade_id: number
+  code: number,
+  name: string,
+  city: number
 }) {
   const linha = await prisma.linha.create({
     data: {
-      codigo: data.codigo,
-      nome: data.nome,
-      cidade_id: data.cidade_id
+      codigo: data.code,
+      nome: data.name,
+      cidade_id: data.city
     }
   });
 
@@ -32,28 +32,28 @@ export async function updateLine(line: LinhaBasic) {
 }
 
 export async function getLine(cidade: number, params: {
-  quantidade?: number,
-  pagina?: number,
-  busca?: string
+  amount?: number,
+  page?: number,
+  search?: string
 }) {
   const {
-    busca,
-    pagina,
-    quantidade
+    search,
+    page,
+    amount
   } = params;
   const busLines = await prisma.linha.findMany({
     where: {
       cidade_id: cidade,
-      ...(busca && {
+      ...(search && {
         OR: [
-          { codigo: (Number.isNaN(parseInt(busca))) ? -1 : parseInt(busca) },
-          { nome: { contains: busca, mode: "insensitive" } }
+          { codigo: (Number.isNaN(parseInt(search))) ? -1 : parseInt(search) },
+          { nome: { contains: search, mode: "insensitive" } }
         ]
       }),
     },
-    ...((pagina && quantidade) && {
-      skip: (pagina - 1) * quantidade,
-      take: quantidade
+    ...((page && amount) && {
+      skip: (page - 1) * amount,
+      take: amount
     })
   })
 

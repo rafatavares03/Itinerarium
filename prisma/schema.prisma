@@ -38,7 +38,7 @@ model Ponto {
 
 model Linha {
   id  Int @id @default(autoincrement())
-  codigo  Int
+  codigo  Int @unique
   nome  String
   cidade  Cidade @relation(fields: [cidade_id], references: [id])
   cidade_id Int @map("cidade")

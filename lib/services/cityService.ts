@@ -1,6 +1,6 @@
 'use server'
 
-import { getCidades, getById } from "../data/cityRepository";
+import { getCidades, getById } from "../repositories/cityRepository";
 
 export async function buscaCidades(dados: {
   nome?: string,

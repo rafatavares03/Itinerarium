@@ -1,9 +1,11 @@
 'use client'
 
-import { buscaCidadePorId } from "@/lib/service/cidadeService";
+import { buscaCidadePorId } from "@/lib/services/cityService";
 import { use, useEffect, useState } from "react";
 import { CidadeDetails } from "@/types/cidade";
-import { BusStopManager } from "@/app/components/pontosOnibusManager";
+import BusStopManager from "@/app/admin/_components/busStopManager";
+import BusLineContainer from "@/app/admin/_components/busLineContainer";
+import BusLineManager from "../../_components/busLineManager";
 import { JSX } from "react";
 
 enum Abas {
@@ -19,11 +21,18 @@ export default function City({
   const {id} = use(params);
   const [cidade, setCidade] = useState<CidadeDetails | null>(null);
   const [abaAtiva, setAbaAtiva] = useState<Abas>(Abas.pontos);
+  const [mode, setMode] = useState<"list" | "add">("list");
   const componentMap: Record<Abas, () => JSX.Element> = {
-    [Abas.pontos]: () => <BusStopManager cidade={cidade}/>,
-    [Abas.linhas]: () => <p>Nenhuma informação no momento</p>
+    [Abas.pontos]: () => <BusStopManager city={cidade}/>,
+    [Abas.linhas]: () => (mode === "list") ? 
+                            <BusLineContainer city={cidade} onAddClick={() => setMode("add")}/> : 
+                            <BusLineManager city={cidade} onBackClick={() => setMode("list")}/>
   }
   const ComponenteSelecionado = componentMap[abaAtiva];
+
+  useEffect(() => {
+    setMode("list");
+  }, [abaAtiva]);
 
   useEffect(() => {
     const carregarDados = async () => {

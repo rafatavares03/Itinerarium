@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod';
-import { updateCityBounds, saveCity } from '@/lib/data/cityRepository';
+import { updateCityBounds, saveCity } from '@/lib/repositories/cityRepository';
 
 const MunicipioSchema = z.object({
   id: z.number(),
@@ -89,11 +89,7 @@ export async function criaCidade(formData: FormData) {
 
 export async function editarCidade(formData: FormData) {
   const id = Number(formData.get("cidadeId"));
-
   const boundsString = formData.get("enquadramento");
-
-  console.log("id:", id);
-  console.log("bounds:", boundsString);
 
   if (!boundsString) {
     return { success: false };

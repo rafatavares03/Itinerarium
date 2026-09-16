@@ -6,7 +6,7 @@ import { CidadeDetails } from "@/types/cidade";
 import { CiCirclePlus } from "react-icons/ci";
 import PontosMenu from "@/app/admin/_components/PontosMenu";
 import dynamic from "next/dynamic";
-import { apagarPontos, buscarPontos, salvarPontos } from "@/lib/service/pontoService";
+import { apagarPontos, buscarPontos, salvarPontos } from "@/lib/services/busStopService";
 
 const CidadeMap = dynamic(
   () => import("@/app/components/cidadeMap"),
@@ -15,10 +15,10 @@ const CidadeMap = dynamic(
   }
 );
 
-export function BusStopManager({
-  cidade
+export default function BusStopManager({
+  city
 }: {
-  cidade: CidadeDetails | null
+  city: CidadeDetails | null
 }) {
   const [registrados, setRegistrados] = useState<Ponto[]>([]);
   const [selecionados, setSelecionados] = useState<Ponto[]>([]);
@@ -34,10 +34,10 @@ export function BusStopManager({
 
   useEffect(() => { 
     const carregarPontos = async () => {
-      if(!cidade) return;
+      if(!city) return;
       const [todosPontos, pontosDoMenu] = await Promise.all([
-        buscarPontos(cidade.id, {}),
-        buscarPontos(cidade.id, {quantidade: 15, pagina: paginas.atual})
+        buscarPontos(city.id, {}),
+        buscarPontos(city.id, {quantidade: 15, pagina: paginas.atual})
       ]) 
       if(todosPontos.success) {
         setPontosMapa(todosPontos.data?.pontos ?? []);
@@ -51,17 +51,17 @@ export function BusStopManager({
       }} 
       
     carregarPontos(); 
-  }, [cidade, paginas.atual, pontosMapa.length]);
+  }, [city, paginas.atual, pontosMapa.length]);
 
   function comparaPontoPorCoordenada(p1: Ponto, p2: Ponto) {
     return (p1.coordenada[0] === p2.coordenada[0]) && (p1.coordenada[1] === p2.coordenada[1]);
   }
 
   function MapClick(latitude: number, longitude: number) {
-    if(!cidade) return;
+    if(!city) return;
 
     const novoPonto: Ponto = {
-      cidade_id: cidade.id,
+      cidade_id: city.id,
       coordenada: [latitude, longitude],
       logradouro: "",
       numero: ""
@@ -174,7 +174,7 @@ export function BusStopManager({
     }
   }
 
-  if(!cidade) {
+  if(!city) {
     return (
       <p>Dados da cidade indisponíveis no momento.</p>
     );
@@ -195,7 +195,7 @@ export function BusStopManager({
             </button>
           </div>
           <CidadeMap 
-            bounds={cidade.enquadramento}
+            bounds={city.enquadramento}
             pontos={pontosMapa} 
             novos={novos}
             onMapClick={MapClick}
@@ -208,7 +208,7 @@ export function BusStopManager({
           />
         </div>
         <PontosMenu 
-          cidadeId={cidade.id}
+          cidadeId={city.id}
           registrados={registrados} 
           selecionados={selecionados} 
           novos={novos}

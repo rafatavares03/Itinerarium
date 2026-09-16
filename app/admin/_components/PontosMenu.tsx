@@ -5,7 +5,7 @@ import PontoDetails from "@/app/components/pontoInfo";
 import { RiSave3Fill } from "react-icons/ri";
 import { MdDelete } from "react-icons/md";
 import Pagination from "@/app/components/pagination";
-import { buscarPontos } from "@/lib/service/pontoService";
+import { buscarPontos } from "@/lib/services/busStopService";
 
 enum Abas {
   registrados = "REGISTRADOS",

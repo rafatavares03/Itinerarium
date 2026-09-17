@@ -4,6 +4,7 @@ import {
   MapContainer, 
   useMap,
   useMapEvents, 
+  Polyline,
   TileLayer 
 } from "react-leaflet"
 import { useEffect } from "react";
@@ -13,6 +14,7 @@ import { Ponto } from "@/types/ponto";
 export default function CidadeMap({
   bounds,
   pontos,
+  rota,
   novos,
   adicionarPontos,
   pontoDestaque,
@@ -24,6 +26,7 @@ export default function CidadeMap({
 }: {
   bounds: [[number,number], [number,number]],
   pontos: Ponto[],
+  rota?: Ponto[], 
   novos?: Ponto[],
   adicionarPontos: boolean,
   pontoDestaque: Ponto | null,
@@ -83,6 +86,7 @@ export default function CidadeMap({
             selecionado={isPointSelected}
             destacado={isPointHighlighted}
           />
+          {rota && <Polyline positions={rota.map((ponto) => ponto.coordenada)}/>}
           <CentralizarPonto ponto={pontoDestaque} />
       </MapContainer>
     </>

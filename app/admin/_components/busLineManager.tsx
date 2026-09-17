@@ -1,9 +1,20 @@
 "use client"
 
-import { CidadeDetails } from "@/types/cidade"
+import { useActionState, useState } from "react";
 import Form from "next/form"
+import { CidadeDetails } from "@/types/cidade";
+import { Ponto } from "@/types/ponto";
 import { createBusLineAction, CreateBusLineState } from "../actions/busLineActions";
-import { useActionState } from "react";
+import PontosMenu from "./PontosMenu";
+import dynamic from "next/dynamic";
+import { createRouteAction } from "../actions/busRouteActions";
+
+const CidadeMap = dynamic(
+  () => import("@/app/components/cidadeMap"),
+  {
+    ssr: false,
+  }
+);
 
 const initialState: CreateBusLineState = {
   success: false,
@@ -11,17 +22,42 @@ const initialState: CreateBusLineState = {
 
 export default function BusLineManager({
   city,
+  id,
+  busStops,
   onBackClick
 }: {
   city: CidadeDetails | null,
+  id?: number,
+  busStops: Ponto[],
   onBackClick: () => void
 }) {
-  const [state, createBusLine, isPending] = useActionState(createBusLineAction, initialState)
+  const [state, createBusLine, isPending] = useActionState(createBusLineAction, initialState);
+  const [route, setRoute] = useState<Ponto[]>([]);
+  const [selected, setSelected] = useState<Ponto[]>([]);
   const labelStyle = "font-semibold mr-3";
   const inputStyle = "bg-space-indigo-700 outline-0 text-white text-sm py-1 px-3 rounded-md";
   const buttonStyle = "px-5 py-1 bg-icy-aqua-400 rounded-md text-space-indigo-700 font-semibold cursor-pointer";
 
   if(!city) return <></>
+
+  function addRoutePoint(point: Ponto) {
+    setRoute((points) => [
+      ...points,
+      point
+    ]);
+  }
+
+  function newPoint(latitude: number, longitude: number) {
+    const point: Ponto = {
+      logradouro: "",
+      numero: "",
+      coordenada: [latitude, longitude],
+      cidade_id: city!.id
+    };
+
+    return point;
+  }
+
 
   return (
     <div className="w-6xl">
@@ -38,6 +74,46 @@ export default function BusLineManager({
             <input type="text" name="name" id="name" className={inputStyle + " flex-1"}/>
           </div>
         </div>
+        { id &&
+
+          <div className="w-full flex h-130">
+          <CidadeMap 
+            bounds={city.enquadramento}
+            pontos={busStops}
+            rota={route}
+            adicionarPontos={true}
+            pontoDestaque={null}
+            onMapClick={(latitude: number, longitude: number) => {
+              addRoutePoint(newPoint(latitude, longitude));
+            }}
+            onSelectPoint={(point: Ponto) => {
+              setSelected((points) => [
+                ...points,
+                point
+              ]);
+              addRoutePoint(point);
+            }}
+            onDeleteNew={() => console.log("delete new")}
+            isPointSelected={(point: Ponto) => selected.some(p => p.id === point.id)}
+            isPointHighlighted={() => false}
+            />
+            <div className="w-[350px] h-full bg-white p-5 relative overflow-y-auto">
+              {selected.map((select, idx) =>
+                <div key={select.id}><em>{idx+1}</em> - {select.logradouro}, {select.numero}</div>
+              )}
+              <button type="button"
+                onClick={() => createRouteAction({
+                  active: true,
+                  line: id,
+                  busStops: selected
+                })}
+                disabled={selected.length < 2}
+                className="absolute bg-icy-aqua-700 bottom-0 left-0 right-0 text-icy-aqua-400">
+                Salvar
+              </button>
+            </div>
+          </div>
+        }
         <button type="submit" className={buttonStyle}>Salvar</button>
       </Form>
     </div>

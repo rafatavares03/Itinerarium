@@ -29,7 +29,7 @@ export default function City({
     [Abas.pontos]: () => <BusStopManager city={city} busStops={busStops} onChangeBusStops={setBusStops}/>,
     [Abas.linhas]: () => (mode === "list") ? 
                             <BusLineContainer city={city} onAddClick={() => setMode("add")}/> : 
-                            <BusLineManager city={city} onBackClick={() => setMode("list")}/>
+                            <BusLineManager city={city} onBackClick={() => setMode("list")} busStops={busStops}/>
   }
   const ComponenteSelecionado = componentMap[abaAtiva];
 

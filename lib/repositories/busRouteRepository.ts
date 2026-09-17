@@ -1,5 +1,95 @@
 import { Ponto } from "@/types/ponto"
+import { BusRoute } from "@/types/busRoute"
 import prisma from "@/lib/prisma";
+
+type RouteQuery = {
+  trajeto_id: number;
+  ativo: boolean;
+  linha: number;
+  vigencia: Date | null;
+  updated_at: Date;
+  geometria: string;
+  ponto_id: number;
+  ordem: number;
+  final: boolean;
+  logradouro: string;
+  numero: string;
+  cidade: number;
+  latitude: number;
+  longitude: number;
+}
+
+export async function getBusRoutesByLine(line: number) {
+  const routes = await prisma.$queryRaw<RouteQuery[]>`
+    SELECT
+      t.id AS trajeto_id,
+      t.ativo,
+      t.linha,
+      t.vigencia,
+      t.updated_at,
+      ST_AsGeoJSON(t.geometria) AS geometria,
+
+      p.id AS ponto_id,
+      pt.ordem,
+      pt.final,
+      p.logradouro,
+      p.numero,
+      p.cidade,
+      ST_Y(p.coordenada) AS latitude,
+      ST_X(p.coordenada) AS longitude
+
+    FROM trajeto t
+
+    LEFT JOIN ponto_trajeto pt
+      ON pt.trajeto = t.id
+
+    LEFT JOIN ponto p
+      ON p.id = pt.ponto
+
+    WHERE t.linha = ${line}
+
+    ORDER BY t.id, pt.ordem
+`;
+
+  const resultado = routes.reduce<BusRoute[]>((acc, row) => {
+    let trajeto = acc.find(
+      (t) => t.id === row.trajeto_id
+    );
+
+    if (!trajeto) {
+      trajeto = {
+        id: row.trajeto_id,
+        ativo: row.ativo,
+        linha: row.linha,
+        vigencia: row.vigencia,
+        updated_at: row.updated_at,
+        geometria: JSON.parse(row.geometria),
+        pontos: []
+      };
+
+      acc.push(trajeto);
+    }
+
+    if (row.ponto_id !== null) {
+      trajeto.pontos.push({
+        id: row.ponto_id,
+        logradouro: row.logradouro,
+        numero: row.numero,
+        cidade_id: row.cidade,
+        coordenada: [
+          row.latitude,
+          row.longitude
+        ],
+        ordem: row.ordem,
+        final: row.final
+      });
+    }
+
+    return acc;
+  }, []);
+
+  return resultado;
+}
 
 export async function createRoute(data: {
   active: boolean,

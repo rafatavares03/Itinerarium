@@ -6,9 +6,11 @@ import { LinhaBasic } from "@/types/linha";
 import { useEffect, useState } from "react";
 
 export default function BusLineList({
-  city
+  city,
+  onClick
 }: {
-  city: CidadeDetails | null
+  city: CidadeDetails | null,
+  onClick: (line: LinhaBasic) => void
 }) {
   const [busLines, setBusLines] = useState<LinhaBasic[]>([]);
 
@@ -29,8 +31,13 @@ export default function BusLineList({
   }
   
   return (
-    <div>
-      {busLines.map((busLine) => <p key={busLine.id}>{busLine.nome}</p>)}
+    <div className="flex flex-wrap gap-5 m-5">
+      {busLines.map((busLine) => 
+        <div key={busLine.id} onClick={() => onClick(busLine)}>
+          <div className="font-bold text-center">{busLine.codigo}</div>
+          <p>{busLine.nome}</p>
+        </div>
+      )}
     </div>
   )
 }

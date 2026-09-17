@@ -9,6 +9,7 @@ import BusLineManager from "../../_components/busLineManager";
 import { JSX } from "react";
 import { getCityAction } from "../../actions/cityActions";
 import { getBusStopsAction } from "../../actions/busStopActions";
+import { LinhaBasic } from "@/types/linha";
 
 enum Abas {
   pontos = "Pontos",
@@ -24,12 +25,26 @@ export default function City({
   const [city, setCity] = useState<CidadeDetails | null>(null);
   const [abaAtiva, setAbaAtiva] = useState<Abas>(Abas.pontos);
   const [mode, setMode] = useState<"list" | "add">("list");
+  const [line, setLine] = useState<LinhaBasic | null>(null);
   const [busStops, setBusStops] = useState<Ponto[]>([]);
   const componentMap: Record<Abas, () => JSX.Element> = {
     [Abas.pontos]: () => <BusStopManager city={city} busStops={busStops} onChangeBusStops={setBusStops}/>,
     [Abas.linhas]: () => (mode === "list") ? 
-                            <BusLineContainer city={city} onAddClick={() => setMode("add")}/> : 
-                            <BusLineManager city={city} onBackClick={() => setMode("list")} busStops={busStops}/>
+                            <BusLineContainer city={city} 
+                              onAddClick={() => {
+                                setLine(null);
+                                setMode("add");
+                              }}
+                              onLineClick={(line: LinhaBasic) => {
+                                setLine(line);
+                                setMode("add")
+                              }}
+                            /> : 
+                            <BusLineManager city={city} 
+                              onBackClick={() => setMode("list")} 
+                              line={line}
+                              busStops={busStops}
+                            />
   }
   const ComponenteSelecionado = componentMap[abaAtiva];
 

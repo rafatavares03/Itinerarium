@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { Ponto } from '@/types/ponto';
-import { createRouteService } from '@/lib/services/busRouteService';
+import { createRouteService, getBusRoutesService } from '@/lib/services/busRouteService';
 
 const PontoSchema = z.object({
   id: z.number().int().positive().optional(),
@@ -37,4 +37,9 @@ export async function createRouteAction(data: {
   }
 
   return await createRouteService(validation.data);
+}
+
+export async function getBusRoutesAction(line: number) {
+  const res = await getBusRoutesService(line);
+  return res;
 }

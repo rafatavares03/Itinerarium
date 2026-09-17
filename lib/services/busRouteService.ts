@@ -1,5 +1,20 @@
 import { Ponto } from "@/types/ponto"
-import { createRoute } from "../repositories/busRouteRepository"
+import { createRoute, getBusRoutesByLine } from "../repositories/busRouteRepository"
+
+export async function getBusRoutesService(line: number) {
+  try{
+    const res = await getBusRoutesByLine(line);
+    return {
+      success: true,
+      data: res
+    }
+  } catch(e) {
+    return {
+      success: false,
+      message: "Não foi possível buscar rotas dessa linha."
+    }
+  }
+}
 
 export async function createRouteService(data: {
   active: boolean,

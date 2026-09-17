@@ -2,13 +2,16 @@ import { useState } from "react";
 import { CidadeDetails } from "@/types/cidade";
 import SearchToolBar from "../../components/searchToolBar";
 import BusLineList from "./busLineList";
+import { LinhaBasic } from "@/types/linha";
 
 export default function BusLineContainer({
   city,
   onAddClick,
+  onLineClick
 }: {
   city: CidadeDetails | null,
-  onAddClick: () => void
+  onAddClick: () => void,
+  onLineClick: (id: LinhaBasic) => void
 }) {
   const [search, setSearch] = useState("");
 
@@ -20,7 +23,7 @@ export default function BusLineContainer({
         onAddClick={onAddClick}
         canAdd
       />
-      <BusLineList city={city}/>
+      <BusLineList city={city} onClick={onLineClick}/>
     </div>
   );
 }

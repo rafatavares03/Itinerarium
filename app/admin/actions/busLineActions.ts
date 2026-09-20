@@ -1,7 +1,7 @@
 "use server"
 
 import { createBusLine, getBusLines } from "@/lib/services/busLineService";
-import { success, z } from "zod";
+import { z } from "zod";
 import { LinhaBasic } from "@/types/linha";
 
 const createBusLineSchema = z.object({

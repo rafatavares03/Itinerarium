@@ -6,9 +6,12 @@ import { CidadeDetails } from "@/types/cidade";
 import { Ponto } from "@/types/ponto";
 import { createBusLineAction, CreateBusLineState } from "../actions/busLineActions";
 import dynamic from "next/dynamic";
-import { createRouteAction, getBusRoutesAction } from "../actions/busRouteActions";
+import { createRouteAction, deleteRouteAction, getBusRoutesAction } from "../actions/busRouteActions";
 import { BusRoute } from "@/types/busRoute";
 import { LinhaBasic } from "@/types/linha";
+import { FaPlus } from "react-icons/fa";
+import BusRouteList from "./busRouteList";
+import GoBackButton from "@/app/components/goBackButton";
 const CidadeMap = dynamic(
   () => import("@/app/components/cidadeMap"),
   {
@@ -80,6 +83,18 @@ export default function BusLineManager({
     ]);
   }
 
+  function selectRoute(route: BusRoute) {
+    setRoute(route.pontos);
+    setSelected(route.pontos);
+  }
+
+  async function deleteRoute(route: BusRoute) {
+    const res = await deleteRouteAction(route.id);
+    if(res?.success) {
+      setRoutes((routes) => routes.filter(r => r.id != route.id))
+    }
+  }
+
   function newPoint(latitude: number, longitude: number) {
     const point: Ponto = {
       logradouro: "",
@@ -94,7 +109,9 @@ export default function BusLineManager({
 
   return (
     <div className="w-6xl">
-      <button type="button" onClick={onBackClick}>Voltar</button>
+      <GoBackButton onClick={onBackClick} style="size-[30px] text-icy-aqua-500">
+        <span className="font-semibold font-display">Voltar</span>
+      </GoBackButton>
       <Form action={createBusLine}>
         <div className="flex gap-3 w-full py-3">
           <input type="hidden" name="city" value={city.id}/>
@@ -109,42 +126,59 @@ export default function BusLineManager({
         </div>
         { line &&
 
-          <div className="w-full flex h-130">
-          <CidadeMap 
-            bounds={city.enquadramento}
-            pontos={busStops}
-            rota={route}
-            adicionarPontos={true}
-            pontoDestaque={null}
-            onMapClick={(latitude: number, longitude: number) => {
-              addRoutePoint(newPoint(latitude, longitude));
-            }}
-            onSelectPoint={(point: Ponto) => {
-              setSelected((points) => [
-                ...points,
-                point
-              ]);
-              addRoutePoint(point);
-            }}
-            onDeleteNew={() => console.log("delete new")}
-            isPointSelected={(point: Ponto) => selected.some(p => p.id === point.id)}
-            isPointHighlighted={() => false}
-            />
-            <div className="w-[350px] h-full bg-white p-5 relative overflow-y-auto">
-              {selected.map((select, idx) =>
-                <div key={select.id}><em>{idx+1}</em> - {select.logradouro}, {select.numero}</div>
-              )}
-              <button type="button"
-                onClick={() => createRouteAction({
-                  active: true,
-                  line: line.id,
-                  busStops: selected
-                })}
-                disabled={selected.length < 2}
-                className="absolute bg-icy-aqua-700 bottom-0 left-0 right-0 text-icy-aqua-400">
-                Salvar
-              </button>
-            </div>
+          <div className="w-full flex h-130 border-2 border-icy-aqua-700 relative mt-5">
+            <h2 className="bg-icy-aqua-700 font-title text-semibold text-white tracking-widest rounded-t-md font-bold absolute top-[-25px] left-0 italic px-2">Trajetos</h2>
+            <CidadeMap 
+              bounds={city.enquadramento}
+              pontos={busStops}
+              rota={route}
+              pontoDestaque={null}
+              onMapClick={(latitude: number, longitude: number) => {
+                addRoutePoint(newPoint(latitude, longitude));
+              }}
+              onSelectPoint={(point: Ponto) => {
+                setSelected((points) => [
+                  ...points,
+                  point
+                ]);
+                addRoutePoint(point);
+              }}
+              onDeleteNew={() => console.log("delete new")}
+              isPointSelected={(point: Ponto) => selected.some(p => p.id === point.id)}
+              isPointHighlighted={() => false}
+              />
+              <div className="w-2xl h-full bg-space-indigo-700 relative overflow-y-auto">
+                {false && selected.map((select, idx) =>
+                  <div key={select.id}><em>{idx+1}</em> - {select.logradouro}, {select.numero}</div>
+                )}
+                {
+                  <div className="flex flex-col gap-2">
+                    <div className="w-full flex justify-center my-3">
+                      <button type="button"
+                        className="py-2 w-9/10 bg-icy-aqua-700 group text-icy-aqua-50 font-bold flex justify-center items-center gap-2 cursor-pointer"
+                      >
+                        <FaPlus className="text-white transition-all group-hover:rotate-180"/>
+                        Criar rota
+                      </button>
+                    </div>
+                    <BusRouteList 
+                      routes={routes} 
+                      onSelectRoute={(route) => selectRoute(route)} 
+                      onDeleteRoute={(route) => deleteRoute(route)}
+                    />
+                  </div>
+                }
+                <button type="button"
+                  onClick={() => createRouteAction({
+                    active: true,
+                    line: line.id,
+                    busStops: selected
+                  })}
+                  disabled={selected.length < 2}
+                  className="absolute bg-icy-aqua-700 bottom-0 left-0 right-0 text-icy-aqua-400">
+                  Salvar
+                </button>
+              </div>
           </div>
         }
         <button type="submit" className={buttonStyle}>Salvar</button>

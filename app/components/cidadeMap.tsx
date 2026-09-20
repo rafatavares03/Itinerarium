@@ -7,16 +7,16 @@ import {
   Polyline,
   TileLayer 
 } from "react-leaflet"
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PontosOnMap from "./pontosOnMap";
 import { Ponto } from "@/types/ponto";
+import { CiCirclePlus } from "react-icons/ci";
 
 export default function CidadeMap({
   bounds,
   pontos,
   rota,
   novos,
-  adicionarPontos,
   pontoDestaque,
   onMapClick,
   onSelectPoint,
@@ -28,7 +28,6 @@ export default function CidadeMap({
   pontos: Ponto[],
   rota?: Ponto[], 
   novos?: Ponto[],
-  adicionarPontos: boolean,
   pontoDestaque: Ponto | null,
   onMapClick: (latitude:number, longitude:number) => void,
   onSelectPoint: (ponto: Ponto) => void,
@@ -36,11 +35,13 @@ export default function CidadeMap({
   isPointSelected: (ponto: Ponto) => boolean
   isPointHighlighted: (ponto: Ponto) => boolean
 }) {
+  const [addOn, setAddOn] = useState(false);
+
   function MapClickHandler() {
     useMapEvents({
       click(e) {
         console.log("Centralizando:", pontoDestaque);
-        if(!adicionarPontos) return;
+        if(!addOn) return;
         onMapClick(e.latlng.lat, e.latlng.lng);
       },
       contextmenu(e) {
@@ -66,8 +67,19 @@ export default function CidadeMap({
     return null;
   }
 
+  const buttonStyle = "px-5 py-1 flex items-center gap-2 font-bold text-white rounded-sm";
+
   return (
-    <>
+    <div className="w-full h-full relative">
+      <div className="flex">
+        <button type="button" 
+          className={((addOn) ? "bg-red-500 " : "bg-lime-500 ") + buttonStyle + " absolute top-1 right-1 z-1000"}
+          onClick={() => {setAddOn(!addOn)}}
+          >
+          <CiCirclePlus className="size-[30px]"/>
+          {(addOn)? "Desabilitar inserção" : "Habilitar inserção"}
+        </button>
+      </div>
       <MapContainer 
         bounds={bounds}
         className="h-full w-full"
@@ -89,6 +101,6 @@ export default function CidadeMap({
           {rota && <Polyline positions={rota.map((ponto) => ponto.coordenada)}/>}
           <CentralizarPonto ponto={pontoDestaque} />
       </MapContainer>
-    </>
+    </div>
   )
 }

@@ -77,13 +77,23 @@ export default function City({
     )
   }
 
-  
+  const selectedWindow = "bg-space-indigo-700 font-bold text-white w-full";
+  const windowButtonStyle = "bg-white text-space-indigo-700 w-full"
+
   return (
     <div className="flex flex-col justify-center items-center">
       <h1 className="font-title mt-3 text-2xl text-center">{city.nome} - {city.uf}</h1>
-      <div>
-        <button type="button" onClick={() => setAbaAtiva(Abas.pontos)}>Pontos</button>
-        <button type="button" onClick={() => setAbaAtiva(Abas.linhas)}>Linhas</button>
+      <div className="border-1 border-space-indigo-700 w-[300px] flex justify-around">
+        <button type="button" onClick={() => setAbaAtiva(Abas.pontos)}
+          className={(abaAtiva === Abas.pontos) ? selectedWindow : windowButtonStyle}
+          >
+            Pontos
+        </button>
+        <button type="button" onClick={() => setAbaAtiva(Abas.linhas)}
+          className={(abaAtiva === Abas.linhas) ? selectedWindow : windowButtonStyle}  
+        >
+          Linhas
+        </button>
       </div>
       <ComponenteSelecionado />
     </div>

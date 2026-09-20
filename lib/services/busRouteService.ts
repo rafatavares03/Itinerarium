@@ -1,5 +1,5 @@
 import { Ponto } from "@/types/ponto"
-import { createRoute, getBusRoutesByLine } from "../repositories/busRouteRepository"
+import { createRoute, deleteRoute, getBusRoutesByLine } from "../repositories/busRouteRepository"
 
 export async function getBusRoutesService(line: number) {
   try{
@@ -25,13 +25,30 @@ export async function createRouteService(data: {
   try {
     const res = createRoute(data);
     return {
-      success: true
+      success: true,
+      data: res
     }
   } catch(e) {
     console.log(e);
     return {
       success: false,
       message: "Não foi possível salvar rota"
+    }
+  }
+}
+
+export async function deleteRouteService(id: number) {
+  try {
+    const res = deleteRoute(id);
+    return {
+      success: true,
+      data: res
+    }
+  } catch(e) {
+    console.log(e);
+    return {
+      success: false,
+      message: "Não foi possível apagar a rota"
     }
   }
 }

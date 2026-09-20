@@ -154,3 +154,10 @@ export async function createRoute(data: {
   return res;
 }
 
+export async function deleteRoute(id: number) {
+  return await prisma.trajeto.delete({
+    where: {
+      id: id
+    }
+  });
+}

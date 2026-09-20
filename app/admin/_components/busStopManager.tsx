@@ -28,8 +28,6 @@ export default function BusStopManager({
   const [registrados, setRegistrados] = useState<Ponto[]>(busStops.slice(0, 14));
   const [selecionados, setSelecionados] = useState<Ponto[]>([]);
   const [novos, setNovos] = useState<Ponto[]>([]);
-  //const [pontosMapa, setPontosMapa] = useState<Ponto[]>([]);
-  const [adicionar, setAdicionar] = useState(false);
   const [pontoEmFoco, setPontoEmFoco] = useState<Ponto | null>(null);
   const [edicao, setEdicao] = useState(false);
   const [paginas, setPaginas] = useState({
@@ -197,7 +195,7 @@ export default function BusStopManager({
   return (
     <div className="bg-slate-50 flex h-140 w-full p-1">
         <div className="relative w-full">
-          <div className="flex">
+          {/* <div className="flex">
             <button type="button" 
               className={((adicionar) ? "bg-red-500 " : "bg-lime-500 ") + buttonStyle + " absolute top-1 right-1 z-1000"}
               onClick={() => {console.log(pontoEmFoco); setAdicionar(!adicionar)}}
@@ -205,13 +203,12 @@ export default function BusStopManager({
               <CiCirclePlus className="size-[30px]"/>
               {(adicionar)? "Desabilitar inserção" : "Habilitar inserção"}
             </button>
-          </div>
+          </div> */}
           <CidadeMap 
             bounds={city.enquadramento}
             pontos={busStops} 
             novos={novos}
             onMapClick={MapClick}
-            adicionarPontos={adicionar}
             onSelectPoint={selecionaPonto}
             onDeleteNew={apagaNovo}
             isPointSelected={pontoSelecionado}

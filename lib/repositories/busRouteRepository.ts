@@ -3,7 +3,7 @@ import { BusRoute } from "@/types/busRoute"
 import prisma from "@/lib/prisma";
 
 type RouteQuery = {
-  trajeto_id: number;
+  id: number;
   ativo: boolean;
   linha: number;
   vigencia: Date | null;
@@ -19,10 +19,94 @@ type RouteQuery = {
   longitude: number;
 }
 
+type RouteWithGeometry = BusRoute & {
+  geometria: {
+    type: string;
+    coordinates: [number, number][];
+  };
+}
+
+function reduceQueryIntoRouteWithGeometry(routeQuery: RouteQuery[]): RouteWithGeometry[] {
+  const routeWithGeometry = routeQuery.reduce<RouteWithGeometry[]>((acc, row) => {
+    // find the route in the accumulator
+    let route = acc.find((r) => r.id === row.id);
+
+    
+    // add the route if it isn't there
+    if (!route) {
+      route = {
+        id: row.id,
+        ativo: row.ativo,
+        linha: row.linha,
+        vigencia: row.vigencia,
+        updated_at: row.updated_at,
+        geometria: JSON.parse(row.geometria),
+        pontos: []
+      };
+
+      acc.push(route);
+    }
+
+    // add bustops on the route it belongs
+    if (row.ponto_id !== null) {
+      route.pontos.push({
+        id: row.ponto_id,
+        logradouro: row.logradouro,
+        numero: row.numero,
+        cidade_id: row.cidade,
+        coordenada: [
+          row.longitude,
+          row.latitude
+        ],
+        ordem: row.ordem,
+        final: row.final
+      });
+    }
+
+    return acc;
+  }, []);
+
+  return routeWithGeometry;
+}
+
+function transformIntoBusRoutes(routes: RouteWithGeometry[]): BusRoute[] {
+  const busRoutes = routes.map((route) => {
+    const coordinates: [number, number][] = route.geometria.coordinates || [];
+    const points = coordinates.map(([longitude, latitude]) => {
+      const persistedPoint = route.pontos.find((p) => {
+        const lngDiff = Math.abs(p.coordenada[0] - longitude);
+        const latDiff = Math.abs(p.coordenada[1] - latitude);
+
+        return lngDiff < 0.00001 && latDiff < 0.00001;
+      })
+
+      if(persistedPoint) {
+        return persistedPoint;
+      }
+
+      return {
+        coordenada: [longitude, latitude] as [number, number]
+      }
+    });
+
+    return {
+      id: route.id,
+      ativo: route.ativo,
+      linha: route.linha,
+      vigencia: route.vigencia,
+      updated_at: route.updated_at,
+      pontos: points,
+    }
+  });
+
+  return busRoutes;
+}
+
+
 export async function getBusRoutesByLine(line: number) {
-  const routes = await prisma.$queryRaw<RouteQuery[]>`
+  const query = await prisma.$queryRaw<RouteQuery[]>`
     SELECT
-      t.id AS trajeto_id,
+      t.id,
       t.ativo,
       t.linha,
       t.vigencia,
@@ -38,57 +122,19 @@ export async function getBusRoutesByLine(line: number) {
       ST_Y(p.coordenada) AS latitude,
       ST_X(p.coordenada) AS longitude
 
-    FROM trajeto t
-
-    LEFT JOIN ponto_trajeto pt
-      ON pt.trajeto = t.id
-
-    LEFT JOIN ponto p
-      ON p.id = pt.ponto
+    FROM trajeto t 
+      LEFT JOIN ponto_trajeto pt ON pt.trajeto = t.id 
+      LEFT JOIN ponto p ON p.id = pt.ponto
 
     WHERE t.linha = ${line}
 
     ORDER BY t.id, pt.ordem
-`;
+  `;
 
-  const resultado = routes.reduce<BusRoute[]>((acc, row) => {
-    let trajeto = acc.find(
-      (t) => t.id === row.trajeto_id
-    );
+  const routesWithGeometry = reduceQueryIntoRouteWithGeometry(query);
+  const busRoutes = transformIntoBusRoutes(routesWithGeometry)
 
-    if (!trajeto) {
-      trajeto = {
-        id: row.trajeto_id,
-        ativo: row.ativo,
-        linha: row.linha,
-        vigencia: row.vigencia,
-        updated_at: row.updated_at,
-        geometria: JSON.parse(row.geometria),
-        pontos: []
-      };
-
-      acc.push(trajeto);
-    }
-
-    if (row.ponto_id !== null) {
-      trajeto.pontos.push({
-        id: row.ponto_id,
-        logradouro: row.logradouro,
-        numero: row.numero,
-        cidade_id: row.cidade,
-        coordenada: [
-          row.latitude,
-          row.longitude
-        ],
-        ordem: row.ordem,
-        final: row.final
-      });
-    }
-
-    return acc;
-  }, []);
-
-  return resultado;
+  return busRoutes;
 }
 
 export async function createRoute(data: {

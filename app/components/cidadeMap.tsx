@@ -5,6 +5,7 @@ import {
   useMap,
   useMapEvents, 
   Polyline,
+  Marker,
   TileLayer 
 } from "react-leaflet"
 import { useEffect, useState } from "react";
@@ -36,7 +37,7 @@ export default function CidadeMap({
   isPointHighlighted: (ponto: Ponto) => boolean
 }) {
   const [addOn, setAddOn] = useState(false);
-
+  console.log("ROTA:", rota)
   function MapClickHandler() {
     useMapEvents({
       click(e) {
@@ -98,7 +99,30 @@ export default function CidadeMap({
             selecionado={isPointSelected}
             destacado={isPointHighlighted}
           />
-          {rota && <Polyline positions={rota.map((ponto) => ponto.coordenada)}/>}
+          
+          {rota && 
+            <>
+              <Polyline positions={rota.map((ponto) => ponto.coordenada)}/>
+              {rota.map((ponto, index) => {
+                if(ponto.id) return null;
+                return (
+                  <Marker
+                    key={index}
+                    position={ponto.coordenada}
+                    draggable={true}
+                    eventHandlers={{
+                      dragend(e) {
+                        const novaPosicao = e.target.getLatLng();
+                        console.log(`Ponto ${index} foi para:`, novaPosicao.lat, novaPosicao.lng);
+
+                        // AQUI você vai chamar a função para atualizar seu estado/banco
+                      },
+                    }}
+                  />
+             )})}
+            </>
+          
+          }
           <CentralizarPonto ponto={pontoDestaque} />
       </MapContainer>
     </div>

@@ -55,18 +55,10 @@ export default function BusLineManager({
         const data = res.data ?? [];
         setRoutes(data);
 
-        const novaRoute = data[0]?.geometria.coordinates.map(
-          ([longitude, latitude]) => newPoint(longitude, latitude)
-        ) ?? [];
+        const novaRoute = getPoints(data[0]?? []);
       
         setRoute(novaRoute);
-        setSelected(data[0]?.pontos.map(point => ({
-          id: point.id,
-          logradouro: point.logradouro,
-          numero: point.numero,
-          coordenada: point.coordenada,
-          cidade_id: point.cidade_id
-        })) ?? []);
+        setSelected(novaRoute.filter(point => point.id));
 
         console.log(route);
       }
@@ -76,6 +68,18 @@ export default function BusLineManager({
     loadData();
   }, [])
 
+  function getPoints(route: BusRoute) {
+    const points: Ponto[] = route.pontos.map((point) => ({
+      id: point.id,
+      logradouro: point.logradouro ?? "",
+      numero: point.numero ?? "",
+      cidade_id: point.cidade_id ?? line?.cidade_id ?? -1,
+      coordenada: point.coordenada
+    }))
+
+    return points;
+  }
+
   function addRoutePoint(point: Ponto) {
     setRoute((points) => [
       ...points,
@@ -84,8 +88,9 @@ export default function BusLineManager({
   }
 
   function selectRoute(route: BusRoute) {
-    setRoute(route.pontos);
-    setSelected(route.pontos);
+    const points = getPoints(route);
+    setRoute(points);
+    setSelected(points);
   }
 
   async function deleteRoute(route: BusRoute) {

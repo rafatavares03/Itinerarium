@@ -4,17 +4,13 @@ export type BusRoute = {
   linha: number;
   vigencia: Date | null;
   updated_at: Date;
-  geometria: {
-    type: string;
-    coordinates: [number, number][];
-  };
   pontos: {
-    id: number;
-    logradouro: string;
-    numero: string;
-    cidade_id: number;
+    id?: number;
+    logradouro?: string;
+    numero?: string;
+    cidade_id?: number;
     coordenada: [number, number];
-    ordem: number;
-    final: boolean;
+    ordem?: number;
+    final?: boolean;
   }[];
 };

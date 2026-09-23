@@ -1,5 +1,6 @@
 'use client'
 
+import L from "leaflet"
 import { 
   MapContainer, 
   useMap,
@@ -21,6 +22,7 @@ export default function CidadeMap({
   pontoDestaque,
   onMapClick,
   onSelectPoint,
+  onEditGeometry,
   onDeleteNew,
   isPointSelected,
   isPointHighlighted
@@ -32,6 +34,7 @@ export default function CidadeMap({
   pontoDestaque: Ponto | null,
   onMapClick: (latitude:number, longitude:number) => void,
   onSelectPoint: (ponto: Ponto) => void,
+  onEditGeometry: (idx: number, coordinates: [number, number]) => void
   onDeleteNew: (ponto: Ponto) => void,
   isPointSelected: (ponto: Ponto) => boolean
   isPointHighlighted: (ponto: Ponto) => boolean
@@ -67,6 +70,23 @@ export default function CidadeMap({
 
     return null;
   }
+
+  const pointAux = L.divIcon({
+    className: "",
+    html: `
+      <div
+        style="
+          width: 12px;
+          height: 12px;
+          background: white;
+          border: 2px solid black;
+          border-radius: 50%;
+        "
+      ></div>
+    `,
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+  });
 
   const buttonStyle = "px-5 py-1 flex items-center gap-2 font-bold text-white rounded-sm";
 
@@ -108,15 +128,15 @@ export default function CidadeMap({
                 return (
                   <Marker
                     key={index}
+                    icon={pointAux}
                     position={ponto.coordenada}
                     draggable={true}
                     eventHandlers={{
                       dragend(e) {
-                        const novaPosicao = e.target.getLatLng();
-                        console.log(`Ponto ${index} foi para:`, novaPosicao.lat, novaPosicao.lng);
+                        const {lat, lng} = e.target.getLatLng();
+                        onEditGeometry(index, [lat, lng]);
 
-                        // AQUI você vai chamar a função para atualizar seu estado/banco
-                      },
+                      }
                     }}
                   />
              )})}

@@ -100,6 +100,20 @@ export default function BusLineManager({
     }
   }
 
+  async function editGeometry(idx: number, coordinates: [number, number]) {
+    setRoute((current) => 
+      current.map((point, index) => {
+        if(index === idx) {
+          return {
+            ...point,
+            coordenada: coordinates
+          }
+        }
+        return point;
+      })
+    );
+  }
+
   function newPoint(latitude: number, longitude: number) {
     const point: Ponto = {
       logradouro: "",
@@ -149,6 +163,7 @@ export default function BusLineManager({
                 addRoutePoint(point);
               }}
               onDeleteNew={() => console.log("delete new")}
+              onEditGeometry={(idx: number, coordinates: [number, number]) => editGeometry(idx, coordinates)}
               isPointSelected={(point: Ponto) => selected.some(p => p.id === point.id)}
               isPointHighlighted={() => false}
               />

@@ -42,6 +42,7 @@ export default function BusLineManager({
   const [route, setRoute] = useState<BusRoute | null>(null);
   const [selected, setSelected] = useState<Ponto[]>([]);
   const [details, setDetails] = useState(false);
+  const [newRoute, setNewRoute] = useState<BusRoute | null>(null);
   const labelStyle = "font-semibold mr-3";
   const inputStyle = "bg-space-indigo-700 outline-0 text-white text-sm py-1 px-3 rounded-md";
   const buttonStyle = "px-5 py-1 bg-icy-aqua-400 rounded-md text-space-indigo-700 font-semibold cursor-pointer";
@@ -57,7 +58,7 @@ export default function BusLineManager({
         const data = res.data ?? [];
         setRoutes(data);
 
-        const novaRoute = getPoints(data[0]?? []);
+        const novaRoute = getPoints(data[0]?? null);
       
         setRoute(data[0]);
         setSelected(novaRoute.filter(point => point.id));
@@ -70,7 +71,8 @@ export default function BusLineManager({
     loadData();
   }, [])
 
-  function getPoints(route: BusRoute) {
+  function getPoints(route: BusRoute | null) {
+    if(!route) return [];
     const points: Ponto[] = route.pontos.map((point) => ({
       id: point.id,
       logradouro: point.logradouro ?? "",
@@ -83,6 +85,19 @@ export default function BusLineManager({
   }
 
   function addRoutePoint(point: Ponto) {
+    if(newRoute) {
+      setNewRoute((route) => {
+        if(!route) return route;
+        return ({
+          ...route,
+          pontos: [
+            ...route.pontos,
+            point
+          ]
+        })
+      })
+      return;
+    }
     setRoute((route) => {
       if(!route) return route;
       return ({
@@ -96,6 +111,16 @@ export default function BusLineManager({
   }
 
   function removeRoutePoint(point: Ponto) {
+    if(newRoute) {
+      setNewRoute((route) => {
+        if(!route) return route;
+        return ({
+          ...route,
+          pontos: route.pontos.filter(p => p.id !== point.id)
+        })
+      })
+      return;
+    }
     setRoute((route) => {
       if(!route) return route;
       return ({
@@ -105,18 +130,24 @@ export default function BusLineManager({
     })
   }
 
+  function setSelectedPoints() {
+    setSelected((selected) => {
+      if(!route || !route.pontos) return selected;
+      return getPoints(route).filter(p => p.id !== undefined)
+    });
+  }
+
   function selectRoute(route: BusRoute) {
-    const points = getPoints(route);
     setRoute(route);
-    setSelected(points);
+    setSelectedPoints();
   }
 
   async function createRoute() {
-    if(!line || !route) return;
+    if(!line || !newRoute) return;
     const res = await createRouteAction({
       active: false,
       line: line.id,
-      busStops: getPoints(route)
+      busStops: getPoints(newRoute)
     });
 
     if(res.success) {
@@ -125,6 +156,8 @@ export default function BusLineManager({
           ...routes,
           res.data
         ]);
+        setNewRoute(null);
+        setDetails(false);
       }
     }
   }
@@ -139,14 +172,35 @@ export default function BusLineManager({
     }
   }
 
-  async function deleteRoute(route: BusRoute) {
-    const res = await deleteRouteAction(route.id);
+  async function deleteRoute(busRoute: BusRoute) {
+    const res = await deleteRouteAction(busRoute.id);
     if(res?.success) {
-      setRoutes((routes) => routes.filter(r => r.id != route.id))
+      setRoutes((routes) => routes.filter(r => r.id != busRoute.id))
+      if(route && route.id === busRoute.id) {
+        setRoute(routes[0] ?? null)
+      }
     }
   }
 
   async function editGeometry(idx: number, coordinates: [number, number]) {
+    if(newRoute) {
+      setRoute((route) => {
+        if(!route) return route;
+        return ({
+          ...route,
+          pontos: route.pontos.map((point, index) => {
+            if(index === idx) {
+              return {
+                ...point,
+                coordenada: coordinates
+              }
+            }
+            return point;
+          })
+        })
+      });
+      return;
+    }
     setRoute((route) => {
       if(!route) return route;
       return ({
@@ -202,12 +256,25 @@ export default function BusLineManager({
             <RouteManagementMap
               bounds={city.enquadramento}
               points={busStops}
-              route={route}
+              route={newRoute ?? route}
               editMode={details}
               addAuxPoint={(latitude: number, longitude: number) => {
                 addRoutePoint(newPoint(latitude, longitude));
               }}
               removeAuxPoint={(idx: number) => {
+                if(newRoute) {
+                    setNewRoute((route) => {
+                    if(!route) return route;
+                    return {
+                      ...route,
+                      pontos: [
+                        ...route.pontos.slice(0, idx),
+                        ...route.pontos.slice(idx+1)
+                      ]
+                    }
+                  })
+                  return;
+                }
                 setRoute((route) => {
                   if(!route) return route;
                   return {
@@ -238,11 +305,20 @@ export default function BusLineManager({
                 {details && 
                   <div className="flex flex-col justify-between h-full">
                     <div className="">
-                      <BusRouteDetails busStops={selected} onBackClick={() => setDetails(false)}/>
+                      <BusRouteDetails 
+                        busStops={selected} 
+                        onBackClick={() => {
+                          if(newRoute) {
+                            setNewRoute(null)
+                          };
+                          setSelectedPoints();
+                          setDetails(false);
+                        }}
+                      />
                     </div>
                     <button type="button"
-                      onClick={editRoute}
-                      disabled={(route) ? route.pontos.length < 2 : true}
+                      onClick={(newRoute) ? createRoute : editRoute}
+                      disabled={(route) ? selected.length < 2 : true}
                       className="bg-icy-aqua-700 text-icy-aqua-400">
                       Salvar
                     </button>
@@ -253,6 +329,19 @@ export default function BusLineManager({
                     <div className="w-full flex justify-center my-3">
                       <button type="button"
                         className="py-2 w-9/10 bg-icy-aqua-700 group text-icy-aqua-50 font-bold flex justify-center items-center gap-2 cursor-pointer"
+                        onClick={() => {
+                            setNewRoute({
+                              id: -1,
+                              ativo: false,
+                              linha: line.id,
+                              pontos: [],
+                              vigencia: null,
+                              updated_at: new Date()
+                            });
+                            setSelected([]);
+                            setDetails(true);
+                          }
+                        }
                       >
                         <FaPlus className="text-white transition-all group-hover:rotate-180"/>
                         Criar rota

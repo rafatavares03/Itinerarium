@@ -77,6 +77,7 @@ export default function PontosOnMap({
           icon={busIcon(destacado(ponto), selecionado(ponto))}
           eventHandlers={{
             click: () => onClick(ponto),
+            contextmenu: () => onContextMenu(ponto)
           }}
         />
       ))}

@@ -101,7 +101,7 @@ export default function BusLineManager({
       if(!route) return route;
       return ({
         ...route,
-        pontos: route.pontos.filter(p => p.id != point.id)
+        pontos: route.pontos.filter(p => p.id !== point.id)
       })
     })
   }
@@ -215,7 +215,12 @@ export default function BusLineManager({
                 addRoutePoint(point);
               }}
               onUnselectPoint={(point: Ponto) => {
-                setSelected((points) => points.filter(p => p.id != point.id));
+                setSelected(points => {
+                  console.log("PONTO ID",point.id);
+                  const updated = points.filter(p => p.id !== point.id);
+                  console.log("selected depois:", updated);
+                  return updated;
+                });
                 removeRoutePoint(point);
               }}
               onEditGeometry={(idx: number, coordinates: [number, number]) => editGeometry(idx, coordinates)}

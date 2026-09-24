@@ -78,7 +78,7 @@ export default function RouteManagementMap({
           onClick={() => {setAddOn(!addOn)}}
           >
           <CiCirclePlus className="size-[30px]"/>
-          {(addOn)? "Desabilitar inserção" : "Habilitar inserção"}
+          {(addOn)? "Desabilitar edição" : "Habilitar edição"}
         </button>
       </div>
       <MapContainer 
@@ -94,7 +94,12 @@ export default function RouteManagementMap({
           <PontosOnMap 
             pontos={points}
             onClick={onSelectPoint}
-            onContextMenu={onUnselectPoint}
+            onContextMenu={(point: Ponto) => {
+              if(isPointSelected(point)) {
+                console.log("BABADOOOOOOOOOOOOOO")
+                onUnselectPoint(point)
+              }
+            }}
             selecionado={isPointSelected}
             destacado={() => false}
           />

@@ -20,6 +20,7 @@ export default function RouteManagementMap({
   points,
   route,
   addAuxPoint,
+  editMode,
   removeAuxPoint,
   onSelectPoint,
   onUnselectPoint,
@@ -28,7 +29,8 @@ export default function RouteManagementMap({
 }: {
   bounds: [[number,number], [number,number]],
   points: Ponto[],
-  route: BusRoute | null, 
+  route: BusRoute | null,
+  editMode: boolean
   addAuxPoint: (latitude:number, longitude:number) => void,
   removeAuxPoint: (idx: number) => void,
   onSelectPoint: (point: Ponto) => void,
@@ -36,11 +38,10 @@ export default function RouteManagementMap({
   onEditGeometry: (idx: number, coordinates: [number, number]) => void
   isPointSelected: (ponto: Ponto) => boolean
 }) {
-  const [addOn, setAddOn] = useState(false);
   function MapClickHandler() {
     useMapEvents({
       click(e) {
-        if(!addOn) return;
+        if(!editMode) return;
         addAuxPoint(e.latlng.lat, e.latlng.lng);
       },
       contextmenu(e) {
@@ -72,15 +73,6 @@ export default function RouteManagementMap({
 
   return (
     <div className="w-full h-full relative">
-      <div className="flex">
-        <button type="button" 
-          className={((addOn) ? "bg-red-500 " : "bg-lime-500 ") + buttonStyle + " absolute top-1 right-1 z-1000"}
-          onClick={() => {setAddOn(!addOn)}}
-          >
-          <CiCirclePlus className="size-[30px]"/>
-          {(addOn)? "Desabilitar edição" : "Habilitar edição"}
-        </button>
-      </div>
       <MapContainer 
         bounds={bounds}
         className="h-full w-full"
@@ -93,11 +85,15 @@ export default function RouteManagementMap({
           <MapClickHandler />
           <PontosOnMap 
             pontos={points}
-            onClick={onSelectPoint}
+            onClick={(point: Ponto) => {
+              if(!editMode) return;
+              console.log(point);
+              onSelectPoint(point);
+            }}
             onContextMenu={(point: Ponto) => {
+              if(!editMode) return;
               if(isPointSelected(point)) {
-                console.log("BABADOOOOOOOOOOOOOO")
-                onUnselectPoint(point)
+                onUnselectPoint(point);
               }
             }}
             selecionado={isPointSelected}

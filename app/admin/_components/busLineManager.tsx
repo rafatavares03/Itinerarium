@@ -12,6 +12,7 @@ import { LinhaBasic } from "@/types/linha";
 import { FaPlus } from "react-icons/fa";
 import BusRouteList from "./busRouteList";
 import GoBackButton from "@/app/components/goBackButton";
+import BusRouteDetails from "./busRouteDetails";
 const RouteManagementMap = dynamic(
   () => import("@/app/components/routeManagementMap"),
   {
@@ -40,6 +41,7 @@ export default function BusLineManager({
   const [routes, setRoutes] = useState<BusRoute[]>([]);
   const [route, setRoute] = useState<BusRoute | null>(null);
   const [selected, setSelected] = useState<Ponto[]>([]);
+  const [details, setDetails] = useState(false);
   const labelStyle = "font-semibold mr-3";
   const inputStyle = "bg-space-indigo-700 outline-0 text-white text-sm py-1 px-3 rounded-md";
   const buttonStyle = "px-5 py-1 bg-icy-aqua-400 rounded-md text-space-indigo-700 font-semibold cursor-pointer";
@@ -87,10 +89,7 @@ export default function BusLineManager({
         ...route,
         pontos: [
           ...route.pontos,
-          {
-            coordenada: point.coordenada
-            
-          }
+          point
         ]
       })
     })
@@ -184,6 +183,8 @@ export default function BusLineManager({
             <input type="text" name="name" id="name" value={nome} onChange={(e)=> setNome(nome)} className={inputStyle + " flex-1"}/>
           </div>
         </div>
+        <button type="submit" className={buttonStyle}>Salvar</button>
+      </Form>
         { line &&
 
           <div className="w-full flex h-130 border-2 border-icy-aqua-700 relative mt-5">
@@ -192,6 +193,7 @@ export default function BusLineManager({
               bounds={city.enquadramento}
               points={busStops}
               route={route}
+              editMode={details}
               addAuxPoint={(latitude: number, longitude: number) => {
                 addRoutePoint(newPoint(latitude, longitude));
               }}
@@ -215,22 +217,25 @@ export default function BusLineManager({
                 addRoutePoint(point);
               }}
               onUnselectPoint={(point: Ponto) => {
-                setSelected(points => {
-                  console.log("PONTO ID",point.id);
-                  const updated = points.filter(p => p.id !== point.id);
-                  console.log("selected depois:", updated);
-                  return updated;
-                });
+                setSelected(points => points.filter(p => p.id !== point.id));
                 removeRoutePoint(point);
               }}
               onEditGeometry={(idx: number, coordinates: [number, number]) => editGeometry(idx, coordinates)}
               isPointSelected={(point: Ponto) => selected.some(p => p.id === point.id)}
               />
               <div className="w-2xl h-full bg-space-indigo-700 relative overflow-y-auto">
-                {false && selected.map((select, idx) =>
-                  <div key={select.id}><em>{idx+1}</em> - {select.logradouro}, {select.numero}</div>
-                )}
-                {
+                {details && 
+                  <>
+                    <BusRouteDetails busStops={selected} onBackClick={() => setDetails(false)}/>
+                    <button type="button"
+                      onClick={createRoute}
+                      disabled={(route) ? route.pontos.length < 2 : true}
+                      className="absolute bg-icy-aqua-700 bottom-0 left-0 right-0 text-icy-aqua-400">
+                      Salvar
+                    </button>
+                  </>
+                }
+                {!details &&
                   <div className="flex flex-col gap-2">
                     <div className="w-full flex justify-center my-3">
                       <button type="button"
@@ -241,24 +246,17 @@ export default function BusLineManager({
                       </button>
                     </div>
                     <BusRouteList 
-                      routes={routes}
-                      current={(route) ? route.id : -1}
-                      onSelectRoute={(route) => selectRoute(route)} 
-                      onDeleteRoute={(route) => deleteRoute(route)}
+                    routes={routes}
+                    current={(route) ? route.id : -1}
+                    onSelectRoute={(route) => selectRoute(route)} 
+                    onDeleteRoute={(route) => deleteRoute(route)}
+                    onDetails={() => setDetails(true)}
                     />
                   </div>
                 }
-                <button type="button"
-                  onClick={createRoute}
-                  disabled={(route) ? route.pontos.length < 2 : true}
-                  className="absolute bg-icy-aqua-700 bottom-0 left-0 right-0 text-icy-aqua-400">
-                  Salvar
-                </button>
               </div>
           </div>
         }
-        <button type="submit" className={buttonStyle}>Salvar</button>
-      </Form>
     </div>
   )
 }

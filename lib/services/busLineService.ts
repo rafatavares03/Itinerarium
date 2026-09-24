@@ -1,5 +1,5 @@
 import { LinhaBasic } from "@/types/linha";
-import { createLine, getLine } from "../repositories/busLineRepository"
+import { saveLine, getLine } from "../repositories/busLineRepository"
 
 export async function getBusLines(
   city: number, 
@@ -25,7 +25,7 @@ export async function getBusLines(
 
 export async function createBusLine(params: {name: string, code: number, city: number}) {
   try {
-    const data = await createLine(params);
+    const data = await saveLine(params);
     return {
       success: true,
       data

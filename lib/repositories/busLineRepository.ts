@@ -1,20 +1,27 @@
 import prisma from "@/lib/prisma";
 import { LinhaBasic } from "@/types/linha";
 
-export async function createLine(data: {
-  code: number,
-  name: string,
-  city: number
+export async function saveLine(data: {
+  id?: number;
+  code: number;
+  name: string;
+  city: number;
 }) {
-  const linha = await prisma.linha.create({
-    data: {
+  return await prisma.linha.upsert({
+    where: {
+      id: data.id ?? -1,
+    },
+    update: {
       codigo: data.code,
       nome: data.name,
-      cidade_id: data.city
-    }
+      cidade_id: data.city,
+    },
+    create: {
+      codigo: data.code,
+      nome: data.name,
+      cidade_id: data.city,
+    },
   });
-
-  return linha;
 }
 
 export async function updateLine(line: LinhaBasic) {

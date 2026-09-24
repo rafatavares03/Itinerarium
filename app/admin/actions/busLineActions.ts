@@ -5,6 +5,7 @@ import { z } from "zod";
 import { LinhaBasic } from "@/types/linha";
 
 const createBusLineSchema = z.object({
+  id: z.coerce.number().optional(),
   city: z.coerce.number().int().positive(),
   name: z.string().trim().min(1),
   code: z.coerce.number().int().positive(),
@@ -23,6 +24,7 @@ export type CreateBusLineState = {
 
 export async function createBusLineAction(prevState: CreateBusLineState, formData: FormData) {
   const data = {
+    id: formData.get("id"),
     city: formData.get("city"),
     name: formData.get("name"),
     code: formData.get("code"),

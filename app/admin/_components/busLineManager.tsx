@@ -36,6 +36,7 @@ export default function BusLineManager({
   onBackClick: () => void
 }) {
   const [state, createBusLine, isPending] = useActionState(createBusLineAction, initialState);
+  const [busLine, setBusLine] = useState<LinhaBasic | null>(line)
   const [codigo, setCodigo] = useState(line?.codigo ?? "");
   const [nome, setNome] = useState(line?.nome ?? "");
   const [routes, setRoutes] = useState<BusRoute[]>([]);
@@ -50,11 +51,17 @@ export default function BusLineManager({
   if(!city) return <></>
 
   useEffect(() => {
+    if (state.success && state.data) {
+      setBusLine(state.data)
+    }
+}, [state]);
+
+  useEffect(() => {
     if(!line) return;
     const loadData = async () => {
       const res = await getBusRoutesAction(line.id);
       if(res.success) {
-        console.log(res);
+  
         const data = res.data ?? [];
         setRoutes(data);
 
@@ -63,13 +70,13 @@ export default function BusLineManager({
         setRoute(data[0]);
         setSelected(novaRoute.filter(point => point.id));
 
-        console.log(route);
+  
       }
-      console.log(routes);
+   
     };
 
     loadData();
-  }, [])
+  }, [busLine])
 
   function getPoints(route: BusRoute | null) {
     if(!route) return [];
@@ -238,6 +245,7 @@ export default function BusLineManager({
       <Form action={createBusLine}>
         <div className="flex gap-3 w-full py-3">
           <input type="hidden" name="city" value={city.id}/>
+          <input type="hidden" name="id" value={line?.id ?? ""} />
           <div>
             <label htmlFor="code" className={labelStyle}>Código</label>
             <input type="text" name="code" id="code" value={codigo} onChange={(e) => setCodigo(e.target.value)} className={inputStyle}/>

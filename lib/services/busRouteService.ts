@@ -1,5 +1,6 @@
-import { Ponto } from "@/types/ponto"
-import { createRoute, deleteRoute, getBusRouteById, getBusRoutesByLine } from "../repositories/busRouteRepository"
+import { Ponto } from "@/types/ponto";
+import { BusRoute } from "@/types/busRoute";
+import { createRoute, editRoute, deleteRoute, getBusRouteById, getBusRoutesByLine } from "../repositories/busRouteRepository"
 
 export async function getBusRoutesService(line: number) {
   try{
@@ -51,5 +52,46 @@ export async function deleteRouteService(id: number) {
       success: false,
       message: "Não foi possível apagar a rota"
     }
+  }
+}
+
+export async function editRouteService(data: BusRoute) {
+   try {
+    const lastRegisteredIndex = data.pontos.reduce((lastIndex, point, index) => 
+      point.id !== undefined ? index : lastIndex, -1
+    );
+
+    let order = 1;
+
+    const pontos = data.pontos.map((point, index) => {
+      if (point.id === undefined) {
+        return point;
+      }
+
+      return {
+        ...point,
+        ordem: order++,
+        final: index === lastRegisteredIndex
+      };
+    });
+
+     await editRoute({
+      ...data,
+      pontos
+    });
+
+    const routeData = await getBusRouteById(data.id);
+
+    return {
+      success: true,
+      data: routeData
+    };
+  } catch (e) {
+    console.log(e);
+
+    return {
+      success: false,
+      message: "Não foi possível editar a rota"
+    };
   }
 }

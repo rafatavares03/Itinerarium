@@ -6,7 +6,7 @@ import { CidadeDetails } from "@/types/cidade";
 import { Ponto } from "@/types/ponto";
 import { createBusLineAction, CreateBusLineState } from "../actions/busLineActions";
 import dynamic from "next/dynamic";
-import { createRouteAction, deleteRouteAction, getBusRoutesAction } from "../actions/busRouteActions";
+import { createRouteAction, deleteRouteAction, editRouteAction, getBusRoutesAction } from "../actions/busRouteActions";
 import { BusRoute } from "@/types/busRoute";
 import { LinhaBasic } from "@/types/linha";
 import { FaPlus } from "react-icons/fa";
@@ -129,6 +129,16 @@ export default function BusLineManager({
     }
   }
 
+  async function editRoute() {
+    if(!route) return;
+    const res = await editRouteAction(route);
+    if(res.success) {
+      if(res.data) {
+        setRoutes(routes => routes.map(route => route.id === res.data.id ? res.data : route));
+      }
+    }
+  }
+
   async function deleteRoute(route: BusRoute) {
     const res = await deleteRouteAction(route.id);
     if(res?.success) {
@@ -210,6 +220,7 @@ export default function BusLineManager({
                 })
               }}
               onSelectPoint={(point: Ponto) => {
+                 if(selected.some(p => p.id === point.id)) return;
                 setSelected((points) => [
                   ...points,
                   point
@@ -225,15 +236,17 @@ export default function BusLineManager({
               />
               <div className="w-2xl h-full bg-space-indigo-700 relative overflow-y-auto">
                 {details && 
-                  <>
-                    <BusRouteDetails busStops={selected} onBackClick={() => setDetails(false)}/>
+                  <div className="flex flex-col justify-between h-full">
+                    <div className="">
+                      <BusRouteDetails busStops={selected} onBackClick={() => setDetails(false)}/>
+                    </div>
                     <button type="button"
-                      onClick={createRoute}
+                      onClick={editRoute}
                       disabled={(route) ? route.pontos.length < 2 : true}
-                      className="absolute bg-icy-aqua-700 bottom-0 left-0 right-0 text-icy-aqua-400">
+                      className="bg-icy-aqua-700 text-icy-aqua-400">
                       Salvar
                     </button>
-                  </>
+                  </div>
                 }
                 {!details &&
                   <div className="flex flex-col gap-2">

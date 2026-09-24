@@ -1,8 +1,9 @@
 "use server"
 
-import { z } from 'zod';
+import { success, z } from 'zod';
 import { Ponto } from '@/types/ponto';
-import { createRouteService, deleteRouteService, getBusRoutesService } from '@/lib/services/busRouteService';
+import { BusRoute } from '@/types/busRoute';
+import { createRouteService, deleteRouteService, editRouteService, getBusRoutesService } from '@/lib/services/busRouteService';
 
 const PontoSchema = z.object({
   id: z.number().int().positive().optional(),
@@ -14,6 +15,28 @@ const PontoSchema = z.object({
     z.number()
   ])
 });
+
+const BusRouteSchema = z.object({
+  id: z.number().int().positive(),
+  ativo: z.boolean(),
+  linha: z.number().int().positive(),
+  vigencia: z.date().nullable(),
+  updated_at: z.date(),
+  pontos: z.array(
+    z.object({
+      id: z.number().int().positive().optional(),
+      logradouro: z.string().optional(),
+      numero: z.string().optional(),
+      cidade_id: z.number().int().positive().optional(),
+      coordenada: z.tuple([
+        z.number(),
+        z.number()
+      ]),
+      ordem: z.number().optional(),
+      final: z.boolean().optional()
+    })
+  )
+})
 
 const createBusRouteSchema = z.object({
   active: z.boolean(),
@@ -38,6 +61,19 @@ export async function createRouteAction(data: {
   }
 
   return await createRouteService(validation.data);
+}
+
+export async function editRouteAction(data: BusRoute) {
+  const validation = BusRouteSchema.safeParse(data);
+  if(!validation.success) {
+    return {
+      success: false,
+      errors: validation.error.flatten().fieldErrors,
+      data: undefined
+    }
+  }
+
+  return await editRouteService(validation.data);
 }
 
 export async function getBusRoutesAction(line: number) {

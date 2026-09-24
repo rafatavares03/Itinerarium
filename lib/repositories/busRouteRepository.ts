@@ -232,6 +232,42 @@ export async function createRoute(data: {
   return res;
 }
 
+export async function editRoute(data: BusRoute) {
+  const geometry = {
+    type: "LineString",
+    coordinates: data.pontos.map(point => point.coordenada)
+  }
+
+  const res = await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`
+      UPDATE trajeto SET 
+        ativo = ${data.ativo},
+        vigencia = ${data.vigencia},
+        geometria = ST_SetSRID(
+          ST_GeomFromGeoJSON(${JSON.stringify(geometry)}),
+          4674
+        )
+        WHERE id = ${data.id}
+      `;
+
+    await tx.$executeRaw`
+      DELETE FROM ponto_trajeto
+        WHERE trajeto = ${data.id}
+    `
+
+    await tx.pontoTrajeto.createMany({
+      data: data.pontos
+                    .filter(p => p.id !== undefined)
+                    .map(p => ({
+                      ponto_id: p.id!,
+                      trajeto_id: data.id,
+                      ordem: p.ordem!,
+                      final: p.final!
+                    }))
+    })
+  })
+}
+
 export async function deleteRoute(id: number) {
   return await prisma.trajeto.delete({
     where: {

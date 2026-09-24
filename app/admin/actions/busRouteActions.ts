@@ -32,7 +32,8 @@ export async function createRouteAction(data: {
   if(!validation.success) {
     return {
       success: false,
-      errors: validation.error.flatten().fieldErrors
+      errors: validation.error.flatten().fieldErrors,
+      data: undefined
     }
   }
 

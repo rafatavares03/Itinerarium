@@ -102,6 +102,38 @@ function transformIntoBusRoutes(routes: RouteWithGeometry[]): BusRoute[] {
   return busRoutes;
 }
 
+export async function getBusRouteById(id: number) {
+  const query = await prisma.$queryRaw<RouteQuery[]>`
+    SELECT
+      t.id,
+      t.ativo,
+      t.linha,
+      t.vigencia,
+      t.updated_at,
+      ST_AsGeoJSON(t.geometria) AS geometria,
+
+      p.id AS ponto_id,
+      pt.ordem,
+      pt.final,
+      p.logradouro,
+      p.numero,
+      p.cidade,
+      ST_Y(p.coordenada) AS latitude,
+      ST_X(p.coordenada) AS longitude
+    
+    FROM trajeto t 
+      LEFT JOIN ponto_trajeto pt ON pt.trajeto = t.id 
+      LEFT JOIN ponto p ON p.id = pt.ponto
+
+    WHERE t.id = ${id}
+  `;
+
+  const routeWithGeometry = reduceQueryIntoRouteWithGeometry(query);
+  const busRoutes = transformIntoBusRoutes(routeWithGeometry);
+
+  return busRoutes[0];
+}
+
 
 export async function getBusRoutesByLine(line: number) {
   const query = await prisma.$queryRaw<RouteQuery[]>`

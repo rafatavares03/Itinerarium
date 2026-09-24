@@ -12,8 +12,8 @@ import { LinhaBasic } from "@/types/linha";
 import { FaPlus } from "react-icons/fa";
 import BusRouteList from "./busRouteList";
 import GoBackButton from "@/app/components/goBackButton";
-const CidadeMap = dynamic(
-  () => import("@/app/components/cidadeMap"),
+const RouteManagementMap = dynamic(
+  () => import("@/app/components/routeManagementMap"),
   {
     ssr: false,
   }
@@ -38,7 +38,7 @@ export default function BusLineManager({
   const [codigo, setCodigo] = useState(line?.codigo ?? "");
   const [nome, setNome] = useState(line?.nome ?? "");
   const [routes, setRoutes] = useState<BusRoute[]>([]);
-  const [route, setRoute] = useState<Ponto[]>([]);
+  const [route, setRoute] = useState<BusRoute | null>(null);
   const [selected, setSelected] = useState<Ponto[]>([]);
   const labelStyle = "font-semibold mr-3";
   const inputStyle = "bg-space-indigo-700 outline-0 text-white text-sm py-1 px-3 rounded-md";
@@ -57,7 +57,7 @@ export default function BusLineManager({
 
         const novaRoute = getPoints(data[0]?? []);
       
-        setRoute(novaRoute);
+        setRoute(data[0]);
         setSelected(novaRoute.filter(point => point.id));
 
         console.log(route);
@@ -81,16 +81,53 @@ export default function BusLineManager({
   }
 
   function addRoutePoint(point: Ponto) {
-    setRoute((points) => [
-      ...points,
-      point
-    ]);
+    setRoute((route) => {
+      if(!route) return route;
+      return ({
+        ...route,
+        pontos: [
+          ...route.pontos,
+          {
+            coordenada: point.coordenada
+            
+          }
+        ]
+      })
+    })
+  }
+
+  function removeRoutePoint(point: Ponto) {
+    setRoute((route) => {
+      if(!route) return route;
+      return ({
+        ...route,
+        pontos: route.pontos.filter(p => p.id != point.id)
+      })
+    })
   }
 
   function selectRoute(route: BusRoute) {
     const points = getPoints(route);
-    setRoute(points);
+    setRoute(route);
     setSelected(points);
+  }
+
+  async function createRoute() {
+    if(!line || !route) return;
+    const res = await createRouteAction({
+      active: false,
+      line: line.id,
+      busStops: getPoints(route)
+    });
+
+    if(res.success) {
+      if(res.data) {
+        setRoutes(routes => [
+          ...routes,
+          res.data
+        ]);
+      }
+    }
   }
 
   async function deleteRoute(route: BusRoute) {
@@ -101,17 +138,21 @@ export default function BusLineManager({
   }
 
   async function editGeometry(idx: number, coordinates: [number, number]) {
-    setRoute((current) => 
-      current.map((point, index) => {
-        if(index === idx) {
-          return {
-            ...point,
-            coordenada: coordinates
+    setRoute((route) => {
+      if(!route) return route;
+      return ({
+        ...route,
+        pontos: route.pontos.map((point, index) => {
+          if(index === idx) {
+            return {
+              ...point,
+              coordenada: coordinates
+            }
           }
-        }
-        return point;
+          return point;
+        })
       })
-    );
+    });
   }
 
   function newPoint(latitude: number, longitude: number) {
@@ -147,13 +188,24 @@ export default function BusLineManager({
 
           <div className="w-full flex h-130 border-2 border-icy-aqua-700 relative mt-5">
             <h2 className="bg-icy-aqua-700 font-title text-semibold text-white tracking-widest rounded-t-md font-bold absolute top-[-25px] left-0 italic px-2">Trajetos</h2>
-            <CidadeMap 
+            <RouteManagementMap
               bounds={city.enquadramento}
-              pontos={busStops}
-              rota={route}
-              pontoDestaque={null}
-              onMapClick={(latitude: number, longitude: number) => {
+              points={busStops}
+              route={route}
+              addAuxPoint={(latitude: number, longitude: number) => {
                 addRoutePoint(newPoint(latitude, longitude));
+              }}
+              removeAuxPoint={(idx: number) => {
+                setRoute((route) => {
+                  if(!route) return route;
+                  return {
+                    ...route,
+                    pontos: [
+                      ...route.pontos.slice(0, idx),
+                      ...route.pontos.slice(idx+1)
+                    ]
+                  }
+                })
               }}
               onSelectPoint={(point: Ponto) => {
                 setSelected((points) => [
@@ -162,10 +214,12 @@ export default function BusLineManager({
                 ]);
                 addRoutePoint(point);
               }}
-              onDeleteNew={() => console.log("delete new")}
+              onUnselectPoint={(point: Ponto) => {
+                setSelected((points) => points.filter(p => p.id != point.id));
+                removeRoutePoint(point);
+              }}
               onEditGeometry={(idx: number, coordinates: [number, number]) => editGeometry(idx, coordinates)}
               isPointSelected={(point: Ponto) => selected.some(p => p.id === point.id)}
-              isPointHighlighted={() => false}
               />
               <div className="w-2xl h-full bg-space-indigo-700 relative overflow-y-auto">
                 {false && selected.map((select, idx) =>
@@ -182,19 +236,16 @@ export default function BusLineManager({
                       </button>
                     </div>
                     <BusRouteList 
-                      routes={routes} 
+                      routes={routes}
+                      current={(route) ? route.id : -1}
                       onSelectRoute={(route) => selectRoute(route)} 
                       onDeleteRoute={(route) => deleteRoute(route)}
                     />
                   </div>
                 }
                 <button type="button"
-                  onClick={() => createRouteAction({
-                    active: true,
-                    line: line.id,
-                    busStops: selected
-                  })}
-                  disabled={selected.length < 2}
+                  onClick={createRoute}
+                  disabled={(route) ? route.pontos.length < 2 : true}
                   className="absolute bg-icy-aqua-700 bottom-0 left-0 right-0 text-icy-aqua-400">
                   Salvar
                 </button>

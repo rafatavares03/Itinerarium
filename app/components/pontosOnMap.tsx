@@ -15,18 +15,17 @@ export default function PontosOnMap({
   novos,
   selecionado,
   destacado,
-  onSelectPoint,
-  onDeleteNew
+  onClick,
+  onContextMenu
  }: { 
   pontos: Ponto[],
   novos?: Ponto[],
   destacado: (ponto: Ponto) => boolean,
   selecionado: (ponto: Ponto) => boolean,
-  onSelectPoint: (ponto: Ponto) => void,
-  onDeleteNew: (ponto: Ponto) => void,
+  onClick: (ponto: Ponto) => void,
+  onContextMenu: (ponto: Ponto) => void,
 }) {
   const [zoom, setZoom] = useState(15);
-  console.log(novos);
   useMapEvents({
     zoomend(e) {
       setZoom(e.target.getZoom());
@@ -77,7 +76,7 @@ export default function PontosOnMap({
           position={ponto.coordenada}
           icon={busIcon(destacado(ponto), selecionado(ponto))}
           eventHandlers={{
-            click: () => onSelectPoint(ponto),
+            click: () => onClick(ponto),
           }}
         />
       ))}
@@ -87,8 +86,8 @@ export default function PontosOnMap({
           position={ponto.coordenada}
           icon={busIcon(destacado(ponto), selecionado(ponto), "#9ae600", "#ab0303")}
           eventHandlers={{
-            click: () => onSelectPoint(ponto),
-            contextmenu: () => onDeleteNew(ponto)
+            click: () => onClick(ponto),
+            contextmenu: () => onContextMenu(ponto)
           }}
         />
       ))}

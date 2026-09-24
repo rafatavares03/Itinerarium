@@ -1,51 +1,43 @@
 'use client'
 
-import L from "leaflet"
 import { 
   MapContainer, 
   useMap,
   useMapEvents, 
-  Polyline,
-  Marker,
   TileLayer 
 } from "react-leaflet"
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import PontosOnMap from "./pontosOnMap";
 import { Ponto } from "@/types/ponto";
-import { CiCirclePlus } from "react-icons/ci";
 
 export default function CidadeMap({
   bounds,
   pontos,
-  rota,
   novos,
+  adicionarPontos,
   pontoDestaque,
   onMapClick,
   onSelectPoint,
-  onEditGeometry,
   onDeleteNew,
   isPointSelected,
   isPointHighlighted
 }: {
   bounds: [[number,number], [number,number]],
   pontos: Ponto[],
-  rota?: Ponto[], 
   novos?: Ponto[],
+  adicionarPontos: boolean,
   pontoDestaque: Ponto | null,
   onMapClick: (latitude:number, longitude:number) => void,
   onSelectPoint: (ponto: Ponto) => void,
-  onEditGeometry: (idx: number, coordinates: [number, number]) => void
   onDeleteNew: (ponto: Ponto) => void,
   isPointSelected: (ponto: Ponto) => boolean
   isPointHighlighted: (ponto: Ponto) => boolean
 }) {
-  const [addOn, setAddOn] = useState(false);
-  console.log("ROTA:", rota)
   function MapClickHandler() {
     useMapEvents({
       click(e) {
         console.log("Centralizando:", pontoDestaque);
-        if(!addOn) return;
+        if(!adicionarPontos) return;
         onMapClick(e.latlng.lat, e.latlng.lng);
       },
       contextmenu(e) {
@@ -71,36 +63,8 @@ export default function CidadeMap({
     return null;
   }
 
-  const pointAux = L.divIcon({
-    className: "",
-    html: `
-      <div
-        style="
-          width: 12px;
-          height: 12px;
-          background: white;
-          border: 2px solid black;
-          border-radius: 50%;
-        "
-      ></div>
-    `,
-    iconSize: [12, 12],
-    iconAnchor: [6, 6],
-  });
-
-  const buttonStyle = "px-5 py-1 flex items-center gap-2 font-bold text-white rounded-sm";
-
   return (
-    <div className="w-full h-full relative">
-      <div className="flex">
-        <button type="button" 
-          className={((addOn) ? "bg-red-500 " : "bg-lime-500 ") + buttonStyle + " absolute top-1 right-1 z-1000"}
-          onClick={() => {setAddOn(!addOn)}}
-          >
-          <CiCirclePlus className="size-[30px]"/>
-          {(addOn)? "Desabilitar inserção" : "Habilitar inserção"}
-        </button>
-      </div>
+    <>
       <MapContainer 
         bounds={bounds}
         className="h-full w-full"
@@ -114,37 +78,13 @@ export default function CidadeMap({
           <PontosOnMap 
             pontos={pontos}
             novos={novos}
-            onSelectPoint={onSelectPoint}
-            onDeleteNew={onDeleteNew}
+            onClick={onSelectPoint}
+            onContextMenu={onDeleteNew}
             selecionado={isPointSelected}
             destacado={isPointHighlighted}
           />
-          
-          {rota && 
-            <>
-              <Polyline positions={rota.map((ponto) => ponto.coordenada)}/>
-              {rota.map((ponto, index) => {
-                if(ponto.id) return null;
-                return (
-                  <Marker
-                    key={index}
-                    icon={pointAux}
-                    position={ponto.coordenada}
-                    draggable={true}
-                    eventHandlers={{
-                      dragend(e) {
-                        const {lat, lng} = e.target.getLatLng();
-                        onEditGeometry(index, [lat, lng]);
-
-                      }
-                    }}
-                  />
-             )})}
-            </>
-          
-          }
           <CentralizarPonto ponto={pontoDestaque} />
       </MapContainer>
-    </div>
+    </>
   )
 }

@@ -1,5 +1,5 @@
 import { Ponto } from "@/types/ponto"
-import { createRoute, deleteRoute, getBusRoutesByLine } from "../repositories/busRouteRepository"
+import { createRoute, deleteRoute, getBusRouteById, getBusRoutesByLine } from "../repositories/busRouteRepository"
 
 export async function getBusRoutesService(line: number) {
   try{
@@ -23,10 +23,11 @@ export async function createRouteService(data: {
   busStops: Ponto[]
 }) {
   try {
-    const res = createRoute(data);
+    const id = await createRoute(data);
+    const routeData = await getBusRouteById(id);
     return {
       success: true,
-      data: res
+      data: routeData
     }
   } catch(e) {
     console.log(e);

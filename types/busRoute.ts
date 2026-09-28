@@ -2,6 +2,7 @@ export type BusRoute = {
   id: number;
   ativo: boolean;
   linha: number;
+  ida: boolean;
   vigencia: Date | null;
   updated_at: Date;
   pontos: {

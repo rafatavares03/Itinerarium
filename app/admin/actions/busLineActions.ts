@@ -1,42 +1,53 @@
 "use server"
 
-import { createBusLine, getBusLines } from "@/lib/services/busLineService";
+import { saveLinesService, getBusLines } from "@/lib/services/busLineService";
 import { z } from "zod";
-import { LinhaBasic } from "@/types/linha";
+import { BusLineBasic } from "@/types/busLine";
 
 const createBusLineSchema = z.object({
   id: z.coerce.number().optional(),
   city: z.coerce.number().int().positive(),
-  name: z.string().trim().min(1),
-  code: z.coerce.number().int().positive(),
+  origin: z.string().trim().min(1),
+  destination: z.string().trim().min(1),
+  code: z.string().trim().min(1),
 });
 
 export type CreateBusLineState = {
   success: boolean;
-  data?: LinhaBasic;
-  message?: string;
   errors?: {
     city?: string[];
-    name?: string[];
+    origin?: string[];
+    destination?: string[];
     code?: string[];
+    id?: string[];
   };
+  data?: {
+    id: number;
+    codigo: string;
+    origem: string;
+    destino: string;
+    cidade_id: number;
+  };
+  message?: string;
 };
 
 export async function createBusLineAction(prevState: CreateBusLineState, formData: FormData) {
   const data = {
     id: formData.get("id"),
     city: formData.get("city"),
-    name: formData.get("name"),
+    origin: formData.get("origin"),
+    destination: formData.get("destination"),
     code: formData.get("code"),
   }
   const validation = createBusLineSchema.safeParse(data);
   if(!validation.success) {
+    console.log(validation.error.flatten().fieldErrors)
     return {
       success: false,
       errors: validation.error.flatten().fieldErrors
     };
   }
-  const res = await createBusLine(validation.data);
+  const res = await saveLinesService(validation.data);
   return {
     success: true,
     data: res.data,
@@ -49,6 +60,13 @@ export async function getBusLinesAction(city: number,  params: {
     page?: number,
     search?: string
   }) {
-  const res = await getBusLines(city, {});
+  const validation = z.coerce.number().int().positive().safeParse(city);
+  if(!validation.success) {
+    return {
+      success: false,
+      data: undefined
+    }
+  }
+  const res = await getBusLines(validation.data, params);
   return res;
 }

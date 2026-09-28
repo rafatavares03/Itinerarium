@@ -1,4 +1,4 @@
-import { LinhaBasic } from "@/types/linha";
+import { BusLineBasic } from "@/types/busLine";
 import { saveLine, getLine } from "../repositories/busLineRepository"
 
 export async function getBusLines(
@@ -23,7 +23,13 @@ export async function getBusLines(
     }
 }
 
-export async function createBusLine(params: {name: string, code: number, city: number}) {
+export async function saveLinesService(params: {
+  id?: number,
+  origin: string,
+  destination: string,
+  code: string,
+  city: number
+}) {
   try {
     const data = await saveLine(params);
     return {
@@ -34,7 +40,7 @@ export async function createBusLine(params: {name: string, code: number, city: n
     console.log(e);
     return {
       success: false,
-      message: "Não foi possível buscar dados"
+      message: "Não foi possível salvar dados"
     }
   }
 }

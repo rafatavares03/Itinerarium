@@ -6,6 +6,7 @@ type RouteQuery = {
   id: number;
   ativo: boolean;
   linha: number;
+  ida: boolean;
   vigencia: Date | null;
   updated_at: Date;
   geometria: string;
@@ -38,6 +39,7 @@ function reduceQueryIntoRouteWithGeometry(routeQuery: RouteQuery[]): RouteWithGe
         id: row.id,
         ativo: row.ativo,
         linha: row.linha,
+        ida: row.ida,
         vigencia: row.vigencia,
         updated_at: row.updated_at,
         geometria: JSON.parse(row.geometria),
@@ -93,6 +95,7 @@ function transformIntoBusRoutes(routes: RouteWithGeometry[]): BusRoute[] {
       id: route.id,
       ativo: route.ativo,
       linha: route.linha,
+      ida: route.ida,
       vigencia: route.vigencia,
       updated_at: route.updated_at,
       pontos: points,
@@ -108,6 +111,7 @@ export async function getBusRouteById(id: number) {
       t.id,
       t.ativo,
       t.linha,
+      t.ida,
       t.vigencia,
       t.updated_at,
       ST_AsGeoJSON(t.geometria) AS geometria,
@@ -141,6 +145,7 @@ export async function getBusRoutesByLine(line: number) {
       t.id,
       t.ativo,
       t.linha,
+      t.ida,
       t.vigencia,
       t.updated_at,
       ST_AsGeoJSON(t.geometria) AS geometria,
@@ -172,12 +177,14 @@ export async function getBusRoutesByLine(line: number) {
 export async function createRoute(data: {
   active: boolean,
   line: number,
+  isOutbound: boolean,
   period?: Date,
   busStops: Ponto[]
 }) {
   const {
     active,
     line,
+    isOutbound,
     period,
     busStops
   } = data;
@@ -200,12 +207,14 @@ export async function createRoute(data: {
         INSERT INTO trajeto (
           linha,
           ativo,
+          ida,
           vigencia,
           geometria
         )
         VALUES (
           ${line},
           ${active},
+          ${isOutbound},
           ${period ?? null},
           ST_SetSRID(
             ST_GeomFromGeoJSON(${JSON.stringify(geometry)}),

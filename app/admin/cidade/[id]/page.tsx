@@ -9,7 +9,7 @@ import BusLineManager from "../../_components/busLineManager";
 import { JSX } from "react";
 import { getCityAction } from "../../actions/cityActions";
 import { getBusStopsAction } from "../../actions/busStopActions";
-import { LinhaBasic } from "@/types/linha";
+import { LinhaBasic } from "@/types/busLine";
 
 enum Abas {
   pontos = "Pontos",

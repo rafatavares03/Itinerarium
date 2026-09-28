@@ -2,7 +2,7 @@ import { useState } from "react";
 import { CidadeDetails } from "@/types/cidade";
 import SearchToolBar from "../../components/searchToolBar";
 import BusLineList from "./busLineList";
-import { LinhaBasic } from "@/types/linha";
+import { BusLineBasic } from "@/types/busLine";
 
 export default function BusLineContainer({
   city,
@@ -11,7 +11,7 @@ export default function BusLineContainer({
 }: {
   city: CidadeDetails | null,
   onAddClick: () => void,
-  onLineClick: (id: LinhaBasic) => void
+  onLineClick: (id: BusLineBasic) => void
 }) {
   const [search, setSearch] = useState("");
 

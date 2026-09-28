@@ -38,12 +38,15 @@ model Ponto {
 
 model Linha {
   id  Int @id @default(autoincrement())
-  codigo  Int @unique
-  nome  String
+  codigo  String
+  origem  String
+  destino String
   cidade  Cidade @relation(fields: [cidade_id], references: [id])
   cidade_id Int @map("cidade")
   trajetos  Trajeto[]
+  horarios  Horario[]
 
+  @@unique([cidade_id, codigo])
   @@map("linha")
 }
 
@@ -52,6 +55,7 @@ model Trajeto {
   ativo Boolean
   vigencia  DateTime?
   geometria Unsupported("geometry")
+  ida Boolean
   linha Linha @relation(fields:[linha_id], references: [id])
   linha_id  Int @map("linha")
   updated_at  DateTime @default(now())
@@ -60,7 +64,7 @@ model Trajeto {
   @@map("trajeto")
 }
 
-model PontoTrajeto{
+model PontoTrajeto {
   id  Int @id @default(autoincrement())
   ordem Int
   final Boolean
@@ -71,3 +75,13 @@ model PontoTrajeto{
 
   @@map("ponto_trajeto")
 }
+
+model Horario {
+  hora DateTime
+  ida Boolean
+  linha Linha @relation(fields:[linha_id], references: [id])
+  linha_id Int @map("linha")
+
+  @@id([hora, ida, linha_id])
+  @@map("horario")
+} 

@@ -17,6 +17,7 @@ export default function BusRouteList({
 }) {
 
   const routeActiveStyle = " bg-red-500";
+  const buttonStyle = "cursor-pointer transition-all "
 
   return (
     <div className="flex flex-col gap-2 h-full">
@@ -26,18 +27,18 @@ export default function BusRouteList({
             className={"bg-icy-aqua-300 w-4/5 px-3 rounded-e-lg transition-all text-start hover:w-5/6" 
                         + ((route.id === current) ? routeActiveStyle : " ")
             }>
-              Rota <span>{idx+1}</span>
+              Trajeto <span>{idx+1}</span>
           </button>
           <div className="absolute top-0 bottom-0 flex items-center right-0 gap-1 px-2">
 
             <button type="button"
-              className="cursor-pointer"
+              className={buttonStyle + ((route.id !== current) ? "opacity-0 duration-0" : "opacity-100 duration-[3s]")}
               onClick={onDetails}
               >
               <FaEye className="text-icy-aqua-100 size-[20px]"/>
             </button>
             <button type="button" 
-              className="cursor-pointer"
+              className={buttonStyle + ((route.id !== current) ? "opacity-0 duration-0" : "opacity-100 duration-[3s]")}
               onClick={() => onDeleteRoute(route)}
               >
               <MdDelete className="text-red-500 size-[20px]"/>

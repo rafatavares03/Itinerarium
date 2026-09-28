@@ -20,6 +20,7 @@ export async function getBusRoutesService(line: number) {
 export async function createRouteService(data: {
   active: boolean,
   line: number,
+  isOutbound: boolean,
   period?: Date,
   busStops: Ponto[]
 }) {

@@ -20,6 +20,7 @@ const BusRouteSchema = z.object({
   id: z.number().int().positive(),
   ativo: z.boolean(),
   linha: z.number().int().positive(),
+  ida: z.boolean(),
   vigencia: z.date().nullable(),
   updated_at: z.date(),
   pontos: z.array(
@@ -41,6 +42,7 @@ const BusRouteSchema = z.object({
 const createBusRouteSchema = z.object({
   active: z.boolean(),
   period: z.date().optional(),
+  isOutbound: z.boolean(),
   line: z.number().int().positive(),
   busStops: z.array(PontoSchema)
 });
@@ -49,6 +51,7 @@ export async function createRouteAction(data: {
   active: boolean,
   period?: Date,
   line: number,
+  isOutbound: boolean
   busStops: Ponto[]
 }) {
   const validation = createBusRouteSchema.safeParse(data);

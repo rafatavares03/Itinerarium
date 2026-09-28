@@ -2,7 +2,7 @@
 
 import { getBusLinesAction, CreateBusLineState } from "../actions/busLineActions";
 import { CidadeDetails } from "@/types/cidade"
-import { LinhaBasic } from "@/types/linha";
+import { BusLineBasic } from "@/types/busLine";
 import { useEffect, useState } from "react";
 
 export default function BusLineList({
@@ -10,9 +10,9 @@ export default function BusLineList({
   onClick
 }: {
   city: CidadeDetails | null,
-  onClick: (line: LinhaBasic) => void
+  onClick: (line: BusLineBasic) => void
 }) {
-  const [busLines, setBusLines] = useState<LinhaBasic[]>([]);
+  const [busLines, setBusLines] = useState<BusLineBasic[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -35,7 +35,7 @@ export default function BusLineList({
       {busLines.map((busLine) => 
         <div key={busLine.id} onClick={() => onClick(busLine)}>
           <div className="font-bold text-center">{busLine.codigo}</div>
-          <p>{busLine.nome}</p>
+          <p>{busLine.origem} - {busLine.destino}</p>
         </div>
       )}
     </div>

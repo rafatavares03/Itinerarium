@@ -8,7 +8,7 @@ import { createBusLineAction, CreateBusLineState } from "../actions/busLineActio
 import dynamic from "next/dynamic";
 import { createRouteAction, deleteRouteAction, editRouteAction, getBusRoutesAction } from "../actions/busRouteActions";
 import { BusRoute } from "@/types/busRoute";
-import { LinhaBasic } from "@/types/linha";
+import { BusLineBasic } from "@/types/busLine";
 import { FaPlus } from "react-icons/fa";
 import BusRouteList from "./busRouteList";
 import GoBackButton from "@/app/components/goBackButton";
@@ -31,14 +31,15 @@ export default function BusLineManager({
   onBackClick
 }: {
   city: CidadeDetails | null,
-  line: LinhaBasic | null,
+  line: BusLineBasic | null,
   busStops: Ponto[],
   onBackClick: () => void
 }) {
   const [state, createBusLine, isPending] = useActionState(createBusLineAction, initialState);
-  const [busLine, setBusLine] = useState<LinhaBasic | null>(line)
+  const [busLine, setBusLine] = useState<BusLineBasic | null>(line)
   const [codigo, setCodigo] = useState(line?.codigo ?? "");
-  const [nome, setNome] = useState(line?.nome ?? "");
+  const [origem, setOrigem] = useState(line?.origem ?? "");
+  const [destino, setDestino] = useState(line?.destino ?? "");
   const [routes, setRoutes] = useState<BusRoute[]>([]);
   const [route, setRoute] = useState<BusRoute | null>(null);
   const [selected, setSelected] = useState<Ponto[]>([]);
@@ -69,10 +70,7 @@ export default function BusLineManager({
       
         setRoute(data[0]);
         setSelected(novaRoute.filter(point => point.id));
-
-  
       }
-   
     };
 
     loadData();
@@ -154,6 +152,7 @@ export default function BusLineManager({
     const res = await createRouteAction({
       active: false,
       line: line.id,
+      isOutbound: true,
       busStops: getPoints(newRoute)
     });
 
@@ -166,6 +165,8 @@ export default function BusLineManager({
         setNewRoute(null);
         setDetails(false);
       }
+    } else {
+      console.log(res);
     }
   }
 
@@ -251,13 +252,17 @@ export default function BusLineManager({
             <input type="text" name="code" id="code" value={codigo} onChange={(e) => setCodigo(e.target.value)} className={inputStyle}/>
           </div>
           <div className="flex-1 flex">
-            <label htmlFor="name" className={labelStyle}>Nome</label>
-            <input type="text" name="name" id="name" value={nome} onChange={(e)=> setNome(nome)} className={inputStyle + " flex-1"}/>
+            <label htmlFor="origem" className={labelStyle}>Origem</label>
+            <input type="text" name="origin" id="origin" value={origem} onChange={(e)=> setOrigem(e.target.value)} className={inputStyle + " flex-1"}/>
+          </div> 
+          <div className="flex-1 flex">
+            <label htmlFor="destino" className={labelStyle}>Destino</label>
+            <input type="text" name="destination" id="destination" value={destino} onChange={(e)=> setDestino(e.target.value)} className={inputStyle + " flex-1"}/>
           </div>
         </div>
         <button type="submit" className={buttonStyle}>Salvar</button>
       </Form>
-        { line &&
+        {busLine &&
 
           <div className="w-full flex h-130 border-2 border-icy-aqua-700 relative mt-5">
             <h2 className="bg-icy-aqua-700 font-title text-semibold text-white tracking-widest rounded-t-md font-bold absolute top-[-25px] left-0 italic px-2">Trajetos</h2>
@@ -307,7 +312,11 @@ export default function BusLineManager({
                 removeRoutePoint(point);
               }}
               onEditGeometry={(idx: number, coordinates: [number, number]) => editGeometry(idx, coordinates)}
-              isPointSelected={(point: Ponto) => selected.some(p => p.id === point.id)}
+              isPointSelected={(point: Ponto) => {
+                if(newRoute) return newRoute.pontos.some(p => p.id === point.id);
+                if(route) return route.pontos.some(p => p.id === point.id);
+                return false;
+              }}
               />
               <div className="w-2xl h-full bg-space-indigo-700 relative overflow-y-auto">
                 {details && 
@@ -326,7 +335,7 @@ export default function BusLineManager({
                     </div>
                     <button type="button"
                       onClick={(newRoute) ? createRoute : editRoute}
-                      disabled={(route) ? selected.length < 2 : true}
+                      //disabled={(route) ? selected.length < 2 : true}
                       className="bg-icy-aqua-700 text-icy-aqua-400">
                       Salvar
                     </button>
@@ -341,7 +350,8 @@ export default function BusLineManager({
                             setNewRoute({
                               id: -1,
                               ativo: false,
-                              linha: line.id,
+                              linha: busLine.id,
+                              ida: true,
                               pontos: [],
                               vigencia: null,
                               updated_at: new Date()
@@ -352,7 +362,7 @@ export default function BusLineManager({
                         }
                       >
                         <FaPlus className="text-white transition-all group-hover:rotate-180"/>
-                        Criar rota
+                        Criar trajeto
                       </button>
                     </div>
                     <BusRouteList 

@@ -33,11 +33,6 @@ export default function BusLineManager({
     destino: line?.destino ?? "",
     cidade_id: line?.cidade_id ?? city?.id ?? -1
   });
-  const [routes, setRoutes] = useState<BusRoute[]>([]);
-  const [route, setRoute] = useState<BusRoute | null>(null);
-  const [selected, setSelected] = useState<Ponto[]>([]);
-  const [details, setDetails] = useState(false);
-  const [newRoute, setNewRoute] = useState<BusRoute | null>(null);
   const labelStyle = "font-semibold mr-3";
   const inputStyle = "bg-space-indigo-700 outline-0 text-white text-sm py-1 px-3 rounded-md";
   const buttonStyle = "px-5 py-1 bg-icy-aqua-400 rounded-md text-space-indigo-700 font-semibold cursor-pointer";
@@ -49,21 +44,6 @@ export default function BusLineManager({
       setBusLine(state.data)
     }
 }, [state]);
-
-
-  function getPoints(route: BusRoute | null) {
-    if(!route) return [];
-    const points: Ponto[] = route.pontos.map((point) => ({
-      id: point.id,
-      logradouro: point.logradouro ?? "",
-      numero: point.numero ?? "",
-      cidade_id: point.cidade_id ?? line?.cidade_id ?? -1,
-      coordenada: point.coordenada
-    }))
-
-    return points;
-  }
-
 
   return (
     <div className="w-6xl">
@@ -82,14 +62,14 @@ export default function BusLineManager({
             />
           </div>
           <div className="flex-1 flex">
-            <label htmlFor="origem" className={labelStyle}>Origem</label>
+            <label htmlFor="origin" className={labelStyle}>Origem</label>
             <input type="text" name="origin" id="origin" value={busLine.origem} 
               onChange={(e)=> setBusLine(prev => ({...prev, origem: e.target.value}))} 
               className={inputStyle + " flex-1"}
             />
           </div> 
           <div className="flex-1 flex">
-            <label htmlFor="destino" className={labelStyle}>Destino</label>
+            <label htmlFor="destination" className={labelStyle}>Destino</label>
             <input type="text" name="destination" id="destination" value={busLine.destino} 
               onChange={(e)=> setBusLine(prev => ({...prev, destino: e.target.value}))} 
               className={inputStyle + " flex-1"}
@@ -98,12 +78,16 @@ export default function BusLineManager({
         </div>
         <button type="submit" className={buttonStyle}>Salvar</button>
       </Form>
-      <BusRouteManager
-        bounds={city.enquadramento}
-        busLine={busLine.id}
-        city={busLine.cidade_id}
-        busStops={busStops}
-      />
+      <div className="py-5">
+        <BusRouteManager
+          bounds={city.enquadramento}
+          busLine={busLine.id}
+          city={busLine.cidade_id}
+          origin={busLine.origem}
+          destination={busLine.destino}
+          busStops={busStops}
+          />
+      </div>
     </div>
   )
 }

@@ -17,19 +17,34 @@ export default function BusRouteManager({
   bounds,
   busStops,
   busLine,
+  origin,
+  destination,
   city,
 }: {
   bounds: [[number,number], [number,number]],
   busStops: Ponto[],
   busLine: number,
+  origin: string,
+  destination: string,
   city: number,
 }) {
   const [allRoutes, setAllRoutes] = useState<BusRoute[]>([]);
   const [route, setRoute] = useState<BusRoute | null>(null);
   const [newRoute, setNewRoute] = useState<BusRoute | null>(null);
   const [details, setDetails] = useState(false);
+  const [isOutbound, setIsOutbound] = useState(true);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const setEditRoute = (newRoute) ? setNewRoute : setRoute;
+  const directionButtonStyle = "font-display flex-1 text-icy-aqua-100 uppercase border-b-3 py-2 cursor-pointer";
+
+  const bs = newRoute ?? route;
+  const orderedBusStops: Ponto[] = !bs?.pontos
+  ? []
+  : bs.pontos
+      .map(routePoint =>
+        busStops.find(busStop => busStop.id === routePoint.id)
+      )
+      .filter((busStop): busStop is Ponto => busStop !== undefined);
 
   useEffect(() => {
     if(busLine < 0) return;
@@ -113,7 +128,7 @@ export default function BusRouteManager({
     const res = await createRouteAction({
       active: false,
       line: busLine,
-      isOutbound: true,
+      isOutbound: isOutbound,
       busStops: getPoints(newRoute)
     });
 
@@ -191,24 +206,14 @@ export default function BusRouteManager({
         editMode={details}
         addAuxPoint={(latitude, longitude) => {
           addRoutePoint(newPoint(latitude, longitude));
-        }
-          //addRoutePoint(newPoint(latitude, longitude));
-        }
+        }}
         removeAuxPoint={removeRouteAuxPoint}
         onSelectPoint={(busStop: Ponto) => {
           if(!busStop.id) return;
-          // setSelected((prev) => {
-          //   prev.add(busStop.id!);
-          //   return new Set(prev);
-          // });
           addRoutePoint(busStop);
         }}
         onUnselectPoint={(busStop: Ponto) => {
           if(!busStop.id) return;
-          // setSelected((prev) => {
-          //   prev.delete(busStop.id!);
-          //   return new Set(prev);
-          // })
           removeRouteBusStop(busStop);
         }}
         onEditGeometry={editGeometry}
@@ -222,7 +227,7 @@ export default function BusRouteManager({
             <div className="flex flex-col justify-between h-full">
               <div className="">
                 <BusRouteDetails 
-                  busStops={busStops.filter(busStop => busStop.id && selected.has(busStop.id))} 
+                 busStops={orderedBusStops}
                   onBackClick={() => {
                     if(newRoute) {
                       setNewRoute(null)
@@ -233,9 +238,7 @@ export default function BusRouteManager({
               </div>
               <button type="button"
                 onClick={() => {
-                  console.log("CLICK");
-                  (newRoute) ? createRoute() : editRoute()
-                
+                  (newRoute) ? createRoute() : editRoute();
                 }}
                 //disabled={(route) ? selected.length < 2 : true}
                 className="bg-icy-aqua-700 text-icy-aqua-400">
@@ -244,35 +247,51 @@ export default function BusRouteManager({
             </div>
           }
           {!details &&
-            <div className="flex flex-col gap-2">
-              <div className="w-full flex justify-center my-3">
-                <button type="button"
-                  className="py-2 w-9/10 bg-icy-aqua-700 group text-icy-aqua-50 font-bold flex justify-center items-center gap-2 cursor-pointer"
-                  onClick={() => {
-                      setNewRoute({
-                        id: -1,
-                        ativo: false,
-                        linha: busLine,
-                        ida: true,
-                        pontos: [],
-                        vigencia: null,
-                        updated_at: new Date()
-                      });
-                      setDetails(true);
-                    }
-                  }
+            <div>
+              <div className="flex justify-around bg-icy-aqua-600">
+                <button type="button" 
+                  className={`${directionButtonStyle} ${isOutbound ? "border-icy-aqua-100 font-semibold" : "border-transparent"}`}
+                  onClick={() => setIsOutbound(true)}
                 >
-                  <FaPlus className="text-white transition-all group-hover:rotate-180"/>
-                  Criar trajeto
+                  {origin}
+                </button>
+                <button type="button" 
+                  className={`${directionButtonStyle} ${!isOutbound ? "border-icy-aqua-100 font-semibold" : "border-transparent"}`}
+                  onClick={() => setIsOutbound(false)}  
+                >
+                  {destination}
                 </button>
               </div>
-              <BusRouteList 
-                routes={allRoutes}
-                current={(route) ? route.id : -1}
-                onSelectRoute={(route: BusRoute) => setRoute(route)} 
-                onDeleteRoute={(route: BusRoute) => deleteRoute(route)}
-                onDetails={() => setDetails(true)}
-              />
+              <div className="flex flex-col gap-2">
+                <div className="w-full flex justify-center my-3">
+                  <button type="button"
+                    className="py-2 w-9/10 bg-icy-aqua-700 group text-icy-aqua-50 font-bold flex justify-center items-center gap-2 cursor-pointer"
+                    onClick={() => {
+                        setNewRoute({
+                          id: -1,
+                          ativo: false,
+                          linha: busLine,
+                          ida: isOutbound,
+                          pontos: [],
+                          vigencia: null,
+                          updated_at: new Date()
+                        });
+                        setDetails(true);
+                      }
+                    }
+                  >
+                    <FaPlus className="text-white transition-all group-hover:rotate-180"/>
+                    Criar trajeto
+                  </button>
+                </div>
+                <BusRouteList 
+                  routes={allRoutes.filter(route => route.ida === isOutbound)}
+                  current={(route) ? route.id : -1}
+                  onSelectRoute={(route: BusRoute) => setRoute(route)} 
+                  onDeleteRoute={(route: BusRoute) => deleteRoute(route)}
+                  onDetails={() => setDetails(true)}
+                />
+              </div>
             </div>
           }
         </div>

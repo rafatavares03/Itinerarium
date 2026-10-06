@@ -8,7 +8,8 @@ import {
   createRouteService, 
   deleteRouteService, 
   editRouteService, 
-  getBusRoutesService 
+  getBusRoutesService, 
+  temporarilyActivateRouteService
 } from '@/lib/services/busRouteService';
 
 const PontoSchema = z.object({
@@ -102,13 +103,42 @@ export async function deleteRouteAction(id: number) {
   return await deleteRouteService(validation.data)
 }
 
-export async function activateRouteAction(data: BusRoute) {
-  const validation = BusRouteSchema.safeParse(data);
-  if(!validation.success) {
-    return {
-      success: false
-    }
+export async function activateRouteAction(prevState: {success: boolean} , data: FormData) {
+  const routeValue = data.get("route");
+  const validityValue = data.get("validity");
+
+  if (typeof routeValue !== "string") {
+    return { success: false };
   }
 
-  return activateRouteService(data);
+  let route;
+
+  try {
+    route = JSON.parse(routeValue);
+  } catch {
+    return { success: false };
+  }
+
+  const validity =
+    typeof validityValue === "string" && validityValue !== ""
+      ? new Date(validityValue)
+      : null;
+
+  const validation = BusRouteSchema.safeParse({
+    ...route,
+    vigencia: validity,
+  });
+
+  if (!validation.success) {
+    return { success: false };
+  }
+
+  if (validity) {
+    return await temporarilyActivateRouteService(
+      validation.data,
+      validity
+    );
+  }
+
+  return await activateRouteService(validation.data);
 }

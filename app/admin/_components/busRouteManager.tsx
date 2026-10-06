@@ -1,11 +1,19 @@
-import { useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import BusRouteDetails from "./busRouteDetails";
 import { Ponto } from "@/types/ponto";
 import { BusRoute } from "@/types/busRoute";
 import { FaPlus } from "react-icons/fa";
 import BusRouteList from "./busRouteList";
-import { activateRouteAction, createRouteAction, deleteRouteAction, editRouteAction, getBusRoutesAction } from "../actions/busRouteActions";
+import { 
+  activateRouteAction, 
+  createRouteAction, 
+  deleteRouteAction, 
+  editRouteAction, 
+  getBusRoutesAction 
+} from "../actions/busRouteActions";
 import dynamic from "next/dynamic";
+import Form from "next/form";
+import Modal from "@/app/components/modal";
 const RouteManagementMap = dynamic(
   () => import("@/app/components/routeManagementMap"),
   {
@@ -34,6 +42,8 @@ export default function BusRouteManager({
   const [details, setDetails] = useState(false);
   const [isOutbound, setIsOutbound] = useState(true);
   const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [activeModal, setActiveModal] = useState(false);
+  const [state, activateRoute, isPending] = useActionState(activateRouteAction, {success: false})
   const setEditRoute = (newRoute) ? setNewRoute : setRoute;
   const directionButtonStyle = "font-display flex-1 text-icy-aqua-100 uppercase border-b-3 py-2 cursor-pointer";
 
@@ -237,7 +247,8 @@ export default function BusRouteManager({
                   }
                   onActivateRoute={() => {
                     if(!route) return;
-                    activateRouteAction(route);
+                    setActiveModal(true);
+                    // activateRouteAction(route);
                   }}
 
                 />
@@ -301,6 +312,30 @@ export default function BusRouteManager({
             </div>
           }
         </div>
+        {activeModal &&
+          <Modal open={activeModal}>
+            <Form action={activateRoute} className="bg-space-indigo-700 text-icy-aqua-100 font-main p-5 w-lg">
+              <input type="hidden" name="route" value={JSON.stringify(route)}/>
+              <h2 className="font-semibold text-lg text-icy-aqua-50">Tem certeza que deseja ativar este trajeto para o sentido <span className="font-title text-2xl">{(isOutbound) ? origin : destination}</span>?</h2>
+              <p className="my-2 text-sm">Essa ação irá desativar o trajeto que estiver ativo no momento.</p>
+              <p className="my-2 text-sm">Caso deseja ativar o percurso <strong>temporariamente</strong>, indique até qual data e hora o trajeto ficará vigente.</p>
+              <div className="p-2 border-2 border-icy-aqua-50 rounded-md flex items-center gap-2">
+                <label htmlFor="validity" className="font-semibold">Ativo até:</label>
+                <input type="datetime-local" name="validity" id="validity" className="outline-0 bg-icy-aqua-50 px-2 rounded-md text-space-indigo-700"/>
+                <p className="text-sm">(opicional)</p>
+              </div>
+              <div className="flex justify-between">
+                <button type="button" 
+                  onClick={() => setActiveModal(false)}
+                  className="py-1 px-3 bg-red-500 rounded-md"
+                >
+                  Cancelar
+                </button>
+                <button className="py-1 px-3 bg-icy-aqua-400 rounded-md">Salvar</button>
+              </div>
+            </Form>
+          </Modal>
+        }
     </div>
   );
 }

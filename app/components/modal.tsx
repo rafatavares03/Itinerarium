@@ -10,7 +10,7 @@ export default function Modal({
   if(!open) return null;
 
   return (
-    <div className="bg-black/40 fixed flex inset-0 items-center justify-center z-10 p-4" >
+    <div className="bg-black/40 fixed flex inset-0 items-center justify-center z-1000 p-4" >
       {children}
     </div>
   );

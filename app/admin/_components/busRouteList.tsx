@@ -24,10 +24,14 @@ export default function BusRouteList({
       {routes.map((route, idx) => 
         <div key={route.id} className="relative">
           <button type="button" onClick={() => onSelectRoute(route)}
-            className={"bg-icy-aqua-300 w-4/5 px-3 rounded-e-lg transition-all text-start hover:w-5/6" 
+            className={"bg-icy-aqua-300 flex justify-between items-center w-4/5 px-3 rounded-e-lg transition-all text-start hover:w-5/6" 
                         + ((route.id === current) ? routeActiveStyle : " ")
             }>
-              Trajeto <span>{idx+1}</span>
+              <p>Trajeto <span>{idx+1}</span></p>
+              {route.ativo && 
+                <span className="bg-icy-aqua-100 text-space-indigo-700 text-xs font-display font-semibold px-2 rounded-md uppercase">
+                  ativo
+                </span>}
           </button>
           <div className="absolute top-0 bottom-0 flex items-center right-0 gap-1 px-2">
 

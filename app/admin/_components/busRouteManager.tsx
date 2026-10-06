@@ -4,7 +4,7 @@ import { Ponto } from "@/types/ponto";
 import { BusRoute } from "@/types/busRoute";
 import { FaPlus } from "react-icons/fa";
 import BusRouteList from "./busRouteList";
-import { createRouteAction, deleteRouteAction, editRouteAction, getBusRoutesAction } from "../actions/busRouteActions";
+import { activateRouteAction, createRouteAction, deleteRouteAction, editRouteAction, getBusRoutesAction } from "../actions/busRouteActions";
 import dynamic from "next/dynamic";
 const RouteManagementMap = dynamic(
   () => import("@/app/components/routeManagementMap"),
@@ -227,13 +227,19 @@ export default function BusRouteManager({
             <div className="flex flex-col justify-between h-full">
               <div className="">
                 <BusRouteDetails 
-                 busStops={orderedBusStops}
+                  busStops={orderedBusStops}
                   onBackClick={() => {
                     if(newRoute) {
                       setNewRoute(null)
                     };
                     setDetails(false);
+                    }
+                  }
+                  onActivateRoute={() => {
+                    if(!route) return;
+                    activateRouteAction(route);
                   }}
+
                 />
               </div>
               <button type="button"

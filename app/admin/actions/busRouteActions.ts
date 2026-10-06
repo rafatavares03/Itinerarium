@@ -1,9 +1,15 @@
 "use server"
 
-import { success, z } from 'zod';
+import { z } from 'zod';
 import { Ponto } from '@/types/ponto';
 import { BusRoute } from '@/types/busRoute';
-import { createRouteService, deleteRouteService, editRouteService, getBusRoutesService } from '@/lib/services/busRouteService';
+import { 
+  activateRouteService, 
+  createRouteService, 
+  deleteRouteService, 
+  editRouteService, 
+  getBusRoutesService 
+} from '@/lib/services/busRouteService';
 
 const PontoSchema = z.object({
   id: z.number().int().positive().optional(),
@@ -94,4 +100,15 @@ export async function deleteRouteAction(id: number) {
   }
 
   return await deleteRouteService(validation.data)
+}
+
+export async function activateRouteAction(data: BusRoute) {
+  const validation = BusRouteSchema.safeParse(data);
+  if(!validation.success) {
+    return {
+      success: false
+    }
+  }
+
+  return activateRouteService(data);
 }

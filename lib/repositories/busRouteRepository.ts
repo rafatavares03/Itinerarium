@@ -284,3 +284,37 @@ export async function deleteRoute(id: number) {
     }
   });
 }
+
+export async function activateRoute(data: BusRoute) {
+  const res = await prisma.$transaction(async (tx) => {
+    await tx.trajeto.updateMany({
+      where: {
+        linha_id: data.linha,
+        ida: data.ida
+      },
+      data: {
+        ativo: false
+      }
+    });
+
+    await tx.trajeto.update({
+      where: {
+        id: data.id
+      },
+      data: {
+        ativo: true
+      }
+    })
+  })
+}
+
+export async function temporarilyActivateRoute(data: BusRoute, date: Date) {
+  const res = await prisma.trajeto.update({
+    where: {
+      id: data.id
+    },
+    data: {
+      vigencia: date
+    }
+  })
+}

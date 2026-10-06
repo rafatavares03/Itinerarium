@@ -1,6 +1,15 @@
 import { Ponto } from "@/types/ponto";
 import { BusRoute } from "@/types/busRoute";
-import { createRoute, editRoute, deleteRoute, getBusRouteById, getBusRoutesByLine } from "../repositories/busRouteRepository"
+import { 
+  createRoute, 
+  editRoute, 
+  deleteRoute, 
+  getBusRouteById, 
+  getBusRoutesByLine,
+  activateRoute,
+  temporarilyActivateRoute
+} from "../repositories/busRouteRepository"
+import { success } from "zod";
 
 export async function getBusRoutesService(line: number) {
   try{
@@ -94,5 +103,31 @@ export async function editRouteService(data: BusRoute) {
       success: false,
       message: "Não foi possível editar a rota"
     };
+  }
+}
+
+export async function activateRouteService(data: BusRoute) {
+  try {
+    activateRoute(data);
+    return {
+      success: true,
+    }
+  } catch(e) {
+    console.log(e);
+    return {
+      success: false
+    }
+  }
+}
+
+export async function temporarilyActivateRouteService(data: BusRoute, date: Date) {
+  try {
+    temporarilyActivateRoute(data, date);
+    return {
+      success: true
+    }
+  } catch(e) {
+    console.log(e);
+    return {success: false}
   }
 }

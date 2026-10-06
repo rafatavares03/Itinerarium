@@ -61,7 +61,13 @@ export default function BusRouteManager({
     const loadData = async () => {
       const res = await getBusRoutesAction(busLine);
       if(res.success) {
-        const data = res.data ?? [];
+        const data = (res.data ?? []).map(route => ({
+          ...route,
+          updated_at: new Date(route.updated_at),
+          vigencia: route.vigencia
+            ? new Date(route.vigencia)
+            : null,
+        }));
         setAllRoutes(data);
         setRoute(data[0]);
       }

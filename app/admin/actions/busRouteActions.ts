@@ -114,7 +114,14 @@ export async function activateRouteAction(prevState: {success: boolean} , data: 
   let route;
 
   try {
-    route = JSON.parse(routeValue);
+    const parsedRoute = JSON.parse(routeValue);
+    route = {
+      ...parsedRoute,
+      updated_at: new Date(parsedRoute.updated_at),
+      vigencia: parsedRoute.vigencia
+        ? new Date(parsedRoute.vigencia)
+        : null,
+    };
   } catch {
     return { success: false };
   }
@@ -128,7 +135,6 @@ export async function activateRouteAction(prevState: {success: boolean} , data: 
     ...route,
     vigencia: validity,
   });
-
   if (!validation.success) {
     return { success: false };
   }

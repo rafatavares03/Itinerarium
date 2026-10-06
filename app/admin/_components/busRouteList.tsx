@@ -70,7 +70,7 @@ function formatRemainingTime(expiration: Date | string) {
                 </span>}
 
               {route.vigencia && new Date(route.vigencia) > currentTime
-                ? <span className={spanStyle}>`${formatRemainingTime(route.vigencia)}`</span>: ""}
+                ? <span className={spanStyle}>{formatRemainingTime(route.vigencia)}</span>: ""}
           </button>
           <div className="absolute top-0 bottom-0 flex items-center right-0 gap-1 px-2">
             <button type="button"

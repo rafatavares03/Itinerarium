@@ -27,9 +27,9 @@ export async function saveBusScheduleService(schedule: BusSchedule[]) {
   }
 }
 
-export async function getScheduleService(line: number) {
+export async function getBusScheduleService(line: number) {
   try {
-    const res = getSchedule(line);
+    const res = await getSchedule(line);
     return {
       success: true,
       data: res
@@ -37,7 +37,8 @@ export async function getScheduleService(line: number) {
   } catch(e) {
     console.log(e);
     return {
-      success: false
+      success: false,
+      data: []
     }
   }
 }

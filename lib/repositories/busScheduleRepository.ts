@@ -21,7 +21,7 @@ export async function saveSchedule(schedule: BusSchedule[]) {
 }
 
 export async function getSchedule(line: number) {
-  return await prisma.horario.findMany({
+  const query = await prisma.horario.findMany({
     where: {
       linha_id: line
     },
@@ -29,4 +29,10 @@ export async function getSchedule(line: number) {
       hora: "asc"
     }
   })
+
+  return query.map((time) => ({
+    hora: time.hora,
+    ida: time.ida,
+    linha: time.linha_id
+  }))
 }

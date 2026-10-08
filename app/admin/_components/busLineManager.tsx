@@ -5,10 +5,10 @@ import Form from "next/form"
 import { CidadeDetails } from "@/types/cidade";
 import { Ponto } from "@/types/ponto";
 import { createBusLineAction, CreateBusLineState } from "../actions/busLineActions";
-import { BusRoute } from "@/types/busRoute";
 import { BusLineBasic } from "@/types/busLine";
 import GoBackButton from "@/app/components/goBackButton";
 import BusRouteManager from "./busRouteManager";
+import BusScheduleManager from "./busScheduleManager";
 
 const initialState: CreateBusLineState = {
   success: false,
@@ -87,6 +87,13 @@ export default function BusLineManager({
           destination={busLine.destino}
           busStops={busStops}
           />
+      </div>
+      <div>
+        <BusScheduleManager
+          line={(line) ? line.id : -1}
+          origin={busLine.origem}
+          destination={busLine.destino}
+        />
       </div>
     </div>
   )

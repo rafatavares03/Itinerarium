@@ -16,7 +16,6 @@ export default function ScheduleTable({
 }) {
   const h3Style = "text-center font-semibold bg-icy-aqua-600 text-dusty-grape-50 font-display py-1 w-full";
   const addButtonStyle = "bg-icy-aqua-700 text-dusty-grape-50 py-1 px-3 my-2 mx-auto block rounded cursor-pointer hover:bg-icy-aqua-800 transition-colors";
-  const deleteButtonStyle = "bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors cursor-pointer text-sm";
 
   return (
     <div className="flex-1 flex flex-col items-center">

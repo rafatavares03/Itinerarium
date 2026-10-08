@@ -77,6 +77,12 @@ export default function BusRouteManager({
   }, [busLine]);
 
   useEffect(() => {
+    if(state.success) {
+      setActiveModal(false);
+    }
+  }, [state])
+
+  useEffect(() => {
     let stops:BusRoute | null = (newRoute) ? newRoute : route;
     if(!stops) {
       setSelected(new Set());
@@ -142,7 +148,7 @@ export default function BusRouteManager({
   async function createRoute() {
     if(busLine < 0 || !newRoute) return;
     const res = await createRouteAction({
-      active: false,
+      active: newRoute.ativo,
       line: busLine,
       isOutbound: isOutbound,
       busStops: getPoints(newRoute)
@@ -199,6 +205,16 @@ export default function BusRouteManager({
         })
       })
     })
+  }
+
+  function handleOutboundChange(outbound: boolean) {
+    setIsOutbound(outbound);
+    setRoute((prev) => {
+      if (!allRoutes) return prev;
+      
+      const found = allRoutes.find((route) => route.ativo && route.ida === outbound);
+      return found ?? null; 
+    });
   }
 
   function newPoint(latitude: number, longitude: number) {
@@ -274,13 +290,13 @@ export default function BusRouteManager({
               <div className="flex justify-around bg-icy-aqua-600">
                 <button type="button" 
                   className={`${directionButtonStyle} ${isOutbound ? "border-icy-aqua-100 font-semibold" : "border-transparent"}`}
-                  onClick={() => setIsOutbound(true)}
+                  onClick={() => handleOutboundChange(true)}
                 >
                   {origin}
                 </button>
                 <button type="button" 
                   className={`${directionButtonStyle} ${!isOutbound ? "border-icy-aqua-100 font-semibold" : "border-transparent"}`}
-                  onClick={() => setIsOutbound(false)}  
+                  onClick={() => handleOutboundChange(false)}  
                 >
                   {destination}
                 </button>
@@ -292,7 +308,7 @@ export default function BusRouteManager({
                     onClick={() => {
                         setNewRoute({
                           id: -1,
-                          ativo: false,
+                          ativo: (!allRoutes.some((route) => route.ativo && route.ida === isOutbound)) ? true : false,
                           linha: busLine,
                           ida: isOutbound,
                           pontos: [],
@@ -337,7 +353,7 @@ export default function BusRouteManager({
                 >
                   Cancelar
                 </button>
-                <button className="py-1 px-3 bg-icy-aqua-400 rounded-md">Salvar</button>
+                <button className="py-1 px-3 bg-icy-aqua-400 rounded-md" type="submit">Salvar</button>
               </div>
             </Form>
           </Modal>

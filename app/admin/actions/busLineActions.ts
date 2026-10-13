@@ -2,7 +2,6 @@
 
 import { saveLinesService, getBusLines } from "@/lib/services/busLineService";
 import { z } from "zod";
-import { BusLineBasic } from "@/types/busLine";
 
 const createBusLineSchema = z.object({
   id: z.coerce.number().optional(),

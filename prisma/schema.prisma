@@ -20,6 +20,7 @@ model Cidade {
   pontos Ponto[]
   linhas  Linha[]
   enquadramentoMapa Unsupported("box2d") @map("enquadramento_mapa")
+  administradores User[]
 
   @@map("cidade")
 }
@@ -45,6 +46,7 @@ model Linha {
   cidade_id Int @map("cidade")
   trajetos  Trajeto[]
   horarios  Horario[]
+  comentarios Comentario[]
 
   @@unique([cidade_id, codigo])
   @@map("linha")
@@ -85,3 +87,70 @@ model Horario {
   @@id([hora, ida, linha_id])
   @@map("horario")
 } 
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  role          String          @default("USER")
+  password      String
+  accounts      Account[]
+  sessions      Session[]
+  city          Cidade?         @relation(fields:[city_id], references: [id])
+  city_id       Int?            @map("cidade")
+  comentarios   Comentario[]
+
+  createdAt DateTime @default(now())  @map("created_at")
+  updatedAt DateTime @updatedAt       @map("updated_at")
+
+  @@map("usuario")
+}
+ 
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@id([provider, providerAccountId])
+  @@map("conta")
+}
+ 
+model Session {
+  sessionToken String   @unique
+  userId       String   @map("usuario")
+  expires      DateTime @map("expires_at")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessao")
+}
+ 
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+ 
+  @@id([identifier, token])
+  @@map("token_verificacao")
+}
+
+model Comentario {
+  id String @id @default(cuid())
+  texto String
+  linha Linha @relation(fields:[linha_id], references: [id])
+  linha_id Int @map("linha")
+  usuario User @relation(fields: [usuario_id], references: [id])
+  usuario_id String @map("usuario")
+  created_at DateTime
+
+  @@map("comentario")
+}

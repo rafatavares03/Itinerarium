@@ -4,8 +4,12 @@ import { User } from "@/types/user";
 export async function getUserCredentials(email: string) {
   return await prisma.user.findUnique({
     select: {
+      id: true,
       email: true,
-      password: true
+      password: true,
+      name: true,
+      role: true,
+      city_id: true
     },
     where: {
       email: email

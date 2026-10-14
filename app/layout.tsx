@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Instrument_Serif, Montserrat } from "next/font/google";
 import "./globals.css";
+import Providers from "./components/providers";
 
 const instrumentSerif = Instrument_Serif({
   weight: ['400'],
@@ -35,7 +36,11 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${inter.variable} ${instrumentSerif.variable} ${montserrat.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }

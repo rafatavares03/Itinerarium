@@ -2,9 +2,9 @@
 
 import { useActionState } from "react";
 import Form from "next/form";
-import { createAccountAction } from "./actions/createAccountAction";
+import { createAccountAction } from "./actions";
 
-export default function RegisterAccount() {
+export default function RegisterPage() {
   const [state, formAction, pending] = useActionState(
   createAccountAction,
   { success: false }

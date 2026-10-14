@@ -1,6 +1,7 @@
 'use server'
 
 import { createUserService } from "@/lib/services/userService";
+import { saltAndHashPassword } from "@/utils/password";
 import {z} from "zod";
 
 type AccountState = {
@@ -44,6 +45,7 @@ export async function createAccountAction(prevState: AccountState,formData: Form
       message: z.treeifyError(validation.error)
     }
   }
+  validation.data.password = await saltAndHashPassword(validation.data.password);
   const result = await createUserService(validation.data);
   return result;
 }

@@ -3,16 +3,13 @@
 import L from "leaflet"
 import { 
   MapContainer, 
-  useMap,
   useMapEvents, 
   Polyline,
   Marker,
   TileLayer 
 } from "react-leaflet"
-import { useEffect, useState } from "react";
 import PontosOnMap from "./pontosOnMap";
 import { Ponto } from "@/types/ponto";
-import { CiCirclePlus } from "react-icons/ci";
 import { BusRoute } from "@/types/busRoute";
 
 export default function RouteManagementMap({

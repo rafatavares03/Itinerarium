@@ -139,7 +139,7 @@ export async function getBusRouteById(id: number) {
 }
 
 
-export async function getBusRoutesByLine(line: number) {
+export async function getAllBusRoutesByLine(line: number) {
   const query = await prisma.$queryRaw<RouteQuery[]>`
     SELECT
       t.id,
@@ -172,6 +172,65 @@ export async function getBusRoutesByLine(line: number) {
   const busRoutes = transformIntoBusRoutes(routesWithGeometry)
 
   return busRoutes;
+}
+
+export async function getBusRoutesByLine(line: number) {
+  const query = await prisma.$queryRaw<RouteQuery[]>`
+    WITH ranked_trajetos AS (
+      SELECT
+        t.id,
+        t.ativo,
+        t.linha,
+        t.ida,
+        t.vigencia,
+        t.updated_at,
+        t.geometria,
+        ROW_NUMBER() OVER (
+          PARTITION BY t.ida
+          ORDER BY
+            CASE
+              WHEN t.vigencia > CURRENT_TIMESTAMP THEN 0
+              WHEN t.ativo = TRUE THEN 1
+              ELSE 2
+            END,
+            CASE
+              WHEN t.vigencia > CURRENT_TIMESTAMP THEN t.vigencia
+              ELSE NULL
+            END ASC NULLS LAST
+        ) AS rn
+      FROM trajeto t
+      WHERE t.linha = ${line}
+    ),
+    rota_selecionada AS (
+      SELECT * FROM ranked_trajetos WHERE rn = 1
+    )
+    SELECT
+      t.id,
+      t.ativo,
+      t.linha,
+      t.ida,
+      t.vigencia,
+      t.updated_at,
+      ST_AsGeoJSON(t.geometria) AS geometria,
+
+      p.id AS ponto_id,
+      pt.ordem,
+      pt.final,
+      p.logradouro,
+      p.numero,
+      p.cidade,
+      ST_Y(p.coordenada) AS latitude,
+      ST_X(p.coordenada) AS longitude
+
+    FROM rota_selecionada t
+    LEFT JOIN ponto_trajeto pt ON pt.trajeto = t.id
+    LEFT JOIN ponto p ON p.id = pt.ponto
+
+    ORDER BY t.ida DESC, pt.ordem;
+  `;
+
+  const routesWithGeometry = reduceQueryIntoRouteWithGeometry(query);
+  return transformIntoBusRoutes(routesWithGeometry);
 }
 
 export async function createRoute(data: {

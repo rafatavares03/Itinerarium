@@ -1,6 +1,6 @@
 'use client'
 
-import { criaCidade, editarCidade } from "../actions/cityActions";
+import { criaCidade, editarCidade } from "../../actions/cityActions";
 import Modal from "@/app/components/modal";
 import { useActionState, useEffect, useState } from "react";
 import Form from 'next/form';
@@ -8,7 +8,7 @@ import Link from "next/link";
 import { IoIosCloseCircle, IoMdAdd } from "react-icons/io";
 import { FaArrowAltCircleRight } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
-import { buscaCidades } from "@/lib/services/cityService";
+import { getCitiesAction } from "@/lib/services/cityService";
 import { CidadeDetails } from "@/types/cidade";
 import dynamic from "next/dynamic";
 import { useMapEvents } from "react-leaflet";
@@ -70,7 +70,7 @@ export default function Cities() {
 
   useEffect(() => {
     const carregarCidades = async () => {
-      const dados = await buscaCidades(form);
+      const dados = await getCitiesAction(form);
       if(dados.success) {
         if(dados.cidades) {
           setCidades(dados.cidades);
@@ -83,7 +83,7 @@ export default function Cities() {
 
   useEffect(() => {
     const timeout = setTimeout(async () => {
-     const dados = await buscaCidades(form);
+     const dados = await getCitiesAction(form);
 
       if (dados.success) {
         if(dados.cidades) {

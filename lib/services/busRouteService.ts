@@ -5,11 +5,26 @@ import {
   editRoute, 
   deleteRoute, 
   getBusRouteById, 
+  getAllBusRoutesByLine,
   getBusRoutesByLine,
   activateRoute,
   temporarilyActivateRoute
 } from "../repositories/busRouteRepository"
-import { success } from "zod";
+
+export async function getAllBusRoutesService(line: number) {
+  try{
+    const res = await getAllBusRoutesByLine(line);
+    return {
+      success: true,
+      data: res
+    }
+  } catch(e) {
+    return {
+      success: false,
+      message: "Não foi possível buscar rotas dessa linha."
+    }
+  }
+}
 
 export async function getBusRoutesService(line: number) {
   try{
@@ -19,6 +34,7 @@ export async function getBusRoutesService(line: number) {
       data: res
     }
   } catch(e) {
+    console.log(e);
     return {
       success: false,
       message: "Não foi possível buscar rotas dessa linha."

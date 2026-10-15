@@ -7,8 +7,8 @@ import BusStopManager from "@/app/admin/_components/busStopManager";
 import BusLineContainer from "@/app/admin/_components/busLineContainer";
 import BusLineManager from "../../_components/busLineManager";
 import { JSX } from "react";
-import { getCityAction } from "../../actions/cityActions";
-import { getBusStopsAction } from "../../actions/busStopActions";
+import { getCityAction } from "../../../actions/cityActions";
+import { getBusStopsAction } from "../../../actions/busStopActions";
 import { LinhaBasic } from "@/types/busLine";
 
 enum Abas {

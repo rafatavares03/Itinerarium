@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getBusScheduleAction, saveBusScheduleAction } from "../actions/busScheduleActions";
+import { getBusScheduleAction, saveBusScheduleAction } from "../../actions/busScheduleActions";
 import { BusSchedule } from "@/types/busSchedule";
 import ScheduleTable from "./busScheduleTable";
 

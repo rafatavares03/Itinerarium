@@ -7,7 +7,7 @@ import { CiCirclePlus } from "react-icons/ci";
 import PontosMenu from "@/app/admin/_components/PontosMenu";
 import dynamic from "next/dynamic";
 import { apagarPontos, salvarPontos } from "@/lib/services/busStopService";
-import { getBusStopsAction } from "../actions/busStopActions";
+import { getBusStopsAction } from "../../actions/busStopActions";
 
 const CidadeMap = dynamic(
   () => import("@/app/components/cidadeMap"),

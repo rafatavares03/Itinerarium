@@ -8,7 +8,7 @@ import {
   createRouteService, 
   deleteRouteService, 
   editRouteService, 
-  getBusRoutesService, 
+  getAllBusRoutesService, 
   temporarilyActivateRouteService
 } from '@/lib/services/busRouteService';
 
@@ -86,8 +86,8 @@ export async function editRouteAction(data: BusRoute) {
   return await editRouteService(validation.data);
 }
 
-export async function getBusRoutesAction(line: number) {
-  const res = await getBusRoutesService(line);
+export async function getAllBusRoutesAction(line: number) {
+  const res = await getAllBusRoutesService(line);
   return res;
 }
 

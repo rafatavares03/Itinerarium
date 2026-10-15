@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { updateCityBounds, saveCity } from '@/lib/repositories/cityRepository';
-import { getCity } from '@/lib/services/cityService';
+import { getCity, getCityBoundsService } from '@/lib/services/cityService';
 
 const MunicipioSchema = z.object({
   id: z.number(),
@@ -112,4 +112,15 @@ export async function getCityAction(id: number) {
   }
 
   return await getCity(validation.data);
+}
+
+export async function getCityBoundsAction(id:number) {
+  const validation = z.number().int().positive().safeParse(id);
+  if(!validation.success) {
+    return {
+      success:false,
+      message: "Identificador da cidade inválido."
+    }
+  }
+  return await getCityBoundsService(validation.data)
 }

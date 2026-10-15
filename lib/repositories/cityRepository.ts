@@ -23,6 +23,13 @@ type CityQuery = {
   maxLong: number;
 }
 
+type Bounds = {
+  minLat: number,
+  minLong: number,
+  maxLat: number,
+  maxLong: number
+}
+
 export async function saveCity(city: City) {
   const enquadramento = city.enquadramento
   ? Prisma.sql`
@@ -115,7 +122,7 @@ export async function getById(id: number) {
       nome: cidade.nome,
       uf: cidade.uf,
       enquadramento: [
-        [cidade.minLat, cidade.maxLong],
+        [cidade.minLat, cidade.minLong],
         [cidade.maxLat, cidade.maxLong]
       ] as CidadeDetails["enquadramento"]
     }
@@ -160,9 +167,26 @@ export async function getCidades(dados: {
       nome: cidade.nome,
       uf: cidade.uf,
       enquadramento: [
-        [cidade.minLat, cidade.maxLong],
+        [cidade.minLat, cidade.minLong],
         [cidade.maxLat, cidade.maxLong]
       ] as CidadeDetails["enquadramento"]
     }
   });
+}
+
+export async function getCityBounds(id: number) {
+  const query = await prisma.$queryRaw<Bounds[]>`
+    SELECT 
+      ST_YMin(enquadramento_mapa) as "minLat",
+      ST_XMin(enquadramento_mapa) as "minLong",
+      ST_YMax(enquadramento_mapa) as "maxLat",
+      ST_XMax(enquadramento_mapa) as "maxLong"
+    FROM cidade
+    WHERE id = ${id}
+  `;
+  if(!query[0]) return null;
+  return ([
+    [query[0].minLat, query[0].minLong],
+    [query[0].maxLat, query[0].maxLong]
+  ] as [[number, number], [number, number]]);
 }

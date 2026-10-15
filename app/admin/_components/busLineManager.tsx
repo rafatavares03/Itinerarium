@@ -4,7 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import Form from "next/form"
 import { CidadeDetails } from "@/types/cidade";
 import { Ponto } from "@/types/ponto";
-import { createBusLineAction, CreateBusLineState } from "../actions/busLineActions";
+import { createBusLineAction, CreateBusLineState } from "../../actions/busLineActions";
 import { BusLineBasic } from "@/types/busLine";
 import GoBackButton from "@/app/components/goBackButton";
 import BusRouteManager from "./busRouteManager";

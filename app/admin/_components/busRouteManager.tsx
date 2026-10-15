@@ -9,7 +9,7 @@ import {
   createRouteAction, 
   deleteRouteAction, 
   editRouteAction, 
-  getBusRoutesAction 
+  getAllBusRoutesAction 
 } from "../actions/busRouteActions";
 import dynamic from "next/dynamic";
 import Form from "next/form";
@@ -59,7 +59,7 @@ export default function BusRouteManager({
   useEffect(() => {
     if(busLine < 0) return;
     const loadData = async () => {
-      const res = await getBusRoutesAction(busLine);
+      const res = await getAllBusRoutesAction(busLine);
       if(res.success) {
         const data = (res.data ?? []).map(route => ({
           ...route,

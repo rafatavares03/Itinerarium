@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import UserNav from "./userNav";
 
 export default function AdminMenu() {
   const pathName = usePathname();
@@ -9,8 +10,9 @@ export default function AdminMenu() {
   const linkActiveStyle = " text-white border-white font-semibold"
 
   return (
-    <div className="flex flex-column justify-end text-mist-400">
+    <div className="flex flex-column justify-end gap-3 text-mist-400">
       <Link href="/admin/cidade" className={linkStyle + (pathName.match("/admin/cidade") ? linkActiveStyle : "")}>Cidade</Link>
+      <UserNav/>
     </div>
   );
 }

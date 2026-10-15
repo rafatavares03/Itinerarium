@@ -11,6 +11,7 @@ import { getLineAction } from '@/app/actions/busLineActions';
 import { FaEye } from 'react-icons/fa';
 import { useCity } from '@/app/hooks/useCity';
 import { CidadeBasic, CidadeDetails } from '@/types/cidade';
+import UserNav from '@/app/admin/_components/userNav';
 import Link from 'next/link';
 
 const RouteViewerMap = dynamic(
@@ -105,40 +106,41 @@ function formatRemainingTime(expiration: Date | string) {
   
   return (
     <>
-    <div className="w-full h-[80px] bg-space-indigo-700 flex flex-col justify-center">
-      {cityInfo && 
-        <Link href={`/${cityInfo.id}`}
-          className="text-center text-dusty-grape-100 text-2xl font-bold font-title">
-            {`${cityInfo?.nome} - ${cityInfo?.uf}`}
-        </Link>
-      }
-    </div>
-    <div className="flex w-7xl h-[500px] py-5">
-      {cityInfo &&
-        <>
-        <RouteViewerMap bounds={cityInfo.enquadramento} points={getPoints(route)} route={route}/>
-         <div className="flex flex-col gap-2 h-full w-[350px]  bg-space-indigo-700 py-3">
-              {busRoutes && busRoutes.map((busRoute, idx) => 
-                <div key={busRoute.id} className="relative">
-                  <button type="button" onClick={() => setRoute(busRoute)}
-                    className={"bg-icy-aqua-300 flex justify-between items-center w-4/5 px-3 rounded-e-lg transition-all text-start hover:w-5/6" 
-                                + ((route && busRoute.id === route.id) ? routeActiveStyle : " ")
-                    }>
-                      <p>{busRoute.ida ? lineInfo?.destino : lineInfo?.origem}</p>
-      
-                      {busRoute.vigencia && new Date(busRoute.vigencia) > currentTime
-                        ? <span className={spanStyle}>{formatRemainingTime(busRoute.vigencia)}</span>: ""}
+      <div className="w-full h-[80px] bg-space-indigo-700 flex items-center">
+        {cityInfo && 
+          <Link href={`/${cityInfo.id}`}
+            className="text-center text-dusty-grape-100 text-2xl flex-1 font-bold font-title">
+              {`${cityInfo?.nome} - ${cityInfo?.uf}`}
+          </Link>
+        }
+        <UserNav/>
+      </div>
+      <div className="flex w-7xl h-[500px] py-5">
+        {cityInfo &&
+          <>
+          <RouteViewerMap bounds={cityInfo.enquadramento} points={getPoints(route)} route={route}/>
+          <div className="flex flex-col gap-2 h-full w-[350px]  bg-space-indigo-700 py-3">
+            {busRoutes && busRoutes.map((busRoute, idx) => 
+              <div key={busRoute.id} className="relative">
+                <button type="button" onClick={() => setRoute(busRoute)}
+                  className={"bg-icy-aqua-300 flex justify-between items-center w-4/5 px-3 rounded-e-lg transition-all text-start hover:w-5/6" 
+                              + ((route && busRoute.id === route.id) ? routeActiveStyle : " ")
+                  }>
+                    <p>{busRoute.ida ? lineInfo?.destino : lineInfo?.origem}</p>
+    
+                    {busRoute.vigencia && new Date(busRoute.vigencia) > currentTime
+                      ? <span className={spanStyle}>{formatRemainingTime(busRoute.vigencia)}</span>: ""}
+                </button>
+                <div className="absolute top-0 bottom-0 flex items-center right-0 gap-1 px-2">
+                  <button type="button"
+                    className={buttonStyle + ((route && busRoute.id !== route.id) ? "opacity-0 duration-0" : "opacity-100 duration-[3s]")}
+                    /*onClick={onDetails}*/
+                    >
+                    <FaEye className="text-icy-aqua-100 size-[20px]"/>
                   </button>
-                  <div className="absolute top-0 bottom-0 flex items-center right-0 gap-1 px-2">
-                    <button type="button"
-                      className={buttonStyle + ((route && busRoute.id !== route.id) ? "opacity-0 duration-0" : "opacity-100 duration-[3s]")}
-                      /*onClick={onDetails}*/
-                      >
-                      <FaEye className="text-icy-aqua-100 size-[20px]"/>
-                    </button>
-                  </div>
                 </div>
-              )}
+              </div>
+            )}
             </div>
         </>
       }

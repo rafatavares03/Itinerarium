@@ -13,6 +13,5 @@ export async function getBusRoutesAction(line: number) {
   }
 
   const res = await getBusRoutesService(validation.data);
-  console.log(res);
   return res;
 }

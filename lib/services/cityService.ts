@@ -1,6 +1,6 @@
 'use server'
 
-import { getCidades, getById, getCityBounds } from "../repositories/cityRepository";
+import { getCidades, getById, getCityBounds, getCityBasicInfo } from "../repositories/cityRepository";
 
 export async function getCitiesAction(dados: {
   nome?: string,
@@ -42,6 +42,22 @@ export async function getCity(id: number) {
     return {
       success: false,
       message: "Não foi possível carregar dados da cidade"
+    }
+  }
+}
+
+export async function getCityBasicInfoService(id: number) {
+  try {
+    const data = await getCityBasicInfo(id);
+    return {
+      success: true,
+      data
+    }
+  } catch(e) {
+    console.log(e);
+    return {
+      success: false,
+      message: "Não foi possível recuperar o enquadramento da cidade"
     }
   }
 }

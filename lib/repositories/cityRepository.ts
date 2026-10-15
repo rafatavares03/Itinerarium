@@ -174,6 +174,35 @@ export async function getCidades(dados: {
   });
 }
 
+export async function getCityBasicInfo(id: number) {
+  const cidades = await prisma.$queryRaw<CityQuery[]>`
+    SELECT
+      id,
+      nome,
+      uf,
+      ST_YMin(enquadramento_mapa) AS "minLat",
+      ST_XMin(enquadramento_mapa) AS "minLong",
+      ST_YMax(enquadramento_mapa) AS "maxLat",
+      ST_XMax(enquadramento_mapa) AS "maxLong"
+    FROM cidade
+    WHERE id = ${id}
+  `;
+
+  const res = cidades.map((cidade) => {
+    return {
+      id: cidade.id,
+      nome: cidade.nome,
+      uf: cidade.uf,
+      enquadramento: [
+        [cidade.minLat, cidade.minLong],
+        [cidade.maxLat, cidade.maxLong]
+      ] as CidadeDetails["enquadramento"]
+    }
+  });
+
+  return res[0];
+}
+
 export async function getCityBounds(id: number) {
   const query = await prisma.$queryRaw<Bounds[]>`
     SELECT 

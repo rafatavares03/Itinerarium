@@ -1,7 +1,7 @@
 'use client'
 
 import { use, useEffect, useState } from 'react';
-import { getCityBoundsAction } from '@/app/actions/cityActions';
+import { getCityAction } from '@/app/actions/cityActions';
 import { getBusRoutesAction } from '@/app/actions/busRouteActions';
 import { BusRoute } from '@/types/busRoute';
 import { Ponto } from '@/types/ponto';
@@ -9,6 +9,9 @@ import dynamic from 'next/dynamic';
 import { BusLineBasic } from '@/types/busLine';
 import { getLineAction } from '@/app/actions/busLineActions';
 import { FaEye } from 'react-icons/fa';
+import { useCity } from '@/app/hooks/useCity';
+import { CidadeBasic, CidadeDetails } from '@/types/cidade';
+import Link from 'next/link';
 
 const RouteViewerMap = dynamic(
   () => import("@/app/components/routeViewerMap"),
@@ -24,20 +27,17 @@ export default function Line({
 }) {
   const { city, line } = use(params);
   const [lineInfo, setLineInfo] = useState<BusLineBasic | null>(null);
-  const [bounds, setBounds] = useState<[[number, number], [number, number]] | null>(null);
+  const {cityInfo, loading: cityLoading} = useCity(city);
   const [busRoutes, setBusRoutes] = useState<BusRoute[]>([]);
   const [route, setRoute] = useState<BusRoute | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
-      const [lineData, cityBounds, routeData] = await Promise.all(
-        [getLineAction(parseInt(line)), getCityBoundsAction(parseInt(city)), getBusRoutesAction(parseInt(line))]
+      const [lineData, routeData] = await Promise.all(
+        [getLineAction(parseInt(line)), getBusRoutesAction(parseInt(line))]
       );
       if(lineData.success) {
         setLineInfo(lineData.data ?? null);
-      }
-      if(cityBounds.success) {
-        setBounds(cityBounds.data ?? null);
       }
       if(routeData?.success) {
         setBusRoutes(routeData.data ?? []);
@@ -48,7 +48,7 @@ export default function Line({
     }
 
     loadData();
-  }, [city, line]);
+  }, [line]);
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -104,11 +104,20 @@ function formatRemainingTime(expiration: Date | string) {
   const spanStyle = "bg-icy-aqua-100 text-space-indigo-700 text-xs font-display font-semibold px-2 rounded-md uppercase"
   
   return (
-    <div className="flex w-7xl h-80 bg-space-indigo-700">
-      {bounds &&
+    <>
+    <div className="w-full h-[80px] bg-space-indigo-700 flex flex-col justify-center">
+      {cityInfo && 
+        <Link href={`/${cityInfo.id}`}
+          className="text-center text-dusty-grape-100 text-2xl font-bold font-title">
+            {`${cityInfo?.nome} - ${cityInfo?.uf}`}
+        </Link>
+      }
+    </div>
+    <div className="flex w-7xl h-[500px] py-5">
+      {cityInfo &&
         <>
-        <RouteViewerMap bounds={bounds} points={getPoints(route)} route={route}/>
-         <div className="flex flex-col gap-2 h-full w-[350px]">
+        <RouteViewerMap bounds={cityInfo.enquadramento} points={getPoints(route)} route={route}/>
+         <div className="flex flex-col gap-2 h-full w-[350px]  bg-space-indigo-700 py-3">
               {busRoutes && busRoutes.map((busRoute, idx) => 
                 <div key={busRoute.id} className="relative">
                   <button type="button" onClick={() => setRoute(busRoute)}
@@ -135,5 +144,6 @@ function formatRemainingTime(expiration: Date | string) {
       }
 
     </div>
+    </>
   )
 }

@@ -8,7 +8,7 @@ export async function getBusRoutesAction(line: number) {
   if(!validation.success) {
     return {
       success: false,
-      message: "Identiifcador da linha é inválido."
+      message: "Identificador da linha é inválido."
     }
   }
 

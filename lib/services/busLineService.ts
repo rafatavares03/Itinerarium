@@ -1,5 +1,21 @@
 import { BusLineBasic } from "@/types/busLine";
-import { saveLine, getLine } from "../repositories/busLineRepository"
+import { saveLine, getLine, getLineById } from "../repositories/busLineRepository"
+
+export async function getLineService(id: number) {
+  try {
+      const data = await getLineById(id);
+      return {
+        success: true,
+        data
+      }
+    } catch(e) {
+      console.log(e);
+      return {
+        success: false,
+        message: "Não foi possível buscar dados",
+      }
+    } 
+}
 
 export async function getBusLines(
   city: number, 

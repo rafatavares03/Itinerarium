@@ -27,20 +27,6 @@ export async function saveLine(data: {
   });
 }
 
-// export async function updateLine(line: BusLineBasic) {
-//   const busLine = await prisma.linha.update({
-//     where: {
-//       id: line.id
-//     },
-//     data: {
-//       codigo: line.codigo,
-//       nome: line.nome
-//     }
-//   });
-
-//   return busLine;
-// }
-
 export async function getLineById(id: number) {
   return await prisma.linha.findUnique({
     where: {

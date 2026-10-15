@@ -1,6 +1,6 @@
 "use server"
 
-import { saveLinesService, getBusLines } from "@/lib/services/busLineService";
+import { saveLinesService, getBusLines, getLineService } from "@/lib/services/busLineService";
 import { z } from "zod";
 
 const createBusLineSchema = z.object({
@@ -67,5 +67,17 @@ export async function getBusLinesAction(city: number,  params: {
     }
   }
   const res = await getBusLines(validation.data, params);
+  return res;
+}
+
+export async function getLineAction(id: number) {
+  const validation = z.coerce.number().int().positive().safeParse(id);
+  if(!validation.success) {
+    return {
+      success: false,
+      data: undefined
+    }
+  }
+  const res = await getLineService(validation.data);
   return res;
 }

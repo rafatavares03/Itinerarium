@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import UserNav from "./userNav";
+import UserNav from "../../components/userNav";
 
 export default function AdminMenu() {
   const pathName = usePathname();

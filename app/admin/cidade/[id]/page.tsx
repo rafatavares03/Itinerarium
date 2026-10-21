@@ -9,7 +9,7 @@ import BusLineManager from "../../_components/busLineManager";
 import { JSX } from "react";
 import { getCityAction } from "../../../actions/cityActions";
 import { getBusStopsAction } from "../../../actions/busStopActions";
-import { LinhaBasic } from "@/types/busLine";
+import { BusLineBasic } from "@/types/busLine";
 
 enum Abas {
   pontos = "Pontos",
@@ -25,7 +25,7 @@ export default function City({
   const [city, setCity] = useState<CidadeDetails | null>(null);
   const [abaAtiva, setAbaAtiva] = useState<Abas>(Abas.pontos);
   const [mode, setMode] = useState<"list" | "add">("list");
-  const [line, setLine] = useState<LinhaBasic | null>(null);
+  const [line, setLine] = useState<BusLineBasic | null>(null);
   const [busStops, setBusStops] = useState<Ponto[]>([]);
   const componentMap: Record<Abas, () => JSX.Element> = {
     [Abas.pontos]: () => <BusStopManager city={city} busStops={busStops} onChangeBusStops={setBusStops}/>,
@@ -35,7 +35,7 @@ export default function City({
                                 setLine(null);
                                 setMode("add");
                               }}
-                              onLineClick={(line: LinhaBasic) => {
+                              onLineClick={(line: BusLineBasic) => {
                                 setLine(line);
                                 setMode("add")
                               }}

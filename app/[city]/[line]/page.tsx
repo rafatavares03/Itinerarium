@@ -11,7 +11,7 @@ import { getLineAction } from '@/app/actions/busLineActions';
 import { FaEye } from 'react-icons/fa';
 import { useCity } from '@/app/hooks/useCity';
 import { CidadeBasic, CidadeDetails } from '@/types/cidade';
-import UserNav from '@/app/admin/_components/userNav';
+import UserNav from '@/app/components/userNav';
 import Link from 'next/link';
 
 const RouteViewerMap = dynamic(
@@ -126,7 +126,7 @@ function formatRemainingTime(expiration: Date | string) {
                   className={"bg-icy-aqua-300 flex justify-between items-center w-4/5 px-3 rounded-e-lg transition-all text-start hover:w-5/6" 
                               + ((route && busRoute.id === route.id) ? routeActiveStyle : " ")
                   }>
-                    <p>{busRoute.ida ? lineInfo?.destino : lineInfo?.origem}</p>
+                    <p>{!busRoute.ida ? lineInfo?.destino : lineInfo?.origem}</p>
     
                     {busRoute.vigencia && new Date(busRoute.vigencia) > currentTime
                       ? <span className={spanStyle}>{formatRemainingTime(busRoute.vigencia)}</span>: ""}

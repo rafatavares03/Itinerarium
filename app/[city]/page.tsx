@@ -4,7 +4,7 @@ import { use } from 'react';
 import { useBusLines } from '../hooks/useBusLines';
 import BusLineCard from '../components/busLineCard';
 import { useCity } from '../hooks/useCity';
-import UserNav from '../admin/_components/userNav';
+import UserNav from '../components/userNav';
 import Link from 'next/link';
 
 export default function City({

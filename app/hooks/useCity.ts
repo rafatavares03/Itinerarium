@@ -3,7 +3,7 @@ import { getCityAction } from "@/app/actions/cityActions";
 import { CidadeDetails } from "@/types/cidade"; 
 
 export function useCity(cityId: number | string | undefined) {
-  const [cityInfo, setCityInfo] = useState<CidadeDetails | null>(null);
+  const [city, setCity] = useState<CidadeDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,7 +21,7 @@ export function useCity(cityId: number | string | undefined) {
         const numericId = typeof cityId === "string" ? parseInt(cityId, 10) : cityId;
         const cityData = await getCityAction(numericId);
         if (cityData?.success) {
-          setCityInfo(cityData.data?.city ?? null);
+          setCity(cityData.data?.city ?? null);
         } else {
           setError("Não foi possível carregar os dados da cidade.");
         }
@@ -36,5 +36,5 @@ export function useCity(cityId: number | string | undefined) {
     fetchCity();
   }, [cityId]);
 
-  return { cityInfo, loading, error };
+  return { city, loading, error };
 }

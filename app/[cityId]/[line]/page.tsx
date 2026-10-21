@@ -24,11 +24,11 @@ const RouteViewerMap = dynamic(
 export default function Line({
   params
 }: {
-  params: Promise<{city: string, line: string}>
+  params: Promise<{cityId: string, line: string}>
 }) {
-  const { city, line } = use(params);
+  const { cityId, line } = use(params);
   const [lineInfo, setLineInfo] = useState<BusLineBasic | null>(null);
-  const {cityInfo, loading: cityLoading} = useCity(city);
+  const {city, loading: cityLoading} = useCity(cityId);
   const [busRoutes, setBusRoutes] = useState<BusRoute[]>([]);
   const [route, setRoute] = useState<BusRoute | null>(null);
 
@@ -94,7 +94,7 @@ function formatRemainingTime(expiration: Date | string) {
       id: point.id,
       logradouro: point.logradouro ?? "",
       numero: point.numero ?? "",
-      cidade_id: parseInt(city),
+      cidade_id: parseInt(cityId),
       coordenada: point.coordenada
     }})
 
@@ -106,19 +106,10 @@ function formatRemainingTime(expiration: Date | string) {
   
   return (
     <>
-      <div className="w-full h-[80px] bg-space-indigo-700 flex items-center">
-        {cityInfo && 
-          <Link href={`/${cityInfo.id}`}
-            className="text-center text-dusty-grape-100 text-2xl flex-1 font-bold font-title">
-              {`${cityInfo?.nome} - ${cityInfo?.uf}`}
-          </Link>
-        }
-        <UserNav/>
-      </div>
       <div className="flex w-7xl h-[500px] py-5">
-        {cityInfo &&
+        {city &&
           <>
-          <RouteViewerMap bounds={cityInfo.enquadramento} points={getPoints(route)} route={route}/>
+          <RouteViewerMap bounds={city.enquadramento} points={getPoints(route)} route={route}/>
           <div className="flex flex-col gap-2 h-full w-[350px]  bg-space-indigo-700 py-3">
             {busRoutes && busRoutes.map((busRoute, idx) => 
               <div key={busRoute.id} className="relative">

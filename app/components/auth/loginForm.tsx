@@ -21,7 +21,7 @@ export default function LoginForm({
         <input type="email" name="email" id="email" className={inputStyle}/>
         <label htmlFor="password">Senha:</label>
         <input type="password" name="password" id="password" className={inputStyle}/>
-        <button>Cadastrar</button>
+        <button>Entrar</button>
         {state && !state.success && (
           <p>{state.message}</p>
         )}

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Ponto } from "@/types/ponto";
 import { CidadeDetails } from "@/types/cidade";
 import { CiCirclePlus } from "react-icons/ci";
-import PontosMenu from "@/app/admin/_components/PontosMenu";
+import PontosMenu from "@/app/(administracao)/_components/PontosMenu";
 import dynamic from "next/dynamic";
 import { apagarPontos, salvarPontos } from "@/lib/services/busStopService";
 import { getBusStopsAction } from "../../actions/busStopActions";

@@ -5,9 +5,11 @@ import Form from "next/form";
 import { createAccountAction } from "../../actions/registerActions";
 
 export default function RegisterForm({
-  onChangeMode
+  onChangeMode,
+  cityId
 }: {
-  onChangeMode?: () => void
+  onChangeMode?: () => void,
+  cityId?: string
 }) {
   const [state, formAction, pending] = useActionState(
   createAccountAction,
@@ -17,6 +19,12 @@ export default function RegisterForm({
   return (
     <div className="flex flex-col justify-center items-center bg-white p-5">
       <Form action={formAction} className="flex flex-col gap-2 w-md mx-auto">
+        {cityId &&
+          <>
+            <input type="hidden" name="city" id="city" value={cityId} />
+            <input type="hidden" name="role" id="role" value="ADMIN_MUN"/>
+          </>
+        }
         <label htmlFor="name">Nome:</label>
         <input type="text" name="name" id="name" className={inputStyle}/>
         <label htmlFor="email">Email:</label>

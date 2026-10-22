@@ -1,32 +1,32 @@
 'use client'
 
 import { use, useEffect, useState } from "react";
-import { CidadeDetails } from "@/types/cidade";
-import { Ponto } from "@/types/ponto";
-import BusStopManager from "@/app/admin/_components/busStopManager";
-import BusLineContainer from "@/app/admin/_components/busLineContainer";
-import BusLineManager from "../../_components/busLineManager";
+import BusStopManager from "@/app/(administracao)/_components/busStopManager";
+import BusLineContainer from "@/app/(administracao)/_components/busLineContainer";
+import BusLineManager from "../../../_components/busLineManager";
 import { JSX } from "react";
-import { getCityAction } from "../../../actions/cityActions";
-import { getBusStopsAction } from "../../../actions/busStopActions";
+import { getCityAction } from "@/app/actions/cityActions";
+import { getBusStopsAction } from "@/app/actions/busStopActions";
 import { BusLineBasic } from "@/types/busLine";
+import CityAdminsList from "@/app/(administracao)/_components/cityAdminsList";
+import { useCityData } from "@/app/hooks/useCityData";
 
 enum Abas {
   pontos = "Pontos",
   linhas = "Linhas",
+  administradores = "Administradores",
 }
 
 export default function City({
   params,
 }: {
-  params: Promise<{id: string}>
+  params: Promise<{cityId: string}>
 }) {
-  const {id} = use(params);
-  const [city, setCity] = useState<CidadeDetails | null>(null);
+  const {cityId} = use(params);
   const [abaAtiva, setAbaAtiva] = useState<Abas>(Abas.pontos);
   const [mode, setMode] = useState<"list" | "add">("list");
   const [line, setLine] = useState<BusLineBasic | null>(null);
-  const [busStops, setBusStops] = useState<Ponto[]>([]);
+  const { city, setCity, busStops, setBusStops, loading, error } = useCityData(cityId);
   const componentMap: Record<Abas, () => JSX.Element> = {
     [Abas.pontos]: () => <BusStopManager city={city} busStops={busStops} onChangeBusStops={setBusStops}/>,
     [Abas.linhas]: () => (mode === "list") ? 
@@ -44,7 +44,8 @@ export default function City({
                               onBackClick={() => setMode("list")} 
                               line={line}
                               busStops={busStops}
-                            />
+                            />,
+    [Abas.administradores]: () => <CityAdminsList cityId={cityId}/>
   }
   const ComponenteSelecionado = componentMap[abaAtiva];
 
@@ -55,8 +56,8 @@ export default function City({
   useEffect(() => {
     const loadData = async () => {
       const [city, busStops] = await Promise.all([
-        getCityAction(parseInt(id)),
-        getBusStopsAction({city: parseInt(id)})
+        getCityAction(parseInt(cityId)),
+        getBusStopsAction({city: parseInt(cityId)})
       ])
 
       if(city.success) {
@@ -83,17 +84,15 @@ export default function City({
   return (
     <div className="flex flex-col justify-center items-center">
       <h1 className="font-title mt-3 text-2xl text-center">{city.nome} - {city.uf}</h1>
-      <div className="border-1 border-space-indigo-700 w-[300px] flex justify-around">
-        <button type="button" onClick={() => setAbaAtiva(Abas.pontos)}
-          className={(abaAtiva === Abas.pontos) ? selectedWindow : windowButtonStyle}
-          >
-            Pontos
-        </button>
-        <button type="button" onClick={() => setAbaAtiva(Abas.linhas)}
-          className={(abaAtiva === Abas.linhas) ? selectedWindow : windowButtonStyle}  
-        >
-          Linhas
-        </button>
+      <div className="border-1 border-space-indigo-700 w-[500px] flex justify-around">
+        {Object.entries(Abas).map(([key, value]) => (
+          <button key={value} 
+            onClick={() => setAbaAtiva(Abas[key as keyof typeof Abas])} 
+            className={(abaAtiva === Abas[key as keyof typeof Abas]) ? selectedWindow : windowButtonStyle}
+            type="button">
+            {value}
+          </button>
+        ))}
       </div>
       <ComponenteSelecionado />
     </div>

@@ -10,7 +10,7 @@ import {
   deleteRouteAction, 
   editRouteAction, 
   getAllBusRoutesAction 
-} from "../actions/busRouteActions";
+} from "../admin/actions/busRouteActions";
 import dynamic from "next/dynamic";
 import Form from "next/form";
 import Modal from "@/app/components/modal";

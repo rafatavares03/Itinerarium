@@ -46,6 +46,7 @@ export async function createAccountAction(prevState: AccountState,formData: Form
     }
   }
   validation.data.password = await saltAndHashPassword(validation.data.password);
+  console.log(validation.data);
   const result = await createUserService(validation.data);
   return result;
 }

@@ -43,3 +43,18 @@ export async function createUser(user: User) {
     }
   })
 }
+
+export async function getCityAdmins(cityId: number) {
+  return await prisma.user.findMany({
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+    },
+    where: {
+      role: "ADMIN_MUN",
+      city_id: cityId,
+    },
+  });
+}

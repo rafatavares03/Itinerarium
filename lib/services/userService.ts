@@ -1,5 +1,5 @@
 import { User } from "@/types/user";
-import { createUser } from "../repositories/userRepository";
+import { createUser, getCityAdmins } from "../repositories/userRepository";
 
 export async function createUserService(user: User) {
   try {
@@ -11,6 +11,22 @@ export async function createUserService(user: User) {
     console.log(e);
     return {
       success: false
+    }
+  }
+}
+
+export async function getCityAdminsService(cityId: number) {
+  try {
+    const res = await getCityAdmins(cityId);
+    return {
+      success: true,
+      data: res
+    }
+  } catch(e) {
+    console.log(e);
+    return {
+      success: false,
+      message: "Não foi possível buscar administradores"
     }
   }
 }

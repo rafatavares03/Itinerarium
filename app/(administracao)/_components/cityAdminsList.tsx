@@ -29,16 +29,16 @@ export default function CityAdminsList({
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div>
+    <div className="flex flex-col justify-center items-center p-5 border-2 rounded-md mt-5">
       {admins.length === 0 ? (
         <p>Nenhum administrador encontrado.</p>
       ) : (
         <ul>
           {admins.map((admin) => (
             <li key={admin.id} className="p-2">
-              <p className="font-semibold">{admin.name} <span className="text-sm text-gray-500">{admin.email}</span>
-                <button type="button" onClick={() => handleDelete(admin)} className="text-red-500 size-[30px]">
-                  <MdDeleteForever/>
+              <p className="font-semibold flex items-center gap-3">{admin.name} <span className="text-sm text-gray-500">{admin.email}</span>
+                <button type="button" onClick={() => handleDelete(admin)} className="text-red-500">
+                  <MdDeleteForever className="size-[25px]"/>
                 </button>
               </p>
             </li>

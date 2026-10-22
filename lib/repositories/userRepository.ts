@@ -58,3 +58,11 @@ export async function getCityAdmins(cityId: number) {
     },
   });
 }
+
+export async function deleteUser(user: User) {
+  return await prisma.user.delete({
+    where: {
+      id: user.id
+    }
+  })
+}

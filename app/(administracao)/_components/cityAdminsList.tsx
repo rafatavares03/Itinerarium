@@ -5,7 +5,9 @@ import { useState } from 'react';
 import Modal from '../../components/modal';
 import RegisterForm from '../../components/auth/registerForm';
 import { IoIosCloseCircle } from 'react-icons/io';
-
+import { MdDeleteForever } from "react-icons/md";
+import { deleteUserAction } from '@/app/actions/userActions';
+import { User } from '@/types/user';
 
 export default function CityAdminsList({
   cityId
@@ -14,6 +16,14 @@ export default function CityAdminsList({
 }) {
   const { admins, loading, error } = useCityAdmins(cityId);
   const [modal, setModal] = useState(false);
+
+  async function handleDelete(admin: User) {
+    const res = await deleteUserAction(admin);
+
+    if (!res.success) {
+      return;
+    }
+}
 
   if (loading) return <p>Carregando administradores...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -26,8 +36,11 @@ export default function CityAdminsList({
         <ul>
           {admins.map((admin) => (
             <li key={admin.id} className="p-2">
-              <p className="font-semibold">{admin.name} <span className="text-sm text-gray-500">{admin.email}</span></p>
-              <button type="button"></button>
+              <p className="font-semibold">{admin.name} <span className="text-sm text-gray-500">{admin.email}</span>
+                <button type="button" onClick={() => handleDelete(admin)} className="text-red-500 size-[30px]">
+                  <MdDeleteForever/>
+                </button>
+              </p>
             </li>
           ))}
         </ul>

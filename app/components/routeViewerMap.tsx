@@ -33,7 +33,8 @@ export default function RouteViewerMap({
           pontos={points}
           onClick={() => {}}
           onContextMenu={() => {}}
-          selecionado={() => true}
+          selecionado={() => false}
+          gradiente={true}
           destacado={() => false}
         />
         

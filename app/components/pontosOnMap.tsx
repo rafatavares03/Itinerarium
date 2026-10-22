@@ -15,6 +15,7 @@ export default function PontosOnMap({
   novos,
   selecionado,
   destacado,
+  gradiente = false,
   onClick,
   onContextMenu
  }: { 
@@ -22,6 +23,7 @@ export default function PontosOnMap({
   novos?: Ponto[],
   destacado: (ponto: Ponto) => boolean,
   selecionado: (ponto: Ponto) => boolean,
+  gradiente?:  boolean,
   onClick: (ponto: Ponto) => void,
   onContextMenu: (ponto: Ponto) => void,
 }) {
@@ -67,20 +69,31 @@ export default function PontosOnMap({
     iconSize: [tamanho, tamanho],
     iconAnchor: [(destacado ? tamanho * 1.2 : tamanho) / 2, (destacado) ? tamanho * 1.2 : tamanho],
   });
+  const totalPontos = pontos.length;
 
   return (
     <>
-      {pontos.map((ponto, index) => (
-        <Marker
-          key={ponto.id ?? index}
-          position={ponto.coordenada}
-          icon={busIcon(destacado(ponto), selecionado(ponto))}
-          eventHandlers={{
-            click: () => onClick(ponto),
-            contextmenu: () => onContextMenu(ponto)
-          }}
-        />
-      ))}
+      {pontos.map((ponto, index) => {
+        let corNormal = "#00ffff";
+        
+        if (gradiente) {
+          const progresso = totalPontos > 1 ? index / (totalPontos - 1) : 0;
+          const verdeAzul = Math.round(255 * (1 - progresso));
+          corNormal = `rgb(255, ${verdeAzul}, ${verdeAzul})`;
+        }
+
+        return (
+          <Marker
+            key={ponto.id ?? index}
+            position={ponto.coordenada}
+            icon={busIcon(destacado(ponto), selecionado(ponto), corNormal)}
+            eventHandlers={{
+              click: () => onClick(ponto),
+              contextmenu: () => onContextMenu(ponto)
+            }}
+          />
+        );
+      })}
       {novos?.map((ponto) => (
         <Marker
           key={ponto.coordenada.toString()}

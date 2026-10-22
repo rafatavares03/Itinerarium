@@ -2,7 +2,6 @@
 
 import { useSession, signOut } from "next-auth/react"
 import { useState } from "react";
-import Link from "next/link";
 import AccountManager from "./auth/accountManager";
 import Modal from "./modal";
 
@@ -26,7 +25,7 @@ export default function UserNav() {
 
   return (
     <div className="flex items-center gap-4">
-      <span>Olá, {session.user?.name}</span>
+      <span className="text-white font-bold">{session.user?.name}</span>
       <button
         onClick={() => signOut({ callbackUrl: "/" })}
         className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"

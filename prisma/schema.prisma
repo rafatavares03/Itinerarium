@@ -150,7 +150,7 @@ model Comentario {
   linha_id Int @map("linha")
   usuario User @relation(fields: [usuario_id], references: [id])
   usuario_id String @map("usuario")
-  created_at DateTime
+  created_at DateTime @default(now())
 
   @@map("comentario")
 }

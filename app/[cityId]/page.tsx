@@ -20,7 +20,7 @@ export default function City({
     <>
       <div className="flex gap-5 w-7xl mx-auto py-5">
         {busLines.map(busLine => (
-          <Link href={`/${cityId}/${busLine.id}`} key={busLine.id}>
+          <Link href={`/${cityId}/${busLine.codigo}`} key={busLine.id}>
             <BusLineCard busLine={busLine}/>
           </Link>
         ))}

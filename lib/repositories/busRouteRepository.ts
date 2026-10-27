@@ -1,6 +1,7 @@
 import { Ponto } from "@/types/ponto"
 import { BusRoute } from "@/types/busRoute"
 import prisma from "@/lib/prisma";
+import { BusLineBasic } from "@/types/busLine";
 
 type RouteQuery = {
   id: number;
@@ -18,9 +19,18 @@ type RouteQuery = {
   cidade: number;
   latitude: number;
   longitude: number;
+
+  origem?: string;
+  codigo?: string;
+  destino?: string;
 }
 
 type RouteWithGeometry = BusRoute & {
+  cidade?: number,
+  origem?: string,
+  codigo?: string,
+  destino?:string,
+
   geometria: {
     type: string;
     coordinates: [number, number][];
@@ -43,7 +53,14 @@ function reduceQueryIntoRouteWithGeometry(routeQuery: RouteQuery[]): RouteWithGe
         vigencia: row.vigencia,
         updated_at: row.updated_at,
         geometria: JSON.parse(row.geometria),
-        pontos: []
+        pontos: [],
+
+        ...(row.codigo !== undefined && {
+          codigo: row.codigo,
+          origem: row.origem,
+          destino: row.destino,
+          cidade: row.cidade
+        })
       };
 
       acc.push(route);
@@ -198,7 +215,7 @@ export async function getBusRoutesByLine(line: number) {
               ELSE NULL
             END ASC NULLS LAST
         ) AS rn
-      FROM trajeto t
+      FROM trajeto t 
       WHERE t.linha = ${line}
     ),
     rota_selecionada AS (
@@ -231,6 +248,83 @@ export async function getBusRoutesByLine(line: number) {
 
   const routesWithGeometry = reduceQueryIntoRouteWithGeometry(query);
   return transformIntoBusRoutes(routesWithGeometry);
+}
+
+export async function getLineAndRoutes(city: number, lineCode: string) {
+  const query = await prisma.$queryRaw<RouteQuery[]>`
+    WITH ranked_trajetos AS (
+      SELECT
+        t.id,
+        t.ativo,
+        t.linha,
+        t.ida,
+        t.vigencia,
+        t.updated_at,
+        t.geometria,
+        l.codigo,
+        l.origem,
+        l.destino,
+        l.cidade,
+        ROW_NUMBER() OVER (
+          PARTITION BY t.ida
+          ORDER BY
+            CASE
+              WHEN t.vigencia > CURRENT_TIMESTAMP THEN 0
+              WHEN t.ativo = TRUE THEN 1
+              ELSE 2
+            END,
+            CASE
+              WHEN t.vigencia > CURRENT_TIMESTAMP THEN t.vigencia
+              ELSE NULL
+            END ASC NULLS LAST
+        ) AS rn
+      FROM trajeto t JOIN linha l ON t.linha = l.id
+      WHERE l.cidade = ${city} AND l.codigo = ${lineCode}
+    ),
+    rota_selecionada AS (
+      SELECT * FROM ranked_trajetos WHERE rn = 1
+    )
+    SELECT 
+      t.id,
+      t.ativo,
+      t.linha,
+      t.ida,
+      t.vigencia,
+      t.updated_at,
+      ST_AsGeoJSON(t.geometria) as geometria,
+      t.codigo,
+      t.origem,
+      t.destino,
+      t.cidade,
+
+      p.id AS ponto_id,
+      pt.ordem,
+      pt.final,
+      p.logradouro,
+      p.numero,
+      p.cidade,
+      ST_Y(p.coordenada) AS latitude,
+      ST_X(p.coordenada) AS longitude
+
+    FROM rota_selecionada t
+    LEFT JOIN ponto_trajeto pt ON pt.trajeto = t.id
+    LEFT JOIN ponto p ON p.id = pt.ponto
+
+    ORDER BY t.ida DESC, pt.ordem;
+  `
+  const routesWithGeometry = reduceQueryIntoRouteWithGeometry(query);
+  const line:BusLineBasic = {
+    cidade_id: routesWithGeometry[0].cidade!,
+    codigo: routesWithGeometry[0].codigo!,
+    destino: routesWithGeometry[0].destino!,
+    origem: routesWithGeometry[0].origem!,
+    id: routesWithGeometry[0].linha!    
+  }
+  const busRoutes = transformIntoBusRoutes(routesWithGeometry);
+  return {
+    line,
+    busRoutes
+  }
 }
 
 export async function createRoute(data: {

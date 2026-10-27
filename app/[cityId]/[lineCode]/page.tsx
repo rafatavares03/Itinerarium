@@ -1,16 +1,13 @@
 'use client'
 
 import { use, useEffect, useState } from 'react';
-import { getCityAction } from '@/app/actions/cityActions';
-import { getBusRoutesAction } from '@/app/actions/busRouteActions';
 import { BusRoute } from '@/types/busRoute';
 import { Ponto } from '@/types/ponto';
 import dynamic from 'next/dynamic';
-import { BusLineBasic } from '@/types/busLine';
-import { getLineAction } from '@/app/actions/busLineActions';
 import { FaEye } from 'react-icons/fa';
 import { useCity } from '@/app/hooks/useCity';
 import BusRouteDetails from '@/app/(administracao)/_components/busRouteDetails';
+import useLineAndRoutes from '@/app/hooks/useLineAndRoutes';
 
 
 const RouteViewerMap = dynamic(
@@ -23,43 +20,30 @@ const RouteViewerMap = dynamic(
 export default function Line({
   params
 }: {
-  params: Promise<{cityId: string, line: string}>
+  params: Promise<{cityId: string, lineCode: string}>
 }) {
-  const { cityId, line } = use(params);
-  const [lineInfo, setLineInfo] = useState<BusLineBasic | null>(null);
+  const { cityId, lineCode } = use(params);
   const {city, loading: cityLoading} = useCity(cityId);
-  const [busRoutes, setBusRoutes] = useState<BusRoute[]>([]);
+  const {line, busRoutes} = useLineAndRoutes(cityId, lineCode);
   const [route, setRoute] = useState<BusRoute | null>(null);
   const [details, setDetails] = useState(false);
 
-  useEffect(() => {
-    const loadData = async () => {
-      const [lineData, routeData] = await Promise.all(
-        [getLineAction(parseInt(line)), getBusRoutesAction(parseInt(line))]
-      );
-      if(lineData.success) {
-        setLineInfo(lineData.data ?? null);
-      }
-      if(routeData?.success) {
-        setBusRoutes(routeData.data ?? []);
-        if(routeData.data) {
-          setRoute(routeData.data[0] ?? null);
-        }
-      }
-    }
-
-    loadData();
-  }, [line]);
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
-useEffect(() => {
-  const interval = setInterval(() => {
-    setCurrentTime(new Date());
-  }, 60_000);
+  useEffect(() => {
+    if(busRoutes.length > 0) {
+      setRoute(busRoutes[0])
+    }
+  }, [busRoutes]);
 
-  return () => clearInterval(interval);
-}, []);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60_000);
+
+    return () => clearInterval(interval);
+  }, []);
 
 function formatRemainingTime(expiration: Date | string) {
   const expirationDate = new Date(expiration);
@@ -111,13 +95,14 @@ function formatRemainingTime(expiration: Date | string) {
           <>
           <RouteViewerMap bounds={city.enquadramento} points={getPoints(route)} route={route}/>
           <div className="flex flex-col gap-2 h-full w-[350px]  bg-space-indigo-700 py-3">
+            <button type="button" className="py-1 bg-icy-aqua-400 mx-3 rounded-md font-bold">Horário</button>
             {!details && busRoutes && busRoutes.map((busRoute, idx) => 
               <div key={busRoute.id} className="relative">
                 <button type="button" onClick={() => setRoute(busRoute)}
                   className={"bg-icy-aqua-300 flex justify-between items-center w-4/5 px-3 rounded-e-lg transition-all text-start hover:w-5/6" 
                               + ((route && busRoute.id === route.id) ? routeActiveStyle : " ")
                   }>
-                    <p>{!busRoute.ida ? lineInfo?.destino : lineInfo?.origem}</p>
+                    <p>{!busRoute.ida ? line?.destino : line?.origem}</p>
     
                     {busRoute.vigencia && new Date(busRoute.vigencia) > currentTime
                       ? <span className={spanStyle}>{formatRemainingTime(busRoute.vigencia)}</span>: ""}

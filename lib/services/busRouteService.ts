@@ -4,7 +4,8 @@ import {
   createRoute, 
   editRoute, 
   deleteRoute, 
-  getBusRouteById, 
+  getBusRouteById,
+  getLineAndRoutes,
   getAllBusRoutesByLine,
   getBusRoutesByLine,
   activateRoute,
@@ -38,6 +39,22 @@ export async function getBusRoutesService(line: number) {
     return {
       success: false,
       message: "Não foi possível buscar rotas dessa linha."
+    }
+  }
+}
+
+export async function getLineAndBusRoutesService(city: number, lineCode: string) {
+  try {
+    const query = await getLineAndRoutes(city, lineCode);
+    return {
+      success: true,
+      data: query
+    }
+  } catch(e) {
+    console.log(e);
+    return {
+      success: false,
+      message: "Não foi possível buscar rotas dessa linha"
     }
   }
 }

@@ -22,8 +22,8 @@ export async function saveBusScheduleAction(data: BusSchedule[]) {
   return await saveBusScheduleService(validation.data)
 }
 
-export async function getBusScheduleAction(line: number) {
-  const validation = z.number().positive().safeParse(line);
+export async function getBusScheduleAction(line: number | string) {
+  const validation = z.coerce.number().int().positive().safeParse(line);
 
   if(!validation.success) {
     return {

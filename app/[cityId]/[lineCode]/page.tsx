@@ -8,6 +8,10 @@ import { FaEye } from 'react-icons/fa';
 import { useCity } from '@/app/hooks/useCity';
 import BusRouteDetails from '@/app/(administracao)/_components/busRouteDetails';
 import useLineAndRoutes from '@/app/hooks/useLineAndRoutes';
+import { useBusSchedule } from '@/app/hooks/useBusSchedule';
+import { BusSchedule } from '@/types/busSchedule';
+import Modal from '@/app/components/modal';
+import ScheduleTableView from '@/app/components/scheduleTableView';
 
 
 const RouteViewerMap = dynamic(
@@ -25,9 +29,10 @@ export default function Line({
   const { cityId, lineCode } = use(params);
   const {city, loading: cityLoading} = useCity(cityId);
   const {line, busRoutes} = useLineAndRoutes(cityId, lineCode);
+  const {schedule} = useBusSchedule((!line) ? "" : line.id);
   const [route, setRoute] = useState<BusRoute | null>(null);
   const [details, setDetails] = useState(false);
-
+  const [scheduleModal, setScheduleModal] = useState(false);
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -45,29 +50,29 @@ export default function Line({
     return () => clearInterval(interval);
   }, []);
 
-function formatRemainingTime(expiration: Date | string) {
-  const expirationDate = new Date(expiration);
-  const difference = expirationDate.getTime() - currentTime.getTime();
+  function formatRemainingTime(expiration: Date | string) {
+    const expirationDate = new Date(expiration);
+    const difference = expirationDate.getTime() - currentTime.getTime();
 
-  if(difference <= 0) {
-    return "expired";
+    if(difference <= 0) {
+      return "expired";
+    }
+
+    const totalMinutes = Math.floor(difference / (1000 * 60));
+    const days = Math.floor(totalMinutes / (60 * 24));
+    const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+    const minutes = totalMinutes % 60;
+
+    if(days > 0) {
+      return `${days}d ${hours}h`;
+    }
+
+    if(hours > 0) {
+      return `${hours}h ${minutes}min`;
+    }
+
+    return `${minutes}min`;
   }
-
-  const totalMinutes = Math.floor(difference / (1000 * 60));
-  const days = Math.floor(totalMinutes / (60 * 24));
-  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
-  const minutes = totalMinutes % 60;
-
-  if(days > 0) {
-    return `${days}d ${hours}h`;
-  }
-
-  if(hours > 0) {
-    return `${hours}h ${minutes}min`;
-  }
-
-  return `${minutes}min`;
-}
 
   function getPoints(route: BusRoute | null) {
     if(!route) return [];
@@ -95,7 +100,12 @@ function formatRemainingTime(expiration: Date | string) {
           <>
           <RouteViewerMap bounds={city.enquadramento} points={getPoints(route)} route={route}/>
           <div className="flex flex-col gap-2 h-full w-[350px]  bg-space-indigo-700 py-3">
-            <button type="button" className="py-1 bg-icy-aqua-400 mx-3 rounded-md font-bold">Horário</button>
+            <button type="button" 
+              className="py-1 bg-icy-aqua-400 mx-3 rounded-md font-bold"
+              onClick={() => setScheduleModal(true)}
+            >
+              Horário
+            </button>
             {!details && busRoutes && busRoutes.map((busRoute, idx) => 
               <div key={busRoute.id} className="relative">
                 <button type="button" onClick={() => setRoute(busRoute)}
@@ -125,6 +135,20 @@ function formatRemainingTime(expiration: Date | string) {
       }
 
     </div>
+        <Modal open={scheduleModal}>
+          <div className="bg-space-indigo-700 p-10 flex flex-col rounded-lg relative ">
+            <div>
+              <h2 className="font-display text-icy-aqua-100 text-center font-bold text-lg m-5">Linha {lineCode} - Horário</h2>
+              <button type="button" className="absolute top-[10px] right-[10px]" onClick={() => setScheduleModal(false)}>
+                Close
+              </button>
+            </div>
+            <div className="flex-1 flex gap-3">
+              <ScheduleTableView schedule={schedule.filter(hour => hour.ida)} title={(line && line.origem) ?`Saída: ${line.origem}` : ''}/>
+              <ScheduleTableView schedule={schedule.filter(hour => !hour.ida)} title={(line && line.destino) ?`Saída: ${line.destino}` : ''}/>
+            </div>
+          </div>
+        </Modal>
     </>
   )
 }

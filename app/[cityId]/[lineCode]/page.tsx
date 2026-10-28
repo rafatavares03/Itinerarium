@@ -9,7 +9,7 @@ import { useCity } from '@/app/hooks/useCity';
 import BusRouteDetails from '@/app/(administracao)/_components/busRouteDetails';
 import useLineAndRoutes from '@/app/hooks/useLineAndRoutes';
 import { useBusSchedule } from '@/app/hooks/useBusSchedule';
-import { BusSchedule } from '@/types/busSchedule';
+import { IoIosCloseCircle } from "react-icons/io";
 import Modal from '@/app/components/modal';
 import ScheduleTableView from '@/app/components/scheduleTableView';
 
@@ -131,24 +131,21 @@ export default function Line({
               <BusRouteDetails busStops={getPoints(route)} onBackClick={() => setDetails(false)}/>
             }
             </div>
-        </>
-      }
-
-    </div>
-        <Modal open={scheduleModal}>
-          <div className="bg-space-indigo-700 p-10 flex flex-col rounded-lg relative ">
-            <div>
-              <h2 className="font-display text-icy-aqua-100 text-center font-bold text-lg m-5">Linha {lineCode} - Horário</h2>
-              <button type="button" className="absolute top-[10px] right-[10px]" onClick={() => setScheduleModal(false)}>
-                Close
-              </button>
-            </div>
-            <div className="flex-1 flex gap-3">
-              <ScheduleTableView schedule={schedule.filter(hour => hour.ida)} title={(line && line.origem) ?`Saída: ${line.origem}` : ''}/>
-              <ScheduleTableView schedule={schedule.filter(hour => !hour.ida)} title={(line && line.destino) ?`Saída: ${line.destino}` : ''}/>
-            </div>
+          </>
+        }
+      </div>
+      <Modal open={scheduleModal}>
+        <div className="bg-space-indigo-700 p-10 flex flex-col rounded-lg relative ">
+          <button type="button" className="absolute top-[10px] right-[10px]" onClick={() => setScheduleModal(false)}>
+            <IoIosCloseCircle className="text-icy-aqua-400 size-[30px]"/>
+          </button>
+          <h2 className="font-display text-icy-aqua-100 text-center font-bold text-lg mb-5">Linha {lineCode} - Horário</h2>
+          <div className="flex-1 flex gap-3">
+            <ScheduleTableView schedule={schedule.filter(hour => hour.ida)} title={(line && line.origem) ?`Saída: ${line.origem}` : ''}/>
+            <ScheduleTableView schedule={schedule.filter(hour => !hour.ida)} title={(line && line.destino) ?`Saída: ${line.destino}` : ''}/>
           </div>
-        </Modal>
+        </div>
+      </Modal>
     </>
   )
 }

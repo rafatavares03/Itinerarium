@@ -1,5 +1,5 @@
 import { useActionState, useEffect, useState } from "react";
-import BusRouteDetails from "./busRouteDetails";
+import BusRouteDetails from "../../components/busRouteDetails";
 import { Ponto } from "@/types/ponto";
 import { BusRoute } from "@/types/busRoute";
 import { FaPlus } from "react-icons/fa";
@@ -254,7 +254,7 @@ export default function BusRouteManager({
           return selected.has(point.id);
         }}
         />
-        <div className="w-2xl h-full bg-space-indigo-700 relative overflow-y-auto">
+        <div className="w-2/5 h-full bg-space-indigo-700 relative overflow-y-auto">
           {details && 
             <div className="flex flex-col justify-between h-full">
               <div className="">
@@ -267,11 +267,12 @@ export default function BusRouteManager({
                     setDetails(false);
                     }
                   }
-                  onActivateRoute={() => {
-                    if(!route) return;
-                    setActiveModal(true);
-                    // activateRouteAction(route);
-                  }}
+                  {...(((route && !route.ativo) || newRoute) && {
+                    onActivateRoute: () => {
+                      if(!route) return;
+                      setActiveModal(true);
+                    }}
+                  )}
 
                 />
               </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import BusStopManager from "@/app/(administracao)/_components/busStopManager";
 import BusLineContainer from "@/app/(administracao)/_components/busLineContainer";
 import BusLineManager from "@/app/(administracao)/_components/busLineManager";
@@ -10,16 +10,16 @@ import { getBusStopsAction } from "@/app/actions/busStopActions";
 import { BusLineBasic } from "@/types/busLine";
 import { useSession } from "next-auth/react";
 import { useCityData } from "@/app/hooks/useCityData";
+import CityAdminsList from "../_components/cityAdminsList";
 
 enum Abas {
   pontos = "Pontos",
   linhas = "Linhas",
+  administradores = "Administradores"
 }
 
 export default function City() {
   const { data: session, status } = useSession();
-  console.log("STATUS DA SESSÃO:", status);
-console.log("DADOS DA SESSÃO:", session);
   const cityId = session?.user?.city;
   const [abaAtiva, setAbaAtiva] = useState<Abas>(Abas.pontos);
   const [mode, setMode] = useState<"list" | "add">("list");
@@ -43,6 +43,7 @@ console.log("DADOS DA SESSÃO:", session);
                               line={line}
                               busStops={busStops}
                             />,
+    [Abas.administradores]: () => <CityAdminsList cityId={cityId}/>
   }
   const ComponenteSelecionado = componentMap[abaAtiva];
 

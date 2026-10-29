@@ -6,7 +6,7 @@ import { Ponto } from '@/types/ponto';
 import dynamic from 'next/dynamic';
 import { FaEye } from 'react-icons/fa';
 import { useCity } from '@/app/hooks/useCity';
-import BusRouteDetails from '@/app/(administracao)/_components/busRouteDetails';
+import BusRouteDetails from '@/app/components/busRouteDetails';
 import useLineAndRoutes from '@/app/hooks/useLineAndRoutes';
 import { useBusSchedule } from '@/app/hooks/useBusSchedule';
 import { IoIosCloseCircle } from "react-icons/io";
@@ -31,7 +31,6 @@ export default function Line({
   const {line, busRoutes} = useLineAndRoutes(cityId, lineCode);
   const {schedule} = useBusSchedule((!line) ? "" : line.id);
   const [route, setRoute] = useState<BusRoute | null>(null);
-  const [details, setDetails] = useState(false);
   const [scheduleModal, setScheduleModal] = useState(false);
 
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -89,47 +88,41 @@ export default function Line({
 
     return points;
   }
-  const routeActiveStyle = " bg-red-500";
+  const routeActiveStyle = " font-bold text-icy-aqua-50";
   const buttonStyle = "cursor-pointer transition-all "
-  const spanStyle = "bg-icy-aqua-100 text-space-indigo-700 text-xs font-display font-semibold px-2 rounded-md uppercase"
+  const spanStyle = "bg-icy-aqua-100 text-space-indigo-700 text-xs font-display font-semibold px-2 rounded-md uppercase mx-1 my-auto"
   
   return (
     <>
-      <div className="flex w-7xl h-[500px] py-5 m-auto">
+      <div className="flex w-7xl h-[85vh] my-5 mx-auto border-3 border-icy-aqua-400">
         {city &&
           <>
-          <RouteViewerMap bounds={city.enquadramento} points={getPoints(route)} route={route}/>
-          <div className="flex flex-col gap-2 h-full w-[350px]  bg-space-indigo-700 py-3">
-            <button type="button" 
-              className="py-1 bg-icy-aqua-400 mx-3 rounded-md font-bold"
-              onClick={() => setScheduleModal(true)}
-            >
-              Horário
-            </button>
-            {!details && busRoutes && busRoutes.map((busRoute, idx) => 
-              <div key={busRoute.id} className="relative">
-                <button type="button" onClick={() => setRoute(busRoute)}
-                  className={"bg-icy-aqua-300 flex justify-between items-center w-4/5 px-3 rounded-e-lg transition-all text-start hover:w-5/6" 
-                              + ((route && busRoute.id === route.id) ? routeActiveStyle : " ")
-                  }>
-                    <p>{!busRoute.ida ? line?.destino : line?.origem}</p>
-    
-                    {busRoute.vigencia && new Date(busRoute.vigencia) > currentTime
-                      ? <span className={spanStyle}>{formatRemainingTime(busRoute.vigencia)}</span>: ""}
-                </button>
-                <div className="absolute top-0 bottom-0 flex items-center right-0 gap-1 px-2">
-                  <button type="button"
-                    className={buttonStyle + ((route && busRoute.id !== route.id) ? "opacity-0 duration-0" : "opacity-100 duration-[3s]")}
-                    onClick={() => setDetails(true)}
-                    >
-                    <FaEye className="text-icy-aqua-100 size-[20px]"/>
-                  </button>
-                </div>
+            <RouteViewerMap bounds={city.enquadramento} points={getPoints(route)} route={route}/>
+            <div className="flex flex-col gap-2 h-full w-2/5 bg-space-indigo-700 py-3">
+              <button type="button" 
+                className="py-1 bg-icy-aqua-400 mx-3 rounded-md font-bold"
+                onClick={() => setScheduleModal(true)}
+              >
+                Horário
+              </button>
+              <div className='flex'>
+                {busRoutes && busRoutes.map((busRoute, idx) => 
+                  <div key={busRoute.id} className="flex-1 relative">
+                    <button type="button" onClick={() => setRoute(busRoute)}
+                      className={"flex-1 transition-all border-b-2 w-full" 
+                                  + ((route && busRoute.id === route.id) ? routeActiveStyle : " text-icy-aqua-500 opacity-50")
+                      }>
+                        <p className="w-full uppercase font-main mr-1">{!busRoute.ida ? line?.destino : line?.origem}
+
+                        {busRoute.vigencia && new Date(busRoute.vigencia) > currentTime
+                          ? <span className={spanStyle}>{formatRemainingTime(busRoute.vigencia)}</span>: ""}
+                        </p>
+                    
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-            {details && route &&
-              <BusRouteDetails busStops={getPoints(route)} onBackClick={() => setDetails(false)}/>
-            }
+              <BusRouteDetails busStops={getPoints(route)}/>
             </div>
           </>
         }

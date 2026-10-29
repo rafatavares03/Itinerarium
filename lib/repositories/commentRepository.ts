@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import type { Comentario } from "@/app/generated/prisma/client";
+import { Comment, CommentWithUser } from "@/types/comment";
 
 export async function createComment(
   texto: string,
@@ -20,35 +20,48 @@ export async function createComment(
   });
 }
 
-export async function getCommentsByCity(
-  cityId: number,
+export async function getCommentsByLine(
+  line: number,
   page: number = 1,
-  pageSize: number = 10
+  itemsAmount: number = 15,
+  startDate?: Date,
+  endDate?: Date
 ) {
-  return await prisma.comentario.findMany({
-    where: {
-      linha: {
-        cidade_id: cityId,
-      },
+  const where = {
+    linnha_id: line,
+    created_at: {
+      ...(startDate && { gte: startDate }),
+      ...(endDate && { lte: endDate }),
     },
-    orderBy: {
-      created_at: "desc",
-    },
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-    include: {
-      usuario: {
-        select: {
-          id: true,
-          name: true,
+  };
+
+  const [comentarios, total] = await prisma.$transaction([
+    prisma.comentario.findMany({
+      where,
+      include: {
+        usuario: {
+          select: {
+            id: true,
+            name: true,
+          },
         },
       },
-      linha: {
-        select: {
-          id: true,
-          codigo: true,
-        },
+      orderBy: {
+        created_at: "desc",
       },
+      skip: (page - 1) * itemsAmount,
+      take: itemsAmount,
+    }),
+    prisma.comentario.count({ where }),
+  ]);
+
+  return {
+    comentarios,
+    pagination: {
+      page,
+      pageSize: itemsAmount,
+      total,
+      totalPages: Math.ceil(total / itemsAmount),
     },
-  });
+  };
 }

@@ -1,10 +1,10 @@
 'use client'
 
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useState, useActionState } from 'react';
+import { useSession } from 'next-auth/react';
 import { BusRoute } from '@/types/busRoute';
 import { Ponto } from '@/types/ponto';
 import dynamic from 'next/dynamic';
-import { FaEye } from 'react-icons/fa';
 import { useCity } from '@/app/hooks/useCity';
 import BusRouteDetails from '@/app/components/busRouteDetails';
 import useLineAndRoutes from '@/app/hooks/useLineAndRoutes';
@@ -12,6 +12,8 @@ import { useBusSchedule } from '@/app/hooks/useBusSchedule';
 import { IoIosCloseCircle } from "react-icons/io";
 import Modal from '@/app/components/modal';
 import ScheduleTableView from '@/app/components/scheduleTableView';
+import Form from 'next/form';
+import { createCommentAction } from '@/app/actions/commentActions';
 
 
 const RouteViewerMap = dynamic(
@@ -20,6 +22,11 @@ const RouteViewerMap = dynamic(
     ssr: false,
   }
 );
+
+const commentInitialState = {
+  success: false,
+  message: ""
+}
 
 export default function Line({
   params
@@ -32,14 +39,25 @@ export default function Line({
   const {schedule} = useBusSchedule((!line) ? "" : line.id);
   const [route, setRoute] = useState<BusRoute | null>(null);
   const [scheduleModal, setScheduleModal] = useState(false);
-
+  const [commentModal, setCommentModal] = useState(false);
+  const [commentState, commentFormAction, pending] = useActionState(createCommentAction, commentInitialState);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { data: session, status } = useSession();
+
+  const isAuthenticated = status === "authenticated";
+  const user = session?.user;
 
   useEffect(() => {
     if(busRoutes.length > 0) {
       setRoute(busRoutes[0])
     }
   }, [busRoutes]);
+
+  useEffect(() => {
+  if (commentState.success) {
+    setCommentModal(false);
+  }
+}, [commentState.success]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -122,21 +140,48 @@ export default function Line({
                   </div>
                 )}
               </div>
-              <BusRouteDetails busStops={getPoints(route)}/>
+              <div className="flex-1 overflow-y-auto">
+                <BusRouteDetails busStops={getPoints(route)}/>
+              </div>
+              {isAuthenticated && 
+                <button type="button" 
+                  onClick={() => setCommentModal(true)}
+                  className="bg-icy-aqua-400 rounded-md"
+                >
+                  Enviar comentário
+                </button>
+              }
             </div>
           </>
         }
       </div>
-      <Modal open={scheduleModal}>
+      <Modal open={(scheduleModal || commentModal)}>
         <div className="bg-space-indigo-700 p-10 flex flex-col rounded-lg relative ">
-          <button type="button" className="absolute top-[10px] right-[10px]" onClick={() => setScheduleModal(false)}>
+          <button type="button" className="absolute top-[10px] right-[10px]" 
+            onClick={() => {
+              setScheduleModal(false);
+              setCommentModal(false);
+            }}
+          >
             <IoIosCloseCircle className="text-icy-aqua-400 size-[30px]"/>
           </button>
-          <h2 className="font-display text-icy-aqua-100 text-center font-bold text-lg mb-5">Linha {lineCode} - Horário</h2>
-          <div className="flex-1 flex gap-3">
-            <ScheduleTableView schedule={schedule.filter(hour => hour.ida)} title={(line && line.origem) ?`Saída: ${line.origem}` : ''}/>
-            <ScheduleTableView schedule={schedule.filter(hour => !hour.ida)} title={(line && line.destino) ?`Saída: ${line.destino}` : ''}/>
-          </div>
+          {scheduleModal &&
+            <>
+              <h2 className="font-display text-icy-aqua-100 text-center font-bold text-lg mb-5">Linha {lineCode} - Horário</h2>
+              <div className="flex-1 flex gap-3">
+                <ScheduleTableView schedule={schedule.filter(hour => hour.ida)} title={(line && line.origem) ?`Saída: ${line.origem}` : ''}/>
+                <ScheduleTableView schedule={schedule.filter(hour => !hour.ida)} title={(line && line.destino) ?`Saída: ${line.destino}` : ''}/>
+              </div>
+            </>
+          }
+          {commentModal && line &&
+            <Form action={commentFormAction} className="text-icy-aqua-100 flex flex-col justify-center items-center">
+              <p>Envie um comentário sobre a linha ou trajeto para a gestão. Seu comentário pode ser importante para melhorias do serviço!</p>
+              <input type="hidden" name="line" value={line?.id} />
+              <textarea name="text" id="text" className="w-full h-48 my-2 outline-none bg-space-indigo-600 resize-none"></textarea>
+              <button className="bg-icy-aqua-400 py-1 px-3 text-space-indigo-800 rounded-lg">Enviar</button>
+            </Form>
+          }
         </div>
       </Modal>
     </>

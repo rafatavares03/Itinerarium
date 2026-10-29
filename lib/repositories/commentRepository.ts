@@ -1,20 +1,19 @@
 import prisma from "@/lib/prisma";
-import { Comment, CommentWithUser } from "@/types/comment";
 
 export async function createComment(
-  texto: string,
-  linhaId: number,
-  usuarioId: string
+  text: string,
+  line: number,
+  userId: string
 ) {
   return await prisma.comentario.create({
     data: {
-      texto,
+      texto: text,
       created_at: new Date(),
       linha: {
-        connect: { id: linhaId },
+        connect: { id: line },
       },
       usuario: {
-        connect: { id: usuarioId },
+        connect: { id: userId },
       },
     },
   });

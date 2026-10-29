@@ -97,7 +97,7 @@ export default function BusLineManager({
         />
       </div>
         {line &&
-          <div>
+          <div  className="pb-5">
             <LineCommentsList lineId={line.id}/>
           </div>
         }

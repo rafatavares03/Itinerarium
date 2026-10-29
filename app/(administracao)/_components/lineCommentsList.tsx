@@ -50,13 +50,16 @@ export default function LineCommentsList({ lineId }: LineCommentsListProps) {
     if (type === 'end') setEndDate(value);
   };
 
+  const labelStyle = "text-space-indigo-700 font-semibold";
+  const filterContainerLabel = "flex gap-1 justify-center items-center"
+
   return (
     <div className="w-full flex border-2 border-icy-aqua-700 relative mt-5">
       <h2 className="bg-icy-aqua-700 font-title text-semibold text-white tracking-widest rounded-t-md font-bold absolute top-[-25px] left-0 italic px-2">Comentários</h2>
       <div className="flex flex-col gap-1 text-white flex-1">
         <div className="flex flex-wrap gap-4 items-center bg-icy-aqua-300 p-3 w-full">
-          <div className="flex gap-1">
-            <label className="text-xs text-space-indigo-700">Data Inicial</label>
+          <div className={filterContainerLabel}>
+            <label className={labelStyle}>Data Inicial</label>
             <input 
               type="date" 
               value={startDate}
@@ -64,8 +67,8 @@ export default function LineCommentsList({ lineId }: LineCommentsListProps) {
               className="bg-gray-800 border border-gray-700 rounded p-1 text-sm text-white"
             />
           </div>
-          <div className="flex gap-1">
-            <label className="text-xs text-gray-400">Data Final</label>
+          <div className={filterContainerLabel}>
+            <label className={labelStyle}>Data Final</label>
             <input 
               type="date" 
               value={endDate}
@@ -73,24 +76,24 @@ export default function LineCommentsList({ lineId }: LineCommentsListProps) {
               className="bg-gray-800 border border-gray-700 rounded p-1 text-sm text-white"
             />
           </div>
-          {(startDate || endDate) && (
+          {/* {(startDate || endDate) && (
             <button 
               onClick={() => { setStartDate(""); setEndDate(""); setPage(1); }}
               className="self-end text-xs text-icy-aqua-400 underline hover:text-white"
             >
               Limpar filtros
             </button>
-          )}
+          )} */}
         </div>
 
-        <div className="flex flex-col gap-2 min-h-[200px]">
+        <div className="flex-1 flex flex-col gap-2 px-3">
           {comments.length === 0 && !isPending ? (
-            <p className="text-gray-400 text-sm italic">Nenhum comentário encontrado para esta linha.</p>
+            <p className="text-gray-400 text-sm">Nenhum comentário encontrado para esta linha.</p>
           ) : (
             comments.map((comment, index) => (
               <div 
                 key={comment.id ?? index}
-                className="p-3 bg-gray-900/80 border border-icy-aqua-400/40 rounded-lg flex flex-col gap-1"
+                className="p-3 bg-space-indigo-700 border border-icy-aqua-400/40 rounded-lg flex flex-col gap-1 w-lg m-auto"
               >
                 <div className="flex justify-between items-center text-xs text-gray-400">
                   <span className="font-semibold text-icy-aqua-400">
@@ -105,10 +108,10 @@ export default function LineCommentsList({ lineId }: LineCommentsListProps) {
         </div>
 
         {isPending && (
-          <div className="text-center text-sm text-gray-400 py-2">Carregando comentários...</div>
+          <div className="text-center text-sm py-2">Carregando comentários...</div>
         )}
 
-        {pagination && pagination.totalPages > 1 && (
+        {pagination && (
           <Pagination 
             quantidade={pagination.totalPages} 
             pagina={page} 

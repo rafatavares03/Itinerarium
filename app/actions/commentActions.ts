@@ -13,8 +13,8 @@ const getCommentsActionSchema = z.object({
   line: z.coerce.number().int().positive(),
   page: z.coerce.number().int().positive().default(1),
   itemsAmount: z.coerce.number().int().positive().max(100).default(15),
-  startDate: z.iso.datetime().optional(),
-  endDate: z.iso.datetime().optional(),
+  startDate: z.iso.date().optional(),
+  endDate: z.iso.date().optional(),
 });
 
 type CommentState = {
@@ -63,9 +63,10 @@ export async function getCommentsByLineAction(
     endDate,
   });
 
+  console.log(endDate);
   if(!validation.success) {
     return {
-      success: false as const,
+      success: false,
       message: validation.error.issues[0].message,
     };
   }

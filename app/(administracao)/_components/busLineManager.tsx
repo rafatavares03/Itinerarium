@@ -9,6 +9,7 @@ import { BusLineBasic } from "@/types/busLine";
 import GoBackButton from "@/app/components/goBackButton";
 import BusRouteManager from "./busRouteManager";
 import BusScheduleManager from "./busScheduleManager";
+import LineCommentsList from "./lineCommentsList";
 
 const initialState: CreateBusLineState = {
   success: false,
@@ -88,13 +89,18 @@ export default function BusLineManager({
           busStops={busStops}
           />
       </div>
-      <div>
+      <div className="py-5">
         <BusScheduleManager
           line={(line) ? line.id : -1}
           origin={busLine.origem}
           destination={busLine.destino}
         />
       </div>
+        {line &&
+          <div>
+            <LineCommentsList lineId={line.id}/>
+          </div>
+        }
     </div>
   )
 }

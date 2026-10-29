@@ -7,8 +7,20 @@ export type Comment = {
 };
 
 export type CommentWithUser = Comment & {
-  user: {
+  usuario: {
     id: string;
     name: string | null;
   };
+};
+
+export type CommentsPagination = {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+};
+
+export type GetCommentsResult = {
+  comentarios: CommentWithUser[];
+  pagination: CommentsPagination;
 };

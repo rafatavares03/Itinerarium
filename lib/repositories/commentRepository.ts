@@ -27,7 +27,7 @@ export async function getCommentsByLine(
   endDate?: Date
 ) {
   const where = {
-    linnha_id: line,
+    linha_id: line,
     created_at: {
       ...(startDate && { gte: startDate }),
       ...(endDate && { lte: endDate }),

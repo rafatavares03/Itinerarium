@@ -77,7 +77,9 @@ export default function PontosOnMap({
         let corNormal = "#00ffff";
         
         if (gradiente) {
-          const progresso = totalPontos > 1 ? index / (totalPontos - 1) : 0;
+          const progressoLinear = totalPontos > 1 ? index / (totalPontos - 1) : 0;
+          const progresso = Math.pow(progressoLinear, 1.5);
+
           const verdeAzul = Math.round(255 * (1 - progresso));
           corNormal = `rgb(255, ${verdeAzul}, ${verdeAzul})`;
         }

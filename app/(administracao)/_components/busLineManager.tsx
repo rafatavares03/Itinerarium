@@ -12,7 +12,7 @@ import BusScheduleManager from "./busScheduleManager";
 import LineCommentsList from "./lineCommentsList";
 
 const initialState: CreateBusLineState = {
-  success: false,
+  success: false
 };
 
 export default function BusLineManager({
@@ -32,7 +32,8 @@ export default function BusLineManager({
     codigo: line?.codigo ?? "",
     origem: line?.origem ?? "",
     destino: line?.destino ?? "",
-    cidade_id: line?.cidade_id ?? city?.id ?? -1
+    cidade_id: line?.cidade_id ?? city?.id ?? -1,
+    tarifa: line?.tarifa ?? "",
   });
   const labelStyle = "font-semibold mr-3";
   const inputStyle = "bg-space-indigo-700 outline-0 text-white text-sm py-1 px-3 rounded-md";
@@ -55,26 +56,37 @@ export default function BusLineManager({
         <div className="flex gap-3 w-full py-3">
           <input type="hidden" name="city" value={busLine.cidade_id}/>
           <input type="hidden" name="id" value={busLine.id} />
-          <div>
-            <label htmlFor="code" className={labelStyle}>Código</label>
-            <input type="text" name="code" id="code" value={busLine.codigo}
-             onChange={(e) => setBusLine((prev) => ({...prev, codigo: e.target.value}))} 
-             className={inputStyle}
-            />
+          <div className="flex flex-col gap-2">
+            <div>
+              <label htmlFor="code" className={labelStyle}>Código</label>
+              <input type="text" name="code" id="code" value={busLine.codigo}
+               onChange={(e) => setBusLine((prev) => ({...prev, codigo: e.target.value}))} 
+               className={inputStyle + " text-end"}
+               />
+            </div>
+            <div className="flex">
+              <label htmlFor="fare" className={labelStyle}>Tarifa</label>
+              <input type="text" name="fare" id="fare" inputMode="decimal" placeholder="0,00" value={busLine.tarifa}
+                onChange={(e) => setBusLine(prev => ({...prev, tarifa: e.target.value}))}
+                className={inputStyle + " text-end"}
+                />
+            </div>
           </div>
-          <div className="flex-1 flex">
-            <label htmlFor="origin" className={labelStyle}>Origem</label>
-            <input type="text" name="origin" id="origin" value={busLine.origem} 
-              onChange={(e)=> setBusLine(prev => ({...prev, origem: e.target.value}))} 
-              className={inputStyle + " flex-1"}
-            />
-          </div> 
-          <div className="flex-1 flex">
-            <label htmlFor="destination" className={labelStyle}>Destino</label>
-            <input type="text" name="destination" id="destination" value={busLine.destino} 
-              onChange={(e)=> setBusLine(prev => ({...prev, destino: e.target.value}))} 
-              className={inputStyle + " flex-1"}
-            />
+          <div className="flex-1 flex flex-col gap-2">
+            <div className="flex-1 flex">
+              <label htmlFor="origin" className={labelStyle}>Origem</label>
+              <input type="text" name="origin" id="origin" value={busLine.origem} 
+                onChange={(e)=> setBusLine(prev => ({...prev, origem: e.target.value}))} 
+                className={inputStyle + " flex-1"}
+              />
+            </div> 
+            <div className="flex-1 flex">
+              <label htmlFor="destination" className={labelStyle}>Destino</label>
+              <input type="text" name="destination" id="destination" value={busLine.destino} 
+                onChange={(e)=> setBusLine(prev => ({...prev, destino: e.target.value}))} 
+                className={inputStyle + " flex-1"}
+                />
+            </div>
           </div>
         </div>
         <button type="submit" className={buttonStyle}>Salvar</button>
@@ -91,14 +103,14 @@ export default function BusLineManager({
       </div>
       <div className="py-5">
         <BusScheduleManager
-          line={(line) ? line.id : -1}
+          line={busLine.id}
           origin={busLine.origem}
           destination={busLine.destino}
         />
       </div>
         {line &&
           <div  className="pb-5">
-            <LineCommentsList lineId={line.id}/>
+            <LineCommentsList lineId={busLine.id}/>
           </div>
         }
     </div>

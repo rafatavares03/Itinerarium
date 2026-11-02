@@ -67,7 +67,7 @@ export default function RouteViewerMap({
       </MapContainer>
       {activePoints.length > 0 && (
         <div className="absolute top-1 right-1 z-[1000] bg-space-indigo-700 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-gray-200 text-icy-aqua-100 text-sm max-w-xs">
-          <h4 className="font-semibold mb-2">Legenda</h4>
+          <h4 className="font-semibold mb-2 text-center">Legenda</h4>
           
           <div className="space-y-3">
             {primeiroPonto && (

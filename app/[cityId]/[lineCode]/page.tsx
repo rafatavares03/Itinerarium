@@ -146,7 +146,7 @@ export default function Line({
               {isAuthenticated && 
                 <button type="button" 
                   onClick={() => setCommentModal(true)}
-                  className="bg-icy-aqua-400 rounded-md"
+                  className="bg-space-indigo-900 text-icy-aqua-400 py-1 border-1 border-icy-aqua-400 rounded-md w-5/6 font-semibold mx-auto"
                 >
                   Enviar comentário
                 </button>

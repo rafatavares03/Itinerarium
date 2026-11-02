@@ -9,6 +9,9 @@ const createBusLineSchema = z.object({
   origin: z.string().trim().min(1),
   destination: z.string().trim().min(1),
   code: z.string().trim().min(1),
+  fare: z.string().trim().regex(/^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d{1,2})?$/, 
+    "Informe uma tarifa válida, por exemplo: 5,50"
+    ).transform((value) => value.replace(/\./g, "").replace(",", ".")),
 });
 
 export type CreateBusLineState = {
@@ -19,25 +22,29 @@ export type CreateBusLineState = {
     destination?: string[];
     code?: string[];
     id?: string[];
+    fare?: string[];
   };
   data?: {
     id: number;
     codigo: string;
     origem: string;
     destino: string;
+    tarifa: string;
     cidade_id: number;
   };
   message?: string;
 };
 
-export async function createBusLineAction(prevState: CreateBusLineState, formData: FormData) {
+export async function createBusLineAction(prevState: CreateBusLineState, formData: FormData):Promise<CreateBusLineState> {
   const data = {
-    id: formData.get("id"),
+    id: formData.get("id") || undefined,
     city: formData.get("city"),
     origin: formData.get("origin"),
     destination: formData.get("destination"),
     code: formData.get("code"),
+    fare: formData.get("fare"),
   }
+  console.log(formData.get("fare"));
   const validation = createBusLineSchema.safeParse(data);
   if(!validation.success) {
     console.log(validation.error.flatten().fieldErrors)
@@ -47,10 +54,24 @@ export async function createBusLineAction(prevState: CreateBusLineState, formDat
     };
   }
   const res = await saveLinesService(validation.data);
-  return {
+  if (!res.success || !res.data) {
+    return {
+      success: false,
+      errors: {},
+      message: res.message,
+    };
+  }
+
+    return {
     success: true,
-    data: res.data,
-    message: "Linha criada com sucesso!",
+    data: {
+      id: res.data.id,
+      codigo: res.data.codigo,
+      origem: res.data.origem,
+      destino: res.data.destino,
+      tarifa: res.data.tarifa.toString(),
+      cidade_id: res.data.cidade_id,
+    },
   };
 }
 

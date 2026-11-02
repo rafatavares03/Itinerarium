@@ -4,9 +4,10 @@ import { BusLineBasic } from "@/types/busLine";
 export async function saveLine(data: {
   id?: number;
   code: string;
-  origin: string,
-  destination: string,
+  origin: string;
+  destination: string;
   city: number;
+  fare: string;
 }) {
   return await prisma.linha.upsert({
     where: {
@@ -17,22 +18,29 @@ export async function saveLine(data: {
       origem: data.origin,
       destino: data.destination,
       cidade_id: data.city,
+      tarifa: data.fare
     },
     create: {
       codigo: data.code,
       origem: data.origin,
       destino: data.destination,
       cidade_id: data.city,
+      tarifa: data.fare
     },
   });
 }
 
 export async function getLineById(id: number) {
-  return await prisma.linha.findUnique({
+  const query = await prisma.linha.findUnique({
     where: {
       id: id
     }
   })
+  if(!query) return query;
+  return {
+    ...query,
+    tarifa: query.tarifa.toString()
+  }
 }
 
 export async function getLine(cidade: number, params: {
@@ -65,5 +73,8 @@ export async function getLine(cidade: number, params: {
     }
   })
 
-  return busLines;
+  return busLines.map(data => ({
+    ...data,
+    tarifa: data.tarifa.toString()
+  }));
 }

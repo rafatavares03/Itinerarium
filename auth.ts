@@ -1,7 +1,7 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { validatePassword } from "./utils/password";
-import { getUserCredentials } from "./lib/repositories/userRepository";
+import { getUserById, getUserCredentials } from "./lib/repositories/userRepository";
 
  
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -41,18 +41,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
+      if(user) {
         token.role = user.role;
         token.city = user.city;
+      }
+
+      if(token.sub) {
+        const dbUser = await getUserById(token.sub);
+
+        if(!dbUser) {
+          return null;
+        }
+
+        token.role = dbUser.role;
+        token.city = dbUser.city_id ?? undefined;
       }
 
       return token;
     },
 
+    
+
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
+      if (session.user && token.sub) {
+        session.user.id = token.sub as string;
         session.user.role = token.role as string;
         session.user.city = token.city as number;
       }

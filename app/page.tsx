@@ -5,6 +5,7 @@ import { CidadeBasic } from "@/types/cidade";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import UserNav from "./components/userNav";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -32,6 +33,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center font-sans">
+      <UserNav/>
       {loading && <p>Carregando cidades...</p>}
       {!loading &&
         <div className="flex flex-col">

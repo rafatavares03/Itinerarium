@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "usuario" (
     "id" TEXT NOT NULL,
-    "name" TEXT,
+    "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "role" TEXT NOT NULL DEFAULT 'USER',
     "password" TEXT NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE "comentario" (
     "texto" TEXT NOT NULL,
     "linha" INTEGER NOT NULL,
     "usuario" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "comentario_pkey" PRIMARY KEY ("id")
 );

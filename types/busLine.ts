@@ -3,5 +3,6 @@ export type BusLineBasic = {
   origem: string,
   destino: string,
   codigo: string,
+  tarifa: string,
   cidade_id: number
 }

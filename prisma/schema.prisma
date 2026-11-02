@@ -42,10 +42,11 @@ model Linha {
   codigo  String
   origem  String
   destino String
+  tarifa  Decimal @db.Decimal(10, 2)
   cidade  Cidade @relation(fields: [cidade_id], references: [id])
   cidade_id Int @map("cidade")
   trajetos  Trajeto[]
-  horarios  Horario[]
+  funcionamentos Funcionamento[]
   comentarios Comentario[]
 
   @@unique([cidade_id, codigo])
@@ -58,7 +59,7 @@ model Trajeto {
   vigencia  DateTime?
   geometria Unsupported("geometry")
   ida Boolean
-  linha Linha @relation(fields:[linha_id], references: [id])
+  linha Linha @relation(fields:[linha_id], references: [id], onDelete: Cascade)
   linha_id  Int @map("linha")
   updated_at  DateTime @default(now())
   pontos  PontoTrajeto[]
@@ -78,15 +79,29 @@ model PontoTrajeto {
   @@map("ponto_trajeto")
 }
 
+model Funcionamento {
+  id        Int     @id @default(autoincrement())
+  nome      String
+  descricao String?
+
+  linha    Linha     @relation(fields: [linha_id], references: [id], onDelete: Cascade)
+  linha_id Int       @map("linha")
+  horarios Horario[]
+
+  @@unique([linha_id, nome])
+  @@map("funcionamento")
+}
+
 model Horario {
   hora DateTime
-  ida Boolean
-  linha Linha @relation(fields:[linha_id], references: [id])
-  linha_id Int @map("linha")
+  ida  Boolean
 
-  @@id([hora, ida, linha_id])
+  funcionamento    Funcionamento @relation(fields: [funcionamento_id], references: [id], onDelete: Cascade)
+  funcionamento_id Int           @map("funcionamento")
+
+  @@id([funcionamento_id, hora, ida])
   @@map("horario")
-} 
+}
 
 model User {
   id            String          @id @default(cuid())

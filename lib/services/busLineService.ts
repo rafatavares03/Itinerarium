@@ -44,7 +44,8 @@ export async function saveLinesService(params: {
   origin: string,
   destination: string,
   code: string,
-  city: number
+  city: number,
+  fare: string
 }) {
   try {
     const data = await saveLine(params);

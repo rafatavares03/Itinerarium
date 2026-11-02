@@ -228,6 +228,8 @@ export default function BusRouteManager({
     return point;
   }
 
+  if(busLine < 0) return null;
+
   return(
     <div className="w-full flex h-130 border-2 border-icy-aqua-700 relative mt-5">
       <h2 className="bg-icy-aqua-700 font-title text-semibold text-white tracking-widest rounded-t-md font-bold absolute top-[-25px] left-0 italic px-2">Trajetos</h2>

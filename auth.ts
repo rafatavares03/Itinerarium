@@ -25,7 +25,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const isValid = await validatePassword(password, user.password);
-        console.log("Senha válida:", isValid);
         if(!isValid) {
           return null;
         }
@@ -59,8 +58,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       return token;
     },
-
-    
 
     async session({ session, token }) {
       if (session.user && token.sub) {

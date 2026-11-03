@@ -1,23 +1,21 @@
-import { BusSchedule } from "@/types/busSchedule";
+import { BusOperationAndSchedule } from "@/types/busSchedule";
 import { getSchedule, saveSchedule } from "../repositories/busScheduleRepository";
 
 
-export async function saveBusScheduleService(schedule: BusSchedule[]) {
-  if(schedule.length === 0) {
+export async function saveBusScheduleService(schedules: BusOperationAndSchedule[]) {
+  if(schedules.length === 0) {
     return {
       success: false
     }
   }
   try {
-    const res = await saveSchedule(schedule);
-    if(res.count > 0) {
-      return {
-        success: true
-      }
-    }
+    const res = await Promise.all(
+      schedules.map(schedule => saveSchedule(schedule))
+    )
 
     return {
-      success: false
+      success: true,
+      data: res
     }
   } catch(e) {
     console.log(e);

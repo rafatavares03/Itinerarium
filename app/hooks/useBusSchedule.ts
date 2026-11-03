@@ -1,9 +1,9 @@
-import { BusSchedule } from "@/types/busSchedule";
+import { BusOperationAndSchedule } from "@/types/busSchedule";
 import { useEffect, useState } from "react";
 import { getBusScheduleAction } from "../actions/busScheduleActions";
 
 export function useBusSchedule(line: string | number) {
-  const [schedule, setSchedule] = useState<BusSchedule[]>([]);
+  const [schedule, setSchedule] = useState<BusOperationAndSchedule[]>([]);
 
   useEffect(() => {
     const loadData = async () => {

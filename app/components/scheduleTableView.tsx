@@ -1,11 +1,11 @@
-import { BusSchedule } from "@/types/busSchedule";
+import { Schedule } from "@/types/busSchedule";
 
 
 export default function ScheduleTableView({
   schedule,
   title
 }: {
-  schedule: BusSchedule[],
+  schedule: Schedule[],
   title: string
 }) {
   return (

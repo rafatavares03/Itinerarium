@@ -69,9 +69,9 @@ export async function getSchedule(line: number) {
   return query.map((schedule) => ({
     ...schedule,
     linha: schedule.linha_id,
-    horarios: schedule.horarios.map(hour => ({
+    horarios: schedule.horarios.map(({ funcionamento_id, ...hour }) => ({
       ...hour,
-      funcionamento: hour.funcionamento_id
-    }))
-  }))
+      funcionamento: funcionamento_id,
+    })),
+  }));
 }

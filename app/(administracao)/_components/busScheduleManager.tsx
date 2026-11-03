@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getBusScheduleAction, saveBusScheduleAction } from "../../actions/busScheduleActions";
-import { Schedule } from "@/types/busSchedule";
+import { BusOperationAndSchedule } from "@/types/busSchedule";
 import Modal from "@/app/components/modal";
 import ScheduleTable from "./busScheduleTable";
 import { IoIosCloseCircle } from "react-icons/io";
@@ -37,61 +37,96 @@ export default function BusScheduleManager({
     nome: "",
     descricao: "",
   });
-  const outboundSchedules = (schedule.length === 0) ? [] : schedule[scheduleSelected].horarios.filter((item) => item.ida);
-  const returnSchedules = (schedule.length === 0) ? [] : schedule[scheduleSelected].horarios.filter((item) => !item.ida);
+  const currentOperation = schedule[scheduleSelected];
+  const outboundSchedules = currentOperation ? currentOperation.horarios.filter((item) => item.ida) : [];
+  const returnSchedules = currentOperation ? currentOperation.horarios.filter((item) => !item.ida) : [];
 
   useEffect(() => {
     const loadData = async () => {
-      const data = await getBusScheduleAction(line);
-      if (data.success) {
-        console.log(data.data);
-        // setSchedule(
-        //   (data.data ?? []).map((item: any) => {
-        //     let horaStr = "00:00";
-        //     if (item.hora) {
-        //       const d = new Date(item.hora);
-        //       if (!isNaN(d.getTime())) {
-        //         const h = String(d.getHours()).padStart(2, "0");
-        //         const m = String(d.getMinutes()).padStart(2, "0");
-        //         horaStr = `${h}:${m}`;
-        //       }
-        //     }
+      const response = await getBusScheduleAction(line);
+      if (response.success && response.data) {
+        console.log(response.data);
 
-        //     return {
-        //       ...item,
-        //       hora: horaStr,
-        //       tempId: crypto.randomUUID(),
-        //     };
-        //   })
-        // );
+        const formattedOperations: EditableOperation[] = (response.data ?? []).map((operation: any) => ({
+          id: operation.id,
+          nome: operation.nome,
+          descricao: operation.descricao,
+          linha: operation.linha ?? line,
+          tempId: crypto.randomUUID(),
+          horarios: (operation.horarios ?? []).map((item: any) => {
+            let horaStr = "00:00";
+            if (item.hora) {
+              const d = new Date(item.hora);
+              if (!isNaN(d.getTime())) {
+                const h = String(d.getHours()).padStart(2, "0");
+                const m = String(d.getMinutes()).padStart(2, "0");
+                horaStr = `${h}:${m}`;
+              }
+            }
+
+            return {
+              tempId: crypto.randomUUID(),
+              linha: item.linha ?? line,
+              hora: horaStr,
+              ida: item.ida,
+              funcionamento: item.funcionamento ?? operation.id,
+            };
+          }),
+        }));
+
+        setSchedule(formattedOperations);
       }
     };
 
     if (line >= 0) loadData();
   }, [line]);
 
-  // function addSchedule(ida: boolean) {
-  //   setSchedule((current) => [
-  //     ...current,
-  //     {
-  //       tempId: crypto.randomUUID(),
-  //       hora: "00:00",
-  //       ida,
-  //       linha: line,
-  //     },
-  //   ]);
-  // };
+function addSchedule(ida: boolean) {
+    setSchedule((current) =>
+      current.map((op, index) => {
+        if (index !== scheduleSelected) return op;
+        return {
+          ...op,
+          horarios: [
+            ...op.horarios,
+            {
+              tempId: crypto.randomUUID(),
+              linha: line,
+              hora: "00:00",
+              ida,
+            },
+          ],
+        };
+      })
+    );
+  }
 
   function handleTimeChange(tempId: string, newTime: string) {
     setSchedule((current) =>
-      current.map((item) =>
-        item.tempId === tempId ? { ...item, hora: newTime } : item
-      )
+      current.map((op, index) => {
+        if (index !== scheduleSelected) return op;
+
+        return {
+          ...op,
+          horarios: op.horarios.map((item) =>
+            item.tempId === tempId ? { ...item, hora: newTime } : item
+          ),
+        };
+      })
     );
-  };
+  }
 
   const handleRemoveSchedule = (tempId: string) => {
-    setSchedule((current) => current.filter((item) => item.tempId !== tempId));
+    setSchedule((current) =>
+      current.map((op, index) => {
+        if (index !== scheduleSelected) return op;
+
+        return {
+          ...op,
+          horarios: op.horarios.filter((item) => item.tempId !== tempId),
+        };
+      })
+    );
   };
 
   function addNewOperation() {
@@ -110,31 +145,37 @@ export default function BusScheduleManager({
       descricao: "",
     });
     setAddOperation(false);
+    setScheduleSelected(schedule.length - 1);
   }
 
-  async function saveSchedule() {
-    if(schedule.length === 0) return;
-    const dataToSave: Schedule[] = schedule[scheduleSelected].horarios.map((item) => {
-      const [hours, minutes] = item.hora.split(":").map(Number);
+async function saveSchedule() {
+    if (schedule.length === 0) return;
 
-      const dateObj = new Date();
-      dateObj.setHours(hours, minutes, 0, 0);
+    const dataToSave: BusOperationAndSchedule[] = schedule.map((operation) => {
+      const horariosToSave = operation.horarios.map((item) => {
+        const [hours, minutes] = item.hora.split(":").map(Number);
+
+        const dateObj = new Date();
+        dateObj.setHours(hours, minutes, 0, 0);
+
+        return {
+          funcionamento: operation.id,
+          ida: item.ida,
+          hora: dateObj, 
+        };
+      });
 
       return {
-        linha: item.linha,
-        ida: item.ida,
-        hora: dateObj, 
+        id: operation.id,
+        nome: operation.nome,
+        descricao: operation.descricao,
+        linha: line,
+        horarios: horariosToSave,
       };
     });
 
     const response = await saveBusScheduleAction(dataToSave); 
   }
-
-  function addSchedule(bool: boolean) {
-    return;
-  }
-
-
 
   if (line < 0) return null;
 
@@ -149,11 +190,52 @@ export default function BusScheduleManager({
       :
         <>
           <div>
-            {schedule.map(item => {
-              return (
-                <button type="button" key={item.tempId}>{item.nome}</button>
-              )
-            })}
+            <>
+              {
+                schedule.map((item, idx) => {
+                  return (
+                    <button type="button" key={item.tempId}
+                      onClick={() => setScheduleSelected(idx)}
+                    >
+                      {item.nome}
+                    </button>
+                  )
+                })
+              }
+              <button type="button" onClick={() => setAddOperation(true)}>Adicionar</button>
+            </>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="operationName">Nome:</label>
+              <input type="text" name="operationName" id="operationName"
+                value={schedule[scheduleSelected]?.nome ?? ""} 
+                onChange={(e) => {
+                  const newName = e.target.value;
+                  setSchedule((current) =>
+                    current.map((op, index) => {
+                      if (index !== scheduleSelected) return op;
+                      return { ...op, nome: newName };
+                    })
+                  );
+                }}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="operationDescription">Descrição (opcional):</label>
+              <input type="text" name="operationDescription" id="operationDescription" 
+                value={schedule[scheduleSelected]?.descricao ?? ""} 
+                onChange={(e) => {
+                  const newDesc = e.target.value;
+                  setSchedule((current) =>
+                    current.map((op, index) => {
+                      if (index !== scheduleSelected) return op;
+                      return { ...op, descricao: newDesc };
+                    })
+                  );
+                }}
+              />
+            </div>
           </div>
           <div className="flex gap-1 justify-around w-full">
             <div className="flex-1">
@@ -184,7 +266,7 @@ export default function BusScheduleManager({
         </>
       }
       <Modal open={addOperation}>
-        <div className="bg-space-indigo-800 p-10 flex flex-col rounded-lg relative w-3xl ">
+        <div className="bg-space-indigo-800 p-10 flex flex-col rounded-lg relative w-3xl text-icy-aqua-100 ">
           <button type="button" className="absolute top-[10px] right-[10px]" 
             onClick={() => {
               setAddOperation(false);
@@ -193,8 +275,8 @@ export default function BusScheduleManager({
             <IoIosCloseCircle className="text-icy-aqua-400 size-[30px]"/>
           </button>
           <div className="flex items-center gap-2">
-            <label htmlFor="name">Nome:</label>
-            <input type="text" name="name" id="name" placeholder="Segunda a sexta" 
+            <label htmlFor="newOperationName">Nome:</label>
+            <input type="text" name="newOperationName" id="newOperationName" placeholder="Segunda a sexta" 
               value={newOperation.nome} 
               onChange={(e) => setNewOperation((current) => ({
                 ...current,
@@ -203,8 +285,8 @@ export default function BusScheduleManager({
             />
           </div>
           <div className="flex items-center gap-2">
-            <label htmlFor="description">Descrição (opcional):</label>
-            <input type="text" name="description" id="description" 
+            <label htmlFor="newOperationDescription">Descrição (opcional):</label>
+            <input type="text" name="newOperationDescription" id="newOperationDescription" 
               value={newOperation.descricao} 
               onChange={(e) => setNewOperation((current) => ({
                 ...current,

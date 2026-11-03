@@ -1,7 +1,7 @@
 export type BusOperation = {
   id?: number,
   nome: string,
-  descricao?: string,
+  descricao?: string | null,
   linha: number
 }
 

@@ -37,11 +37,15 @@ export default function Line({
   const {city, loading: cityLoading} = useCity(cityId);
   const {line, busRoutes} = useLineAndRoutes(cityId, lineCode);
   const {schedule} = useBusSchedule((!line) ? "" : line.id);
+  const [scheduleSelected, setScheduleSelected] = useState(0);
   const [route, setRoute] = useState<BusRoute | null>(null);
   const [scheduleModal, setScheduleModal] = useState(false);
   const [commentModal, setCommentModal] = useState(false);
   const [commentState, commentFormAction, pending] = useActionState(createCommentAction, commentInitialState);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const currentOperation = schedule[scheduleSelected];
+  const outboundSchedules = currentOperation ? currentOperation.horarios.filter((item) => item.ida) : [];
+  const returnSchedules = currentOperation ? currentOperation.horarios.filter((item) => !item.ida) : [];
   const { data: session, status } = useSession();
 
   const isAuthenticated = status === "authenticated";
@@ -168,9 +172,19 @@ export default function Line({
           {scheduleModal &&
             <>
               <h2 className="font-display text-icy-aqua-100 text-center font-bold text-lg mb-5">Linha {lineCode} - Horário</h2>
+              {
+                schedule.map((item, idx) => {
+                  return (
+                    <button type="button" key={item.id} 
+                      onClick={() => setScheduleSelected(idx)}>
+                        {item.nome}
+                    </button>
+                  )
+                })
+              }
               <div className="flex-1 flex gap-3">
-                <ScheduleTableView schedule={schedule.filter(hour => hour.ida)} title={(line && line.origem) ?`Saída: ${line.origem}` : ''}/>
-                <ScheduleTableView schedule={schedule.filter(hour => !hour.ida)} title={(line && line.destino) ?`Saída: ${line.destino}` : ''}/>
+                <ScheduleTableView schedule={outboundSchedules} title={(line && line.origem) ?`Saída: ${line.origem}` : ''}/>
+                <ScheduleTableView schedule={returnSchedules} title={(line && line.destino) ?`Saída: ${line.destino}` : ''}/>
               </div>
             </>
           }

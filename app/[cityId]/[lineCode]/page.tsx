@@ -172,16 +172,19 @@ export default function Line({
           {scheduleModal &&
             <>
               <h2 className="font-display text-icy-aqua-100 text-center font-bold text-lg mb-5">Linha {lineCode} - Horário</h2>
-              {
-                schedule.map((item, idx) => {
-                  return (
-                    <button type="button" key={item.id} 
+              <div className="flex items-center gap-3 p-1">
+                {
+                  schedule.map((item, idx) => {
+                    return (
+                      <button type="button" key={item.id} 
+                          className={"px-3 py-1" + ((scheduleSelected === idx) ? " bg-icy-aqua-600 text-icy-aqua-50" : " text-white")}
                       onClick={() => setScheduleSelected(idx)}>
-                        {item.nome}
-                    </button>
-                  )
-                })
-              }
+                          {item.nome}
+                      </button>
+                    )
+                  })
+                }
+              </div>
               <div className="flex-1 flex gap-3">
                 <ScheduleTableView schedule={outboundSchedules} title={(line && line.origem) ?`Saída: ${line.origem}` : ''}/>
                 <ScheduleTableView schedule={returnSchedules} title={(line && line.destino) ?`Saída: ${line.destino}` : ''}/>

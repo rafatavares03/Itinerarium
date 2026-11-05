@@ -189,12 +189,13 @@ async function saveSchedule() {
         </div>
       :
         <>
-          <div>
+          <div className="flex items-center gap-3 p-1">
             <>
               {
                 schedule.map((item, idx) => {
                   return (
                     <button type="button" key={item.tempId}
+                      className={"px-3 py-1" + ((scheduleSelected === idx) ? " bg-icy-aqua-600 text-icy-aqua-50" : " bg-white")}
                       onClick={() => setScheduleSelected(idx)}
                     >
                       {item.nome}
@@ -202,8 +203,13 @@ async function saveSchedule() {
                   )
                 })
               }
-              <button type="button" onClick={() => setAddOperation(true)}>Adicionar</button>
             </>
+            <button type="button" 
+              className="py-1 px-3 bg-icy-aqua-800 text-icy-aqua-100 font-bold rounded-sm"
+              onClick={() => setAddOperation(true)}
+            >
+              Adicionar
+            </button>
           </div>
           <div>
             <div className="flex items-center gap-2">

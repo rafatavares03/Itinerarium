@@ -1,6 +1,6 @@
 'use client'
 
-import { criaCidade, editarCidade } from "../../../actions/cityActions";
+import { criaCidade, editarCidade } from "../../actions/cityActions";
 import Modal from "@/app/components/modal";
 import { useActionState, useEffect, useState } from "react";
 import Form from 'next/form';
@@ -96,7 +96,7 @@ export default function Cities() {
   }, [form.nome, form.pagina])
 
   return (
-    <div className="m-auto py-5 w-6xl">
+    <div className="mx-auto py-5 w-6xl">
       {ModalComponent(cadastrarModal, addCityAction,fecharModalCadastro)}
       {ModalComponent(editarModal, updateCityAction, () => setEditarModal(false), cidadeEmEdicao)}
 
@@ -131,7 +131,7 @@ export default function Cities() {
                   />
                 </div>
                 <div>
-                  <Link href={`/admin/cidade/${cidade.id}`}><FaArrowAltCircleRight className="text-icy-aqua-400 size-[30px]"/></Link>
+                  <Link href={`/admin/${cidade.id}`}><FaArrowAltCircleRight className="text-icy-aqua-400 size-[30px]"/></Link>
                 </div>
               </div>
             )

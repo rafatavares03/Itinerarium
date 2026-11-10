@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react";
 import BusStopManager from "@/app/(administracao)/_components/busStopManager";
 import BusLineContainer from "@/app/(administracao)/_components/busLineContainer";
-import BusLineManager from "../../../_components/busLineManager";
+import BusLineManager from "../../_components/busLineManager";
 import { JSX } from "react";
 import { getCityAction } from "@/app/actions/cityActions";
 import { getBusStopsAction } from "@/app/actions/busStopActions";
@@ -82,19 +82,20 @@ export default function City({
   const windowButtonStyle = "bg-white text-space-indigo-700 w-full"
 
   return (
-    <div className="flex flex-col justify-center items-center">
-      <h1 className="font-title mt-3 text-2xl text-center">{city.nome} - {city.uf}</h1>
-      <div className="border-1 border-space-indigo-700 w-[500px] flex justify-around">
-        {Object.entries(Abas).map(([key, value]) => (
-          <button key={value} 
-            onClick={() => setAbaAtiva(Abas[key as keyof typeof Abas])} 
-            className={(abaAtiva === Abas[key as keyof typeof Abas]) ? selectedWindow : windowButtonStyle}
-            type="button">
-            {value}
-          </button>
-        ))}
+    <>
+      <div className="flex flex-col justify-center items-center">
+        <div className="border-1 border-space-indigo-700 w-[500px] flex justify-around my-2">
+          {Object.entries(Abas).map(([key, value]) => (
+            <button key={value} 
+              onClick={() => setAbaAtiva(Abas[key as keyof typeof Abas])} 
+              className={(abaAtiva === Abas[key as keyof typeof Abas]) ? selectedWindow : windowButtonStyle}
+              type="button">
+              {value}
+            </button>
+          ))}
+        </div>
+        <ComponenteSelecionado />
       </div>
-      <ComponenteSelecionado />
-    </div>
+    </>
   )
 }

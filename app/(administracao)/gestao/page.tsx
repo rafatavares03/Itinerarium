@@ -81,7 +81,6 @@ export default function City() {
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <h1 className="font-title mt-3 text-2xl text-center">{city.nome} - {city.uf}</h1>
       <div className="border-1 border-space-indigo-700 w-[500px] flex justify-around">
         {Object.entries(Abas).map(([key, value]) => (
           <button key={value} 

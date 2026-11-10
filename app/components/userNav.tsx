@@ -1,17 +1,19 @@
 'use client'
 
-import { useSession, signOut } from "next-auth/react"
+import { signOut } from "next-auth/react"
 import { useState } from "react";
+import { User } from "next-auth";
 import AccountManager from "./auth/accountManager";
 import Modal from "./modal";
 
-export default function UserNav() {
-  const { data: session, status } = useSession();
+export default function UserNav({
+    user
+}: {
+    user: User | null
+}) {
   const [modal, setModal] = useState(false);
 
-  if (status === "loading") return null;
-
-  if (!session) {
+  if (!user) {
     return (
       <>
         <button onClick={() => setModal(true)}
@@ -25,7 +27,7 @@ export default function UserNav() {
 
   return (
     <div className="flex items-center gap-4">
-      <span className="text-white font-bold">{session.user?.name}</span>
+      <span className="text-white font-bold">{user.name}</span>
       <button
         onClick={() => signOut({ callbackUrl: "/" })}
         className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"

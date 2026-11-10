@@ -27,7 +27,7 @@ export async function savePoints(pontos: Ponto[]) {
       (
         ${ponto.id},
         ${ponto.logradouro},
-        ${ponto.numero}
+        ${ponto.numero},
         ${ponto.cidade_id},
         ST_SetSRID(
           ST_MakePoint(

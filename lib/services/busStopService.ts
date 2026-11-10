@@ -3,13 +3,13 @@
 import { Ponto } from "@/types/ponto";
 import { deletePoints, getBusStops, getPagesAmount,savePoints } from "../repositories/busStopRepository";
 
-export async function salvarPontos(pontos: Ponto[]) {
+export async function savePointsService(pontos: Ponto[]) {
   try {
-    const dados = await savePoints(pontos);
+    const data = await savePoints(pontos);
     return {
       success: true,
       message: "Pontos salvos com sucesso.",
-      data: dados ?? []
+      data: data ?? []
     }
   } catch(e) {
     console.log(e);

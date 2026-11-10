@@ -3,11 +3,10 @@
 import { useEffect, useState } from "react";
 import { Ponto } from "@/types/ponto";
 import { CidadeDetails } from "@/types/cidade";
-import { CiCirclePlus } from "react-icons/ci";
 import PontosMenu from "@/app/(administracao)/_components/PontosMenu";
 import dynamic from "next/dynamic";
-import { apagarPontos, salvarPontos } from "@/lib/services/busStopService";
-import { getBusStopsAction } from "../../actions/busStopActions";
+import { apagarPontos } from "@/lib/services/busStopService";
+import { getBusStopsAction, savePointsAction } from "../../actions/busStopActions";
 
 const CidadeMap = dynamic(
   () => import("@/app/components/cidadeMap"),
@@ -141,6 +140,8 @@ export default function BusStopManager({
   }
 
   async function editarPonto(antigo: Ponto, novo: Ponto) {
+    console.log("ANTIGO", antigo);
+    console.log("NOVO", novo);
     if(!antigo.id) {
       setNovos((novos) => 
         novos.map(ponto => 
@@ -148,7 +149,7 @@ export default function BusStopManager({
         )
       );
     } else {
-      const resultado = await salvarPontos(new Array(novo));
+      const resultado = await savePointsAction(new Array(novo));
       if(resultado.success) {
         onChangeBusStops((current) => 
           current.map(busStop => busStop.id === novo.id ? novo : busStop)
@@ -158,7 +159,7 @@ export default function BusStopManager({
   }
 
   async function adicionarPontos() {
-    const resultado = await salvarPontos(novos);
+    const resultado = await savePointsAction(novos);
     if(resultado.success) {
       onChangeBusStops((current) => [
         ...current,

@@ -11,8 +11,8 @@ export default function AccountManager({
 }) {
   const [mode, setMode] = useState<AccountMode>(AccountMode.LOGIN);
   return (
-    <div className="relative">
-      <IoIosCloseCircle className="absolute cursor-pointer size-[30px] top-px right-px" onClick={onClose}/>
+    <div className="relative rounded-lg">
+      <IoIosCloseCircle className="absolute cursor-pointer size-[30px] top-2 right-2 text-icy-aqua-400 " onClick={onClose}/>
       {
         (mode === "LOGIN") ? 
         <LoginForm onChangeMode={() => setMode(AccountMode.REGISTER)}/> : 

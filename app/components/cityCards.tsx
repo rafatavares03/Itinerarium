@@ -10,10 +10,12 @@ export default function CityCards() {
     <div className="flex flex-col flex-1 items-center justify-center font-sans">
       {loading && <p>Carregando cidades...</p>}
       {!loading &&
-        <div className="flex flex-col">
+        <div className="flex gap-3">
           {cities.map((city) => (
-            <Link href={`/${city.id}`} key={city.id}>
-              <p>{`${city.nome} - ${city.uf}`}</p>
+            <Link href={`/${city.id}`} key={city.id} 
+              className="w-[200px] h-[100px] bg-space-indigo-700 flex items-center justify-center rounded-md"
+            >
+              <p className="font-semibold text-icy-aqua-100">{`${city.nome} - ${city.uf}`}</p>
             </Link>
           ))}
         </div>

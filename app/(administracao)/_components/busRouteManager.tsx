@@ -43,7 +43,8 @@ export default function BusRouteManager({
   const [isOutbound, setIsOutbound] = useState(true);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [activeModal, setActiveModal] = useState(false);
-  const [state, activateRoute, isPending] = useActionState(activateRouteAction, {success: false})
+  const [state, activateRoute, isPending] = useActionState(activateRouteAction, {success: false});
+  const currentRoute = (newRoute) ? newRoute : route;
   const setEditRoute = (newRoute) ? setNewRoute : setRoute;
   const directionButtonStyle = "font-display flex-1 text-icy-aqua-100 uppercase border-b-3 py-2 cursor-pointer";
 
@@ -110,6 +111,15 @@ export default function BusRouteManager({
   }
 
   function addRoutePoint(point: Ponto) {
+    if(point.id) {
+      if(currentRoute?.pontos.some(p => p.id === point.id)) {
+        return;
+      }
+    } else {
+      if(currentRoute?.pontos.some(p => p.coordenada[0] === point.coordenada[0] && p.coordenada[1] && point.coordenada[1])) {
+        return;
+      }
+    }
     setEditRoute((route) => {
       if(!route) return route;
       return ({

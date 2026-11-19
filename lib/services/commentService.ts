@@ -1,8 +1,8 @@
 import { createComment, getCommentsByLine } from "@/lib/repositories/commentRepository";
 
-export async function createCommentService(text:string, line: number, userId: string) {
+export async function createCommentService(text:string, email: string, line: number) {
   try {
-    await createComment(text, line, userId);
+    await createComment(text, email, line);
     return {
       success: true,
       message: "Comentário salvo com sucesso."

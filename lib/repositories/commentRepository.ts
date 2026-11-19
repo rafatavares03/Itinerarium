@@ -2,19 +2,17 @@ import prisma from "@/lib/prisma";
 
 export async function createComment(
   text: string,
-  line: number,
-  userId: string
+  email: string,
+  line: number
 ) {
   return await prisma.comentario.create({
     data: {
       texto: text,
+      email: email,
       created_at: new Date(),
       linha: {
         connect: { id: line },
-      },
-      usuario: {
-        connect: { id: userId },
-      },
+      }
     },
   });
 }
@@ -37,14 +35,6 @@ export async function getCommentsByLine(
   const [comentarios, total] = await prisma.$transaction([
     prisma.comentario.findMany({
       where,
-      include: {
-        usuario: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
       orderBy: {
         created_at: "desc",
       },

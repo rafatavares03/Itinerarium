@@ -113,7 +113,6 @@ model User {
   sessions      Session[]
   city          Cidade?         @relation(fields:[city_id], references: [id])
   city_id       Int?            @map("cidade")
-  comentarios   Comentario[]
 
   createdAt DateTime @default(now())  @map("created_at")
   updatedAt DateTime @updatedAt       @map("updated_at")
@@ -161,10 +160,9 @@ model VerificationToken {
 model Comentario {
   id String @id @default(cuid())
   texto String
+  email String
   linha Linha @relation(fields:[linha_id], references: [id])
   linha_id Int @map("linha")
-  usuario User @relation(fields: [usuario_id], references: [id])
-  usuario_id String @map("usuario")
   created_at DateTime @default(now())
 
   @@map("comentario")

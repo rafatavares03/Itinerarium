@@ -1,16 +1,9 @@
 export type Comment = {
   id: string;
   texto: string;
+  email: string;
   linha_id: number;
-  usuario_id: string;
   created_at: Date;
-};
-
-export type CommentWithUser = Comment & {
-  usuario: {
-    id: string;
-    name: string | null;
-  };
 };
 
 export type CommentsPagination = {
@@ -21,6 +14,6 @@ export type CommentsPagination = {
 };
 
 export type GetCommentsResult = {
-  comentarios: CommentWithUser[];
+  comentarios: Comment[];
   pagination: CommentsPagination;
 };

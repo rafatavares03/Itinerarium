@@ -3,14 +3,14 @@
 import { useState, useEffect, useTransition } from "react";
 import { getCommentsByLineAction } from "@/app/actions/commentActions";
 import Pagination from "@/app/components/pagination";
-import { CommentWithUser, CommentsPagination } from "@/types/comment";
+import { Comment, CommentsPagination } from "@/types/comment";
 
 interface LineCommentsListProps {
   lineId: number | string;
 }
 
 export default function LineCommentsList({ lineId }: LineCommentsListProps) {
-  const [comments, setComments] = useState<CommentWithUser[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [pagination, setPagination] = useState<CommentsPagination | null>(null);
   const [page, setPage] = useState(1);
   const [startDate, setStartDate] = useState<string>("");
@@ -97,7 +97,7 @@ export default function LineCommentsList({ lineId }: LineCommentsListProps) {
               >
                 <div className="flex justify-between items-center text-xs text-gray-400">
                   <span className="font-semibold text-icy-aqua-400">
-                    {comment.usuario.name || "Anônimo"}
+                    {comment.email || "Anônimo"}
                   </span>
                   <span>{new Date(comment.created_at).toLocaleString()}</span>
                 </div>

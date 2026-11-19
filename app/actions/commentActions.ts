@@ -6,6 +6,7 @@ import {createCommentService, getCommentsByLineService} from "@/lib/services/com
 
 const createCommentSchema = z.object({
   text: z.string().trim().min(1, "O comentário não pode ser vazio.").max(1000),
+  email: z.email("Informe um e-mail válido."),
   line: z.number().int().positive(),
 });
 
@@ -25,6 +26,7 @@ type CommentState = {
 export async function createCommentAction(_prevState: CommentState,formData: FormData) {
   const validation = createCommentSchema.safeParse({
     text: formData.get("text"),
+    email: formData.get("email"),
     line: Number(formData.get("line")),
   });
 
@@ -35,17 +37,9 @@ export async function createCommentAction(_prevState: CommentState,formData: For
     };
   }
 
-  const session = await auth();
-  const userId = session?.user?.id;
-
-  if (!userId) {
-    return {
-      success: false,
-      message: "Usuário não autenticado. Faça login para comentar.",
-    };
-  }
-
-  return await createCommentService(validation.data.text, validation.data.line, userId);
+  const res = await createCommentService(validation.data.text, validation.data.email, validation.data.line);
+  console.log(res);
+  return res;
 }
 
 export async function getCommentsByLineAction(

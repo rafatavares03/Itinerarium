@@ -147,14 +147,12 @@ export default function Line({
               <div className="flex-1 overflow-y-auto">
                 <BusRouteDetails busStops={getPoints(route)}/>
               </div>
-              {isAuthenticated && 
                 <button type="button" 
                   onClick={() => setCommentModal(true)}
                   className="bg-space-indigo-900 text-icy-aqua-400 py-1 border-1 border-icy-aqua-400 rounded-md w-5/6 font-semibold mx-auto"
                 >
                   Enviar comentário
                 </button>
-              }
             </div>
           </>
         }
@@ -195,7 +193,11 @@ export default function Line({
             <Form action={commentFormAction} className="text-icy-aqua-100 flex flex-col justify-center items-center">
               <p>Envie um comentário sobre a linha ou trajeto para a gestão. Seu comentário pode ser importante para melhorias do serviço!</p>
               <input type="hidden" name="line" value={line?.id} />
-              <textarea name="text" id="text" className="w-full h-48 my-2 outline-none bg-space-indigo-600 resize-none"></textarea>
+              <div className="flex gap-3 items-center mt-3 w-full">
+                <label htmlFor="email" className="font-semibold">Email:</label>
+                <input type="email" name="email" id="email" className="bg-space-indigo-600 px-3 py-1 outline-none rounded-md w-1/2"/>
+              </div>
+              <textarea name="text" id="text" className="w-full h-48 my-2 outline-none bg-space-indigo-600 resize-none p-3"></textarea>
               <button className="bg-icy-aqua-400 py-1 px-3 text-space-indigo-800 rounded-lg">Enviar</button>
             </Form>
           }
